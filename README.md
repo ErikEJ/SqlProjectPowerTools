@@ -1,2 +1,2 @@
 # SQL Database Projects Power Tools
-Tools to enhance the SQL Database Projects developer experience
+Visual Studio Tools to enhance the SQL Database Projects developer experience, currently in planning stage
