@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <Extern href="stdidcmd.h"/>
+  <Extern href="vsshlids.h"/>
+  <Include href="KnownImageIds.vsct"/>
+  <Include href="VSGlobals.vsct"/>
+
+  <Commands package="Vsix">
+    <Groups>
+      <Group guid="Vsix" id="MyMenuGroup" priority="0x0100">
+        <Parent guid="VSMainMenu" id="IDM_VS_CTXT_PROJNODE"/>
+      </Group>
+
+      <Group guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" priority="0x0100">
+        <Parent guid="Vsix" id="cmdidSqlMenuGroup" />
+      </Group>
+      
+    </Groups>
+
+    <Menus>
+
+      <Menu guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" priority="0x0100" type="Menu">
+        <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
+        <!--<CommandFlag>DynamicVisibility</CommandFlag>-->
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <CommandName>SQL Project Power Tools</CommandName>
+          <ButtonText>SQL Project Power Tools</ButtonText>
+        </Strings>
+      </Menu>
+      
+    </Menus>
+
+    <!--This section defines the elements the user can interact with, like a menu command or a button
+        or combo box in a toolbar. -->
+    <Buttons>
+
+      <Button guid="Vsix" id="cmdidImportDatabase" priority="0x0101" type="Button">
+        <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
+        <Icon guid="ImageCatalogGuid" id="DatabaseConfigurationFile" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <ButtonText>Import Database...</ButtonText>
+        </Strings>
+      </Button>
+
+      <Button guid="Vsix" id="MyCommand" priority="0x0100" type="Button">
+        <Parent guid="Vsix" id="MyMenuGroup" />
+        <Icon guid="ImageCatalogGuid" id="StatusInformation" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <Strings>
+          <ButtonText>SQL Project Power Tools</ButtonText>
+          <LocCanonicalName>.SqlProjectsPowerTools.Main</LocCanonicalName>
+        </Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+
+  <Symbols>
+    <GuidSymbol name="Vsix" value="{9afa5961-b489-4faf-9714-294260affdf5}">
+      <IDSymbol name="MyMenuGroup" value="0x0001" />
+      <IDSymbol name="MyCommand" value="0x0100" />
+      <IDSymbol name="cmdidSqlMenu" value="0x0500" />
+      <IDSymbol name="cmdidSqlMenuGroup" value="0x0600" />
+      <IDSymbol name="cmdidSqlProjectMenuItemsGroup" value="0x0700" />
+
+      <IDSymbol name="cmdidImportDatabase" value="0x0010" />
+
+
+    </GuidSymbol>
+  </Symbols>
+</CommandTable>
