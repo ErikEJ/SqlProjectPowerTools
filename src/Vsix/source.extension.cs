@@ -12,9 +12,9 @@ namespace SqlProjectsPowerTools
         public const string Name = "SQL Database Projects Power Tools";
         public const string Description = @"SQL Database Projects Power Tools";
         public const string Language = "en-US";
-        public const string Version = "0.1";
+        public const string Version = "0.1.0";
         public const string Author = "Erik Ejlskov Jensen (Delegate)";
         public const string Tags = "";
-        public const bool IsPreview = false;
+        public const bool IsPreview = true;
     }
 }
