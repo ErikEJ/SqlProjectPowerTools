@@ -1,0 +1,4 @@
+CREATE TABLE [dbo].[SdkTable1]
+(
+	[Id] INT NOT NULL PRIMARY KEY
+)
