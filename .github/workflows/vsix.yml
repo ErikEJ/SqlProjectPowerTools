@@ -42,7 +42,6 @@ jobs:
 
     - name: Build
       run: msbuild SqlProjectPowerTools.sln /property:Configuration=Release /p:DeployExtension=false /p:ZipPackageCompressionLevel=normal /v:m
-      working-directory: src
 
     - name: Move build output
       if: github.ref == 'refs/heads/main' && github.repository_owner == 'erikej' && (github.event_name == 'push' ||  github.event_name == 'workflow_dispatch')
