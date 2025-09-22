@@ -45,7 +45,7 @@ jobs:
     - name: Move build output
       if: github.ref == 'refs/heads/main' && github.repository_owner == 'erikej' && (github.event_name == 'push' ||  github.event_name == 'workflow_dispatch')
       run: |
-        mv src/SqlProjectsPowerTools/bin/Release/SqlProjectsPowerTools.vsix SqlProjectsPowerTools-${{ env.VERSION }}.vsix
+        mv src/Vsix/bin/Release/Vsix.vsix SqlProjectsPowerTools-${{ env.VERSION }}.vsix
 
     # - name: Azure CLI login with federated credential
     #   if: github.event_name != 'pull_request'
