@@ -1,0 +1,88 @@
+name: VSIX
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - '*'
+
+permissions:
+  id-token: write # This is required for the federated credential to work
+
+env:
+  VERSION: 0.1.${{ github.run_number }}
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v5
+
+    - uses: actions/setup-dotnet@v5
+      with:
+        dotnet-version: '10.0.x'
+
+    - name: Update Version
+      run: |
+        ((Get-Content -Path Vsix/source.extension.vsixmanifest -Raw) -Replace "0.1.0", "${{ env.VERSION }}") | Set-Content -Path GUI/EFCorePowerTools/source.extension.vsixmanifest
+      working-directory: src
+      shell: pwsh
+
+    - name: Restore
+      run: dotnet restore SqlProjectPowerTools.sln
+      working-directory: src
+
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Build
+      run: msbuild SqlProjectPowerTools.sln /property:Configuration=Release /p:DeployExtension=false /p:ZipPackageCompressionLevel=normal /v:m
+      working-directory: src
+
+    - name: Move build output
+      if: github.ref == 'refs/heads/main' && github.repository_owner == 'erikej' && (github.event_name == 'push' ||  github.event_name == 'workflow_dispatch')
+      run: |
+        mv src/SqlProjectsPowerTools/bin/Release/SqlProjectsPowerTools.vsix SqlProjectsPowerTools-${{ env.VERSION }}.vsix
+
+    # - name: Azure CLI login with federated credential
+    #   if: github.event_name != 'pull_request'
+    #   uses: azure/login@v2
+    #   with:
+    #     client-id: ${{ secrets.AZURE_CLIENT_ID }}
+    #     tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+    #     subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    # - name: Install dotnet sign
+    #   if: github.event_name != 'pull_request'
+    #   run: dotnet tool install --global sign --prerelease
+
+    # - name: Sign VSIX packages # Causes 4 signing requests - max is 5000 per month
+    #   if: github.ref == 'refs/heads/master' && github.repository_owner == 'erikej' && (github.event_name == 'push' ||  github.event_name == 'workflow_dispatch')
+    #   run: sign code trusted-signing *.vsix `
+    #     --trusted-signing-account ErikEJ `
+    #     --trusted-signing-certificate-profile ErikEJCert `
+    #     --trusted-signing-endpoint https://weu.codesigning.azure.net `
+    #     -fl fileslist.txt `
+    #     --verbosity information 
+
+    - name: Publish artifacts
+      if: github.ref == 'refs/heads/main' && github.repository_owner == 'erikej' && (github.event_name == 'push' ||  github.event_name == 'workflow_dispatch')
+      uses: actions/upload-artifact@v4
+      with:
+        name: Artifacts
+        path: |
+          *.vsix
+
+    # - name: Publish to Open VSIX Gallery
+    #   if: github.ref == 'refs/heads/main' && github.repository_owner == 'erikej' && (github.event_name == 'push' ||  github.event_name == 'workflow_dispatch')
+    #   run: |
+    #     $ErrorActionPreference='Stop'
+    #     (new-object Net.WebClient).DownloadString("https://raw.githubusercontent.com/madskristensen/ExtensionScripts/master/AppVeyor/vsix.ps1") | iex
+    #     Vsix-PublishToGallery 
+    #   shell: pwsh
+    #   continue-on-error: false
