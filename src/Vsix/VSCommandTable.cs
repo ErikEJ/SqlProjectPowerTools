@@ -13,7 +13,7 @@ namespace SqlProjectsPowerTools
     /// </summary>
     internal sealed partial class PackageGuids
     {
-        public const string VsixString = "9afa5961-b489-4faf-9714-294260affdf5";
+        public const string VsixString = "df7cd9f5-a5c6-4564-ae14-233965c617fb";
         public static Guid Vsix = new Guid(VsixString);
     }
 
@@ -22,11 +22,26 @@ namespace SqlProjectsPowerTools
     /// </summary>
     internal sealed partial class PackageIds
     {
-        public const int MyMenuGroup = 0x0001;
-        public const int MyCommand = 0x0100;
-        public const int cmdidSqlMenu = 0x0500;
-        public const int cmdidSqlMenuGroup = 0x0600;
-        public const int cmdidSqlProjectMenuItemsGroup = 0x0700;
-        public const int cmdidImportDatabase = 0x0010;
+        public const int cmdidDgmlBuild = 0x0100;
+        public const int cmdidDgmlNuget = 0x0200;
+        public const int cmdidEdmMenuAbout = 0x0300;
+        public const int cmdidSqlBuild = 0x0400;
+        public const int cmdidDebugViewBuild = 0x0450;
+        public const int cmdidEdmMenu = 0x0500;
+        public const int cmdidEdmMenuGroup = 0x0600;
+        public const int cmdidEdmProjectMenuItemsGroup = 0x0700;
+        public const int cmdidEdmAboutMenuItemsGroup = 0x0800;
+        public const int cmdidReverseEngineerCodeFirst = 0x0001;
+        public const int cmdidWizardPoc = 0x0002;
+        public const int cmdidReverseEngineerRefresh = 0x0007;
+        public const int cmdidReverseEngineerDab = 0x0012;
+        public const int cmdidEdmProjectMenu = 0x0003;
+        public const int cmdidEdmProjectMenuGroup = 0x0004;
+        public const int cmdidAbout = 0x0006;
+        public const int cmdidOptions = 0x0010;
+        public const int cmdidDbCompare = 0x0008;
+        public const int cmdidDbDgml = 0x0009;
+        public const int cmdidDbErDiagram = 0x0011;
+        public const int cmdidDacpacReport = 0x0110;
     }
 }

@@ -8,68 +8,158 @@
 
   <Commands package="Vsix">
     <Groups>
-      <Group guid="Vsix" id="MyMenuGroup" priority="0x0100">
-        <Parent guid="VSMainMenu" id="IDM_VS_CTXT_PROJNODE"/>
+      <Group guid="Vsix" id="cmdidEdmProjectMenuGroup" priority="0x0100">
+        <Parent guid="Vsix" id="IDM_VS_CTXT_PROJNODE" />
       </Group>
 
-      <Group guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" priority="0x0100">
-        <Parent guid="Vsix" id="cmdidSqlMenuGroup" />
+      <Group guid="Vsix" id="cmdidEdmProjectMenuItemsGroup" priority="0x0100">
+        <Parent guid="Vsix" id="cmdidEdmProjectMenu" />
       </Group>
-      
+
+      <Group guid="Vsix" id="cmdidEdmAboutMenuItemsGroup" priority="0x0800">
+        <Parent guid="Vsix" id="cmdidEdmProjectMenu" />
+      </Group>
+
     </Groups>
 
     <Menus>
 
-      <Menu guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" priority="0x0100" type="Menu">
-        <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
-        <!--<CommandFlag>DynamicVisibility</CommandFlag>-->
+      <Menu guid="Vsix" id="cmdidEdmProjectMenu" priority="0x0100" type="Menu">
+        <Parent guid="Vsix" id="cmdidEdmProjectMenuGroup" />
+        <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <CommandName>SQL Project Power Tools</CommandName>
           <ButtonText>SQL Project Power Tools</ButtonText>
         </Strings>
       </Menu>
-      
+
+      <Menu guid="Vsix" id="cmdidEdmMenu" priority="0x0100" type="Menu">
+        <Parent guid="Vsix" id="cmdidEdmMenuGroup" />
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <CommandName>SQL Project Power Tools</CommandName>
+          <ButtonText>SQL Project Power Tools</ButtonText>
+        </Strings>
+      </Menu>
+
     </Menus>
 
-    <!--This section defines the elements the user can interact with, like a menu command or a button
-        or combo box in a toolbar. -->
     <Buttons>
-
-      <Button guid="Vsix" id="cmdidImportDatabase" priority="0x0101" type="Button">
-        <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
+      <Button guid="Vsix" id="cmdidWizardPoc" priority="0x0100" type="Button">
+        <Parent guid="Vsix" id="cmdidEdmProjectMenuItemsGroup" />
         <Icon guid="ImageCatalogGuid" id="DatabaseConfigurationFile" />
         <CommandFlag>IconIsMoniker</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
-          <ButtonText>Import Database...</ButtonText>
+          <ButtonText>Reverse Engineer Wizard (preview)</ButtonText>
         </Strings>
       </Button>
 
-      <Button guid="Vsix" id="MyCommand" priority="0x0100" type="Button">
-        <Parent guid="Vsix" id="MyMenuGroup" />
-        <Icon guid="ImageCatalogGuid" id="StatusInformation" />
+      <Button guid="Vsix" id="cmdidReverseEngineerCodeFirst" priority="0x0101" type="Button">
+        <Parent guid="Vsix" id="cmdidEdmProjectMenuItemsGroup" />
+        <Icon guid="ImageCatalogGuid" id="DatabaseConfigurationFile" />
         <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
         <Strings>
-          <ButtonText>SQL Project Power Tools</ButtonText>
-          <LocCanonicalName>.SqlProjectsPowerTools.Main</LocCanonicalName>
+          <ButtonText>Reverse Engineer</ButtonText>
         </Strings>
       </Button>
+
+      <Button guid="Vsix" id="cmdidReverseEngineerRefresh" priority="0x0200" type="Button">
+        <Parent guid="Vsix" id="cmdidEdmProjectMenuItemsGroup" />
+        <Icon guid="ImageCatalogGuid" id="RefreshScript" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <ButtonText>Refresh</ButtonText>
+        </Strings>
+      </Button>
+
+      <Button guid="Vsix" id="cmdidReverseEngineerDab" priority="0x0300" type="Button">
+        <Parent guid="Vsix" id="cmdidEdmProjectMenuItemsGroup" />
+        <Icon guid="ImageCatalogGuid" id="WebConfiguration" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <ButtonText>Data API Builder Scaffold (preview)</ButtonText>
+        </Strings>
+      </Button>
+
+      <Button guid="Vsix" id="cmdidAbout" priority="0x0900" type="Button">
+        <Parent guid="Vsix" id="cmdidEdmAboutMenuItemsGroup" />
+        <Icon guid="ImageCatalogGuid" id="StatusHelpOutline" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <CommandName>cmdidAbout</CommandName>
+          <ButtonText>About</ButtonText>
+        </Strings>
+      </Button>
+
+      <Button guid="Vsix" id="cmdidOptions" priority="0x0700" type="Button">
+        <Parent guid="Vsix" id="cmdidEdmAboutMenuItemsGroup" />
+        <Icon guid="ImageCatalogGuid" id="Settings" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <CommandName>cmdidOptions</CommandName>
+          <ButtonText>Options</ButtonText>
+        </Strings>
+      </Button>
+
     </Buttons>
+
   </Commands>
 
+  <CommandPlacements>
+
+    <CommandPlacement guid="Vsix" id="cmdidEdmProjectMenuGroup" priority="0x100">
+      <Parent guid="guidSHLMainMenu" id="IDM_VS_CTXT_PROJNODE" />
+    </CommandPlacement>
+
+  </CommandPlacements>
+
+
+
   <Symbols>
-    <GuidSymbol name="Vsix" value="{9afa5961-b489-4faf-9714-294260affdf5}">
-      <IDSymbol name="MyMenuGroup" value="0x0001" />
-      <IDSymbol name="MyCommand" value="0x0100" />
-      <IDSymbol name="cmdidSqlMenu" value="0x0500" />
-      <IDSymbol name="cmdidSqlMenuGroup" value="0x0600" />
-      <IDSymbol name="cmdidSqlProjectMenuItemsGroup" value="0x0700" />
 
-      <IDSymbol name="cmdidImportDatabase" value="0x0010" />
+    <!-- This is the guid used to group the menu commands together -->
+    <GuidSymbol name="Vsix" value="{DF7CD9F5-A5C6-4564-AE14-233965C617FB}">
 
+      <!-- Project Item Menu Entries -->
 
+      <IDSymbol name="cmdidDgmlBuild" value="0x0100" />
+      <IDSymbol name="cmdidDgmlNuget" value="0x0200" />
+      <IDSymbol name="cmdidEdmMenuAbout" value="0x0300" />
+      <IDSymbol name="cmdidSqlBuild" value="0x0400" />
+      <IDSymbol name="cmdidDebugViewBuild" value="0x0450" />
+      <IDSymbol name="cmdidEdmMenu" value="0x0500" />
+      <IDSymbol name="cmdidEdmMenuGroup" value="0x0600" />
+      <IDSymbol name="cmdidEdmProjectMenuItemsGroup" value="0x0700" />
+      <IDSymbol name="cmdidEdmAboutMenuItemsGroup" value="0x0800" />
+
+      <!-- Project Menu Entries -->
+      <IDSymbol name="cmdidReverseEngineerCodeFirst" value="0x0001" />
+      <IDSymbol name="cmdidWizardPoc" value="0x0002" />
+      <IDSymbol name="cmdidReverseEngineerRefresh" value="0x0007" />
+      <IDSymbol name="cmdidReverseEngineerDab" value="0x0012" />
+      <IDSymbol name="cmdidEdmProjectMenu" value="0x0003" />
+      <IDSymbol name="cmdidEdmProjectMenuGroup" value="0x0004" />
+      <IDSymbol name="cmdidAbout" value="0x0006" />
+      <IDSymbol name="cmdidOptions" value="0x0010" />
+      <IDSymbol name="cmdidDbCompare" value="0x0008" />
+      <IDSymbol name="cmdidDbDgml" value="0x0009" />
+      <IDSymbol name="cmdidDbErDiagram" value="0x0011" />
+      <IDSymbol name="cmdidDacpacReport" value="0x110" />
     </GuidSymbol>
+
   </Symbols>
 </CommandTable>

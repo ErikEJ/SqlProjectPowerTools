@@ -1,6 +1,6 @@
 ﻿namespace SqlProjectsPowerTools
 {
-    [Command(PackageIds.MyCommand)]
+    [Command(PackageIds.cmdidAbout)]
     internal sealed class MyCommand : BaseCommand<MyCommand>
     {
         protected override async Task ExecuteAsync(OleMenuCmdEventArgs e)
