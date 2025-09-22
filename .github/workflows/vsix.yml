@@ -29,7 +29,7 @@ jobs:
 
     - name: Update Version
       run: |
-        ((Get-Content -Path Vsix/source.extension.vsixmanifest -Raw) -Replace "0.1.0", "${{ env.VERSION }}") | Set-Content -Path GUI/EFCorePowerTools/source.extension.vsixmanifest
+        ((Get-Content -Path Vsix/source.extension.vsixmanifest -Raw) -Replace "0.1.0", "${{ env.VERSION }}") | Set-Content -Path Vsix/source.extension.vsixmanifest
       working-directory: src
       shell: pwsh
 
