@@ -73,9 +73,7 @@ namespace DacFXToolLib
         {
             var result = new List<TableModel>();
 
-            if (databaseType != DatabaseType.SQLServer
-                && databaseType != DatabaseType.SQLServerDacpac
-                && databaseType != DatabaseType.Npgsql)
+            if (databaseType != DatabaseType.SQLServerDacpac)
             {
                 return result;
             }
@@ -100,8 +98,7 @@ namespace DacFXToolLib
         {
             var result = new List<TableModel>();
 
-            if (databaseType != DatabaseType.SQLServer
-                && databaseType != DatabaseType.SQLServerDacpac)
+            if (databaseType != DatabaseType.SQLServerDacpac)
             {
                 return result;
             }

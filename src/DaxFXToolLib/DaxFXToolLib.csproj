@@ -15,6 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Contracts\Contracts.csproj" />
     <ProjectReference Include="..\SqlServer.Rules.Report\SqlServer.Rules.Report.csproj" />
   </ItemGroup>
 

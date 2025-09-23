@@ -6,6 +6,7 @@ using RevEng.Core.Abstractions.Model;
 
 namespace DacFXToolLib.Routines.Extensions
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "EF1001:Internal EF Core API usage.", Justification = "Design tool")]
     public static class SqlServerRoutineServiceCollectionExtensions
     {
         public static IServiceCollection AddSqlServerDacpacStoredProcedureDesignTimeServices(

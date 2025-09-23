@@ -50,20 +50,7 @@ namespace DacFXToolLib
                 case DatabaseType.Undefined:
                     break;
                 case DatabaseType.SQLServerDacpac:
-                case DatabaseType.SQLServer:
                     databaseType = "mssql";
-                    break;
-                case DatabaseType.SQLite:
-                    break;
-                case DatabaseType.Npgsql:
-                    databaseType = "postgresql";
-                    break;
-                case DatabaseType.Mysql:
-                    databaseType = "mysql";
-                    break;
-                case DatabaseType.Oracle:
-                    break;
-                case DatabaseType.Firebird:
                     break;
                 default:
                     break;
@@ -185,7 +172,7 @@ namespace DacFXToolLib
                 }
             }
 
-            if (options.DatabaseType == DatabaseType.SQLServer || options.DatabaseType == DatabaseType.SQLServerDacpac)
+            if (options.DatabaseType == DatabaseType.SQLServerDacpac)
             {
                 sb.AppendLine(CultureInfo.InvariantCulture, $"@echo Adding stored procedures");
 
