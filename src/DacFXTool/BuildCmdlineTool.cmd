@@ -3,15 +3,6 @@ dotnet publish -o bin\Release\net8.0\x64\publish -f net8.0 -c Release  --no-self
 
 if %errorlevel% equ 1 goto notbuilt
 
-del bin\Release\net8.0\x64\publish\Microsoft.Data.Tools.Schema.Sql.dll
-del bin\Release\net8.0\x64\publish\Microsoft.Data.Tools.Schema.Tasks.Sql.dll
-del bin\Release\net8.0\x64\publish\Microsoft.Data.Tools.Sql.DesignServices.dll
-del bin\Release\net8.0\x64\publish\Microsoft.Data.Tools.Utilities.dll
-del bin\Release\net8.0\x64\publish\Microsoft.SqlServer.Dac.dll
-del bin\Release\net8.0\x64\publish\Microsoft.SqlServer.Dac.Extensions.dll
-del bin\Release\net8.0\x64\publish\Microsoft.SqlServer.Server.dll
-del bin\Release\net8.0\x64\publish\Microsoft.SqlServer.TransactSql.ScriptDom.dll
-
 rd bin\Release\net8.0\x64\publish\runtimes\android-arm /Q /S
 rd bin\Release\net8.0\x64\publish\runtimes\android-arm64 /Q /S
 rd bin\Release\net8.0\x64\publish\runtimes\android-x64 /Q /S
@@ -46,9 +37,9 @@ rd bin\Release\net8.0\x64\publish\runtimes\win-arm /Q /S
 rd bin\Release\net8.0\x64\publish\runtimes\win-arm64 /Q /S
 rd bin\Release\net8.0\x64\publish\runtimes\win-x86 /Q /S
 
-"C:\Program Files\7-Zip\7z.exe" -mm=Deflate -mfb=258 -mpass=15 a efreveng80.exe.zip .\bin\Release\net8.0\x64\publish\*
+"C:\Program Files\7-Zip\7z.exe" -mm=Deflate -mfb=258 -mpass=15 a dacfxtool.exe.zip .\bin\Release\net8.0\x64\publish\*
 
-move /Y efreveng80.exe.zip ..\..\GUI\lib\
+move /Y dacfxtool.exe.zip ..\lib\
 
 goto end
 
