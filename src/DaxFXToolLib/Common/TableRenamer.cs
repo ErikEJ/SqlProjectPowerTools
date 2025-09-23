@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.Serialization;
 
-namespace  DacFXToolLib.Common
+namespace DacFXToolLib.Common
 {
     [DataContract]
     public class TableRenamer
