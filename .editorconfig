@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# CS3001: Argument type is not CLS-compliant
+dotnet_diagnostic.CS3001.severity = none
