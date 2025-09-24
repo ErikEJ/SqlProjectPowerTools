@@ -2,6 +2,8 @@
 global using Microsoft.VisualStudio.Shell;
 global using System;
 global using Task = System.Threading.Tasks.Task;
+using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Extensions.DependencyInjection;
 using System.Runtime.InteropServices;
 using System.Threading;
 
@@ -18,15 +20,67 @@ namespace SqlProjectsPowerTools
         expression: "SdkProject | SqlprojProject ",
         termNames: ["SdkProject", "SqlprojProject"],
         termValues: [$"ActiveProjectCapability:{SdkProjCapability}", "ActiveProjectBuildProperty:DSP=.*"])]
-
     public sealed class VsixPackage : ToolkitPackage
     {
         public const string UIContextGuid = "E098D400-A841-4C88-9B7C-267EFA15A5E4";
         public const string SdkProjCapability = "MSBuild.Sdk.SqlProj.BuildTSqlScript";
 
+        private IServiceProvider extensionServices;
+
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
             await this.RegisterCommandsAsync();
+
+            PackageManager.Package = this;
+
+            extensionServices = CreateServiceProvider();
+        }
+
+        internal TView GetView<TView>()
+            where TView : IView
+        {
+            return extensionServices.GetService<TView>();
+        }
+
+        private IServiceProvider CreateServiceProvider()
+        {
+            var services = new ServiceCollection();
+
+            // Register views
+            services
+                    .AddTransient<IPickTablesDialog, PickTablesDialog>();
+;
+
+            // Register view models
+            services.AddTransient<IPickTablesViewModel, PickTablesViewModel>()
+                    .AddSingleton<Func<ISchemaInformationViewModel>>(() => new SchemaInformationViewModel())
+                    .AddSingleton<Func<ITableInformationViewModel>>(provider => () => new TableInformationViewModel(provider.GetService<IMessenger>()))
+                    .AddSingleton<Func<IColumnInformationViewModel>>(provider => () => new ColumnInformationViewModel(provider.GetService<IMessenger>()))
+                    .AddSingleton<Func<IColumnChildrenViewModel>>(provider => () => new ColumnChildrenViewModel(provider.GetService<IMessenger>()))
+                    .AddTransient<IObjectTreeViewModel, ObjectTreeViewModel>();
+
+            // Register BLL
+            var messenger = new Messenger();
+            messenger.Register<ShowMessageBoxMessage>(this, HandleShowMessageBoxMessage);
+
+            services.AddSingleton<IMessenger>(messenger);
+
+            //// Register DAL
+            //services.AddTransient<IVisualStudioAccess, VisualStudioAccess>()
+            //        .AddSingleton<ITelemetryAccess, TelemetryAccess>()
+            //        .AddSingleton<IOperatingSystemAccess, OperatingSystemAccess>()
+            //        .AddSingleton<ICredentialStore, CredentialStore>()
+            //        .AddSingleton<IDotNetAccess, DotNetAccess>();
+
+            var provider = services.BuildServiceProvider();
+            return provider;
+        }
+
+        private static void HandleShowMessageBoxMessage(ShowMessageBoxMessage msg)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            VSHelper.ShowMessage(msg.Content);
         }
     }
 }

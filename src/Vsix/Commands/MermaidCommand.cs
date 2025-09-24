@@ -13,7 +13,11 @@
 
         protected override async Task ExecuteAsync(OleMenuCmdEventArgs e)
         {
-            await VS.MessageBox.ShowWarningAsync("MermaidCommand", "Coming soon");
+            var project = await VS.Solutions.GetActiveProjectAsync();
+            if (project != null)
+            {
+                await new ErDiagramHandler().BuildErDiagramAsync(project);
+            }
         }
     }
 }

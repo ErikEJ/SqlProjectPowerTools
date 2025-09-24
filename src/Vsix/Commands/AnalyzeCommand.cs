@@ -17,7 +17,6 @@
             if (project != null)
             {
                 await DacpacAnalyzerHandler.GenerateAsync(project.FullPath);
-                return;
             }
         }
     }
