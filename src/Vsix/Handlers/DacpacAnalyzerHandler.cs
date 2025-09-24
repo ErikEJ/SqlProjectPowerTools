@@ -29,7 +29,7 @@ namespace SqlProjectsPowerTools
             }
             catch (Exception exception)
             {
-                await VS.MessageBox.ShowErrorAsync(exception.Message);
+                VSHelper.ShowError(exception.Message);
             }
             finally
             {
