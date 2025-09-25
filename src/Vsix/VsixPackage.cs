@@ -47,12 +47,12 @@ namespace SqlProjectsPowerTools
             var services = new ServiceCollection();
 
             // Register views
-            services
-                    .AddTransient<IPickTablesDialog, PickTablesDialog>();
-;
+            services.AddTransient<IPickTablesDialog, PickTablesDialog>()
+                .AddTransient<IPickServerDatabaseDialog, PickServerDatabaseDialog>();
 
             // Register view models
-            services.AddTransient<IPickTablesViewModel, PickTablesViewModel>()
+            services.AddTransient<IPickServerDatabaseViewModel, PickServerDatabaseViewModel>()
+                    .AddTransient<IPickTablesViewModel, PickTablesViewModel>()
                     .AddSingleton<Func<ISchemaInformationViewModel>>(() => new SchemaInformationViewModel())
                     .AddSingleton<Func<ITableInformationViewModel>>(provider => () => new TableInformationViewModel(provider.GetService<IMessenger>()))
                     .AddSingleton<Func<IColumnInformationViewModel>>(provider => () => new ColumnInformationViewModel(provider.GetService<IMessenger>()))
@@ -66,7 +66,7 @@ namespace SqlProjectsPowerTools
             services.AddSingleton<IMessenger>(messenger);
 
             //// Register DAL
-            //services.AddTransient<IVisualStudioAccess, VisualStudioAccess>()
+            services.AddTransient<IVisualStudioAccess, VisualStudioAccess>();
             //        .AddSingleton<ITelemetryAccess, TelemetryAccess>()
             //        .AddSingleton<IOperatingSystemAccess, OperatingSystemAccess>()
             //        .AddSingleton<ICredentialStore, CredentialStore>()
