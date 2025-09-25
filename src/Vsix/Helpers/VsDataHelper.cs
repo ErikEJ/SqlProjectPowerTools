@@ -15,8 +15,8 @@ namespace SqlProjectsPowerTools
         public static string GetSavedConnectionName(string connectionString, DatabaseType dbType)
         {
             if (dbType == DatabaseType.SQLServer
-                && !connectionString.Contains(";Authentication=", StringComparison.OrdinalIgnoreCase)
-                && !connectionString.Contains("Command Timeout=", StringComparison.OrdinalIgnoreCase))
+                && connectionString.IndexOf(";Authentication=", StringComparison.OrdinalIgnoreCase) < 0
+                && connectionString.IndexOf("Command Timeout=", StringComparison.OrdinalIgnoreCase) < 0)
             {
                 return PathFromConnectionString(connectionString);
             }
@@ -238,11 +238,8 @@ namespace SqlProjectsPowerTools
             {
                 using (var cmd = new SqlCommand())
                 {
-                    // Ensure connection timeout is set (default to 15 seconds if not present)
-                    if (!builder.ContainsKey("Connect Timeout"))
-                    {
-                        builder["Connect Timeout"] = 15;
-                    }
+                    builder.ConnectTimeout = 60;
+                    
                     using (var conn = new SqlConnection(builder.ConnectionString))
                     {
                         try
@@ -260,7 +257,7 @@ namespace SqlProjectsPowerTools
 
                             return builder.DataSource + "." + database;
                         }
-                        catch (SqlException ex)
+                        catch (SqlException)
                         {
                             // Optionally log the exception here
                             // For now, return fallback value
