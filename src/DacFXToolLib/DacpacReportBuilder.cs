@@ -1,8 +1,6 @@
-using System;
-using System.IO;
 using SqlServer.Rules.Report;
 
-namespace DacFXToolLib.DacpacReport
+namespace DacFXToolLib
 {
     public class DacpacReportBuilder
     {

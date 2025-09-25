@@ -8,16 +8,16 @@ The following features are planned. Each feature will apply to both classic .sql
 
 ### Preview 1
 
-- Import database (for MsBuild.Sdk.SqlProj only)
-- Analyze (html output of analysis of your database project)
-- Create Mermaid E/R diagram of selected tables from your database project
-- Unpack dacpac 
-- Include the MsBuild.Sdk.SqlProj templates - for `New Project` and for adding new items
+- **Import database** - for MsBuild.Sdk.SqlProj only
+- **Analyze** - html output of analysis of your database project
+- **Create Mermaid E/R diagram** - diagram selected tables from your database project
+- **Unpack dacpac** - extract a .dacpac into a single .sql file
+- **Include the MsBuild.Sdk.SqlProj templates** - for `New Project` and for adding new items
 
 ### Future
 
-- Data API Builder scaffold (from EF Core Power Tools)
-- Schema compare (for MsBuild.Sdk.SqlProj)
+- **Data API Builder scaffold** - build a Data API Builder config file from your database project
+- **Schema compare** - compare your database project to a live database or dacpac
 
 ## Related projects
 

@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DaxFXToolLib\DaxFXToolLib.csproj" />
+    <ProjectReference Include="..\DacFXToolLib\DacFXToolLib.csproj" />
   </ItemGroup>
 
 </Project>

@@ -2,7 +2,7 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 
-namespace DacFXToolLib.Diagram
+namespace DacFXToolLib
 {
     public class DatabaseModelToMermaid
     {
@@ -72,7 +72,7 @@ namespace DacFXToolLib.Diagram
                     }
 
                     var nullable = column.IsNullable ? "(NULL)" : string.Empty;
-                    sb.AppendLine(CultureInfo.InvariantCulture, $"    {formattedColumnName} {column.StoreType?.Replace(", ", "-", System.StringComparison.OrdinalIgnoreCase)}{nullable} {pkfk}");
+                    sb.AppendLine(CultureInfo.InvariantCulture, $"    {formattedColumnName} {column.StoreType?.Replace(", ", "-", StringComparison.OrdinalIgnoreCase)}{nullable} {pkfk}");
                 }
 
                 sb.AppendLine("  }");

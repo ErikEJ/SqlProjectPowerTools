@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DacFXToolLib.Diagram
+namespace DacFXToolLib
 {
     public class ErDiagramBuilder
     {
