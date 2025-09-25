@@ -15,8 +15,8 @@ namespace SqlProjectsPowerTools
         public static string GetSavedConnectionName(string connectionString, DatabaseType dbType)
         {
             if (dbType == DatabaseType.SQLServer
-                && connectionString.IndexOf(";Authentication=", StringComparison.OrdinalIgnoreCase) < 0
-                && connectionString.IndexOf("Command Timeout=", StringComparison.OrdinalIgnoreCase) < 0)
+                && !connectionString.Contains(";Authentication=", StringComparison.OrdinalIgnoreCase)
+                && !connectionString.Contains("Command Timeout=", StringComparison.OrdinalIgnoreCase))
             {
                 return PathFromConnectionString(connectionString);
             }
