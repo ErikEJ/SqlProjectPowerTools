@@ -16,5 +16,15 @@ namespace SqlProjectsPowerTools
             return activeProject.IsSqlDatabaseProject();
         }
 
+        public static async Task<bool> IsEnabledForMsBuildSdkSqlProjectAsync(this MenuCommand command)
+        {
+            var activeProject = await VS.Solutions.GetActiveProjectAsync();
+            if (activeProject == null)
+            {
+                return false;
+            }
+
+            return activeProject.IsMsBuildSdkSqlDatabaseProject();
+        }
     }
 }

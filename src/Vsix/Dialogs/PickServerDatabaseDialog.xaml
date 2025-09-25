@@ -94,7 +94,7 @@
                     Margin="8,12,0,12"
                     ToolTip="Remove selected connection"
                     Command="{Binding RemoveDatabaseConnectionCommand}">
-                <Image Source="pack://application:,,,/EFCorePowerTools;component/Resources/Remove.png" />
+                <Image Source="pack://application:,,,/Vsix;component/Resources/Remove.png" />
             </Button>
 
             <xctk:DropDownButton Grid.Column="2"
@@ -111,7 +111,7 @@
                             ToolTip="Add a new database connection"
                             >
                             <MenuItem.Icon>
-                                <Image Source="pack://application:,,,/EFCorePowerTools;component/Resources/ConnectToDatabase.png" />
+                                <Image Source="pack://application:,,,/Visx;component/Resources/ConnectToDatabase.png" />
                             </MenuItem.Icon>
                         </MenuItem>
                         

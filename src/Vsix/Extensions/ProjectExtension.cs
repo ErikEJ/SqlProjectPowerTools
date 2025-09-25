@@ -15,6 +15,16 @@ namespace SqlProjectsPowerTools
                 || project.IsCapabilityMatch(VsixPackage.SdkProjCapability);
         }
 
+        public static bool IsMsBuildSdkSqlDatabaseProject(this Project project)
+        {
+            if (project == null)
+            {
+                return false;
+            }
+
+            return project.IsCapabilityMatch(VsixPackage.SdkProjCapability);
+        }
+
         public static async Task<string> GetDacpacPathAsync(this Project project)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();

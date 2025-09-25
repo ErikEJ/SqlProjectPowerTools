@@ -89,6 +89,7 @@
     <Compile Include="Extensions\ProjectExtension.cs" />
     <Compile Include="Extensions\ZipArchiveExtensions.cs" />
     <Compile Include="Handlers\DacpacAnalyzerHandler.cs" />
+    <Compile Include="Handlers\ImportHandler.cs" />
     <Compile Include="Handlers\ErDiagramHandler.cs" />
     <Compile Include="Handlers\PackageManager.cs" />
     <Compile Include="Handlers\ProcessLauncher.cs" />
@@ -137,11 +138,13 @@
       <Link>dacfxtool.exe.zip</Link>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Resource Include="Resources\Remove.png" />
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
       <Generator>VsixManifestGenerator</Generator>
       <LastGenOutput>source.extension.cs</LastGenOutput>
     </None>
+    <Resource Include="Resources\ConnectToDatabase.png" />
     <Content Include="Resources\Icon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
