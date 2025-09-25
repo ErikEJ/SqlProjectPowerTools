@@ -1,15 +1,13 @@
+using DacFXToolLib;
+using DacFXToolLib.Common;
+using DacFXToolLib.Dab;
+using Microsoft.EntityFrameworkCore.Scaffolding;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.SqlServer.Dac;
+using RevEng.Core.Abstractions.Model;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using Microsoft.EntityFrameworkCore.Scaffolding;
-using Microsoft.Extensions.DependencyInjection;
-using RevEng.Core.Abstractions.Model;
-using DacFXToolLib.Dab;
-using DacFXToolLib.Common;
-using DacFXToolLib;
-using DacFXToolLib.DacpacReport;
-using DacFXToolLib.Diagram;
-
 
 [assembly: CLSCompliant(true)]
 [assembly: SuppressMessage("Reliability", "CA2007:Consider calling ConfigureAwait on the awaited task", Justification = "Reviewed")]
@@ -125,6 +123,29 @@ namespace DacFXTool
 
                         await Console.Out.WriteLineAsync("Result:");
                         await Console.Out.WriteLineAsync(buildResult);
+
+                        return 0;
+                    }
+
+                    // import 5 "path" "connection string"
+                    if (args.Length == 4
+                        && args[0] == "import")
+                    {
+                        var importer = new DatabaseExtractor(args[3]);
+
+                        var target = int.TryParse(args[1], out int targetType) ? (DacExtractTarget?)targetType : null;
+
+                        if (target == null)
+                        {
+                            await Console.Out.WriteLineAsync("Error:");
+                            await Console.Out.WriteLineAsync($"Invalid target type '{args[1]}'");
+                            return 1;
+                        }
+
+                        importer.Extract(args[2], target.Value);
+
+                        await Console.Out.WriteLineAsync("Result:");
+                        await Console.Out.WriteLineAsync("OK");
 
                         return 0;
                     }

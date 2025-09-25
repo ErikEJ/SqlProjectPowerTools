@@ -14,7 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{02EA681E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DacFXTool", "src\DacFXTool\DacFXTool.csproj", "{792D1F1F-5BE1-4593-B6CC-D029F3C6E072}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DaxFXToolLib", "src\DaxFXToolLib\DaxFXToolLib.csproj", "{5BBD1F2E-BDA2-4E36-81E2-36F2137CE513}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DacFXToolLib", "src\DacFXToolLib\DacFXToolLib.csproj", "{5BBD1F2E-BDA2-4E36-81E2-36F2137CE513}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlServer.Rules.Report", "src\SqlServer.Rules.Report\SqlServer.Rules.Report.csproj", "{FAC7A459-0631-B257-D703-8C261AE1AF39}"
 EndProject

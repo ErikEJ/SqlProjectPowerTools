@@ -36,6 +36,14 @@ jobs:
     - name: Restore
       run: dotnet restore SqlProjectPowerTools.sln
 
+    - name: Build reveng tools
+      if: github.event_name != 'pull_request'
+      shell: cmd
+      run: |
+        cd ${{ github.workspace}}\src\DacFXTool
+        call ${{ github.workspace}}\src\DacFXTool\BuildCmdlineTool.cmd
+        cd ${{ github.workspace}}
+
     - name: Setup MSBuild.exe
       uses: microsoft/setup-msbuild@v2
 

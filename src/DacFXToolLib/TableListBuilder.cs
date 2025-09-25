@@ -1,5 +1,4 @@
 ﻿using DacFXToolLib.Common;
-using DacFXToolLib.Diagram;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using RevEng.Core.Abstractions;
