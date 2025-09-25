@@ -238,20 +238,34 @@ namespace SqlProjectsPowerTools
             {
                 using (var cmd = new SqlCommand())
                 {
+                    // Ensure connection timeout is set (default to 15 seconds if not present)
+                    if (!builder.ContainsKey("Connect Timeout"))
+                    {
+                        builder["Connect Timeout"] = 15;
+                    }
                     using (var conn = new SqlConnection(builder.ConnectionString))
                     {
-                        cmd.Connection = conn;
-                        cmd.CommandText = "SELECT ISNULL(LOWER(CAST(SERVERPROPERTY('ServerName') AS NVARCHAR(128))), '') + '.' + ISNULL(DB_NAME(), '') + '.' + ISNULL(SCHEMA_NAME(), '')";
-                        conn.Open();
-
-                        object res = cmd.ExecuteScalar();
-
-                        if (res != null && res != DBNull.Value)
+                        try
                         {
-                            return (string)res;
-                        }
+                            cmd.Connection = conn;
+                            cmd.CommandText = "SELECT ISNULL(LOWER(CAST(SERVERPROPERTY('ServerName') AS NVARCHAR(128))), '') + '.' + ISNULL(DB_NAME(), '') + '.' + ISNULL(SCHEMA_NAME(), '')";
+                            conn.Open();
 
-                        return builder.DataSource + "." + database;
+                            object res = cmd.ExecuteScalar();
+
+                            if (res != null && res != DBNull.Value)
+                            {
+                                return (string)res;
+                            }
+
+                            return builder.DataSource + "." + database;
+                        }
+                        catch (SqlException ex)
+                        {
+                            // Optionally log the exception here
+                            // For now, return fallback value
+                            return builder.DataSource + "." + database;
+                        }
                     }
                 }
             }
