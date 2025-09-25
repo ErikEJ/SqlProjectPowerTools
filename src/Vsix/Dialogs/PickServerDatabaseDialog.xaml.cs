@@ -8,7 +8,7 @@ namespace SqlProjectsPowerTools
 {
     public partial class PickServerDatabaseDialog : IPickServerDatabaseDialog
     {
-        private readonly Func<(DatabaseConnectionModel Connection, bool FilterSchemas, SchemaInfo[] Schemas, string UiHint)> getDialogResult;
+        private readonly Func<(DatabaseConnectionModel Connection, int CodegenerationMode, SchemaInfo[] Schemas, string UiHint)> getDialogResult;
         private readonly Action<IEnumerable<DatabaseConnectionModel>> addConnections;
         private readonly Action<IEnumerable<DatabaseConnectionModel>> addDefinitions;
         private readonly Action<IEnumerable<SchemaInfo>> addSchemas;
@@ -25,7 +25,7 @@ namespace SqlProjectsPowerTools
                 DialogResult = args.DialogResult;
                 Close();
             };
-            getDialogResult = () => (viewModel.SelectedDatabaseConnection, viewModel.FilterSchemas, viewModel.Schemas.ToArray(), viewModel.UiHint);
+            getDialogResult = () => (viewModel.SelectedDatabaseConnection, viewModel.CodeGenerationMode, viewModel.Schemas.ToArray(), viewModel.UiHint);
             addConnections = models =>
             {
                 foreach (var model in models)
@@ -54,6 +54,10 @@ namespace SqlProjectsPowerTools
                 {
                     viewModel.CodeGenerationModeList.Add(item);
                 }
+                if (viewModel.CodeGenerationModeList.Any())
+                {
+                    viewModel.CodeGenerationMode = viewModel.CodeGenerationModeList.First().Key;
+                }
             };
 
             uiHint = uiHint =>
@@ -64,7 +68,7 @@ namespace SqlProjectsPowerTools
             InitializeComponent();
         }
 
-        public (bool ClosedByOK, (DatabaseConnectionModel Connection, bool FilterSchemas, SchemaInfo[] Schemas, string UiHint) Payload) ShowAndAwaitUserResponse(bool modal)
+        public (bool ClosedByOK, (DatabaseConnectionModel Connection, int CodeGenerationMode, SchemaInfo[] Schemas, string UiHint) Payload) ShowAndAwaitUserResponse(bool modal)
         {
             bool closedByOkay;
 
@@ -95,7 +99,7 @@ namespace SqlProjectsPowerTools
             addSchemas(schemas);
         }
 
-        public void PublishCodeGenerationMode(IList<CodeGenerationItem> allowedVersions)
+        public void PublishFileGenerationMode(IList<CodeGenerationItem> allowedVersions)
         {
             codeGeneration(allowedVersions);
         }
@@ -105,7 +109,7 @@ namespace SqlProjectsPowerTools
             this.uiHint(uiHint);
         }
 
-        public (DatabaseConnectionModel Connection, bool FilterSchemas, SchemaInfo[] Schemas, string UiHint) GetResults()
+        public (DatabaseConnectionModel Connection, int CodeGenerationMode, SchemaInfo[] Schemas, string UiHint) GetResults()
         {
             return getDialogResult();
         }

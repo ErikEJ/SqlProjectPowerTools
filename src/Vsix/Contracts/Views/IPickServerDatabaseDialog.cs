@@ -3,7 +3,7 @@ using DacFXToolLib.Common;
 
 namespace SqlProjectsPowerTools
 {
-    public interface IPickServerDatabaseDialog : IDialog<(DatabaseConnectionModel Connection, bool FilterSchemas, SchemaInfo[] Schemas, string UiHint)>
+    public interface IPickServerDatabaseDialog : IDialog<(DatabaseConnectionModel Connection, int CodeGenerationMode, SchemaInfo[] Schemas, string UiHint)>
     {
         void PublishConnections(IEnumerable<DatabaseConnectionModel> connections);
 
@@ -11,9 +11,10 @@ namespace SqlProjectsPowerTools
 
         void PublishSchemas(IEnumerable<SchemaInfo> schemas);
 
+        void PublishFileGenerationMode(IList<CodeGenerationItem> methods);
 
         void PublishUiHint(string uiHint);
 
-        (DatabaseConnectionModel Connection, bool FilterSchemas, SchemaInfo[] Schemas, string UiHint) GetResults();
+        (DatabaseConnectionModel Connection, int CodeGenerationMode, SchemaInfo[] Schemas, string UiHint) GetResults();
     }
 }

@@ -55,6 +55,17 @@ namespace SqlProjectsPowerTools
             return filePath;
         }
 
+        public async Task<string> GetImportAsync(int fileGenerationMode, string optionsPath, string connectionString)
+        {
+            var option = "import ";
+
+            var arguments = option + fileGenerationMode.ToString() + " \"" + optionsPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\"";
+
+            var filePath = await GetDiagramInternalAsync(arguments);
+
+            return filePath;
+        }
+
         public async Task<string> GetErDiagramAsync(string optionsPath, string connectionString)
         {
             var arguments = "erdiagram " + " \"" + optionsPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\" ";

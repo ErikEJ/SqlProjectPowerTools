@@ -1,4 +1,6 @@
-﻿namespace SqlProjectsPowerTools
+﻿using System.Linq;
+
+namespace SqlProjectsPowerTools
 {
     [Command(PackageIds.cmdidImport)]
     internal sealed class ImportCommand : BaseCommand<ImportCommand>
@@ -7,13 +9,29 @@
         {
             ThreadHelper.JoinableTaskFactory.Run(async () =>
             {
-                Command.Enabled = await Command.IsEnabledForSqlProjectAsync();
+                var isSdkSqlProject = await Command.IsEnabledForMsBuildSdkSqlProjectAsync();
+                var hasItems = false;
+
+                var project = await VS.Solutions.GetActiveProjectAsync();
+                if (project != null)
+                {
+                    hasItems = project.Children
+                        .Where(c => c.Type == SolutionItemType.PhysicalFile)
+                        .Count() > 0;
+                }
+
+                Command.Enabled = isSdkSqlProject && !hasItems;
             });
         }
 
         protected override async Task ExecuteAsync(OleMenuCmdEventArgs e)
         {
-            await VS.MessageBox.ShowWarningAsync("ImportCommand", "Coming soon");
+            var project = await VS.Solutions.GetActiveProjectAsync();
+            
+            if (project != null)
+            {
+                await new ImportHandler().GenerateAsync(project.FullPath);
+            }
         }
     }
 }

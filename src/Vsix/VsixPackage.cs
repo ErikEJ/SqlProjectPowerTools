@@ -34,6 +34,9 @@ namespace SqlProjectsPowerTools
             PackageManager.Package = this;
 
             extensionServices = CreateServiceProvider();
+
+            typeof(Microsoft.Xaml.Behaviors.Behavior).ToString();
+            typeof(DropDownButtonLib.Controls.DropDownButton).ToString();
         }
 
         internal TView GetView<TView>()
@@ -67,10 +70,6 @@ namespace SqlProjectsPowerTools
 
             //// Register DAL
             services.AddTransient<IVisualStudioAccess, VisualStudioAccess>();
-            //        .AddSingleton<ITelemetryAccess, TelemetryAccess>()
-            //        .AddSingleton<IOperatingSystemAccess, OperatingSystemAccess>()
-            //        .AddSingleton<ICredentialStore, CredentialStore>()
-            //        .AddSingleton<IDotNetAccess, DotNetAccess>();
 
             var provider = services.BuildServiceProvider();
             return provider;
