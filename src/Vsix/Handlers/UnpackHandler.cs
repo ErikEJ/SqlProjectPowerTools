@@ -15,7 +15,7 @@ namespace SqlProjectsPowerTools
             {
                 if (await VSHelper.IsDebugModeAsync())
                 {
-                    VSHelper.ShowError("Cannot generate code while debugging");
+                    VSHelper.ShowError("Cannot unpack DACPAC while debugging");
                     return;
                 }
 
