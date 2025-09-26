@@ -5,7 +5,7 @@
     {
         protected override async Task ExecuteAsync(OleMenuCmdEventArgs e)
         {
-            await VS.MessageBox.ShowWarningAsync("OptionsCommand", "Coming soon");
+            await Task.Run(() => PackageManager.Package.ShowOptionPage(typeof(OptionsProvider.VsixOptions)));
         }
     }
 }

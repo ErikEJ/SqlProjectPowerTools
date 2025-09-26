@@ -1,0 +1,2 @@
+Vsix.dll
+Contracts.dll
