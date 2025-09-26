@@ -75,6 +75,15 @@ namespace SqlProjectsPowerTools
             return filePath;
         }
 
+        public async Task<string> GetUnpackAsync(string optionsPath, string connectionString)
+        {
+            var arguments = "unpack " + " \"" + optionsPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\" ";
+
+            var filePath = await GetDiagramInternalAsync(arguments);
+
+            return filePath;
+        }
+
         public async Task<string> GetReportPathAsync(string path)
         {
             var option = "dacpacreport ";
