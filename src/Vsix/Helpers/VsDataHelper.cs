@@ -11,7 +11,6 @@ namespace SqlProjectsPowerTools
 {
     internal class VsDataHelper
     {
-
         public static string GetSavedConnectionName(string connectionString, DatabaseType dbType)
         {
             if (dbType == DatabaseType.SQLServer
@@ -239,7 +238,7 @@ namespace SqlProjectsPowerTools
                 using (var cmd = new SqlCommand())
                 {
                     builder.ConnectTimeout = 60;
-                    
+
                     using (var conn = new SqlConnection(builder.ConnectionString))
                     {
                         try

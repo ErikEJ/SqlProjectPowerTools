@@ -78,7 +78,7 @@ namespace SqlProjectsPowerTools
                 e.Cancel = true;
             }
         }
-        
+
         private void Tree_KeyUp(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.F2)

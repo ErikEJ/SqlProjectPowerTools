@@ -1,6 +1,6 @@
-using DacFXToolLib.Common;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using DacFXToolLib.Common;
 
 namespace DacFXToolLib.Dab
 {

@@ -16,7 +16,7 @@
             var project = await VS.Solutions.GetActiveProjectAsync();
             if (project != null)
             {
-                await new UnpackHandler().UnpackDacpacAsync(project);
+                await UnpackHandler.UnpackDacpacAsync(project);
             }
         }
     }

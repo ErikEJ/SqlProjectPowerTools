@@ -40,11 +40,9 @@ namespace DacFXToolLib
                 case DatabaseType.SQLServerDacpac:
                     AddSqlServerProviderServices(serviceCollection, options); break;
 
-
                 default:
                     throw new ArgumentOutOfRangeException(nameof(options), $"unsupported database type: {options.DatabaseType}");
             }
-
 
             return serviceCollection;
         }

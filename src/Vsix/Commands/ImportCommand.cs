@@ -16,8 +16,7 @@ namespace SqlProjectsPowerTools
                 if (project != null)
                 {
                     hasItems = project.Children
-                        .Where(c => c.Type == SolutionItemType.PhysicalFile)
-                        .Count() > 0;
+                        .Any(c => c.Type == SolutionItemType.PhysicalFile);
                 }
 
                 Command.Enabled = isSdkSqlProject && !hasItems;
@@ -27,7 +26,7 @@ namespace SqlProjectsPowerTools
         protected override async Task ExecuteAsync(OleMenuCmdEventArgs e)
         {
             var project = await VS.Solutions.GetActiveProjectAsync();
-            
+
             if (project != null)
             {
                 await new ImportHandler().GenerateAsync(project.FullPath);
