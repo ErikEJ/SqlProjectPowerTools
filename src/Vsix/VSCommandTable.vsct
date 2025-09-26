@@ -99,7 +99,7 @@
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
-          <ButtonText>Unpack...</ButtonText>
+          <ButtonText>Unpack</ButtonText>
         </Strings>
       </Button>
 

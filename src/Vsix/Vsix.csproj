@@ -103,6 +103,8 @@
     <Compile Include="Helpers\VsDataHelper.cs" />
     <Compile Include="Helpers\VSHelper.cs" />
     <Compile Include="Messages\ShowMessageBoxMessage.cs" />
+    <Compile Include="Options\ToolOptions.cs" />
+    <Compile Include="Options\OptionsProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Commands\AboutCommand.cs" />
     <Compile Include="Resources.Designer.cs">

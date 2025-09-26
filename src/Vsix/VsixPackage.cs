@@ -19,6 +19,8 @@ namespace SqlProjectsPowerTools
     [InstalledProductRegistration(Vsix.Name, Vsix.Description, Vsix.Version)]
     [ProvideMenuResource("Menus.ctmenu", 1)]
     [Guid(PackageGuids.VsixString)]
+    [ProvideOptionPage(typeof(OptionsProvider.VsixOptions), "SQL Server Tools", "Database Projects Power Tools", 100, 101, true)]
+    [ProvideProfile(typeof(OptionsProvider.VsixOptions), "SQL Server Tools", "Database Projects Power Tools", 100, 101, true)]
     [ProvideAutoLoad(UIContextGuid, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideUIContextRule(
         UIContextGuid,
