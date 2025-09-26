@@ -8,9 +8,9 @@ using DacFXToolLib.Dab;
 
 namespace SqlProjectsPowerTools
 {
-    internal class ErDiagramHandler
+    internal static class ErDiagramHandler
     {
-        public async System.Threading.Tasks.Task BuildErDiagramAsync(Project project)
+        public static async System.Threading.Tasks.Task BuildErDiagramAsync(Project project)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
@@ -47,7 +47,7 @@ namespace SqlProjectsPowerTools
 
                 await VS.StatusBar.ShowMessageAsync("Loading database objects...");
 
-                if (!await LoadDataBaseObjectsAsync(options, dbInfo))
+                if (!await LoadDataBaseObjectsAsync(options))
                 {
                     await VS.StatusBar.ClearAsync();
                     return;
@@ -122,7 +122,7 @@ namespace SqlProjectsPowerTools
             return await builder.GetTableDefinitionsAsync();
         }
 
-        private async Task<bool> LoadDataBaseObjectsAsync(DataApiBuilderOptions options, DatabaseConnectionModel dbInfo)
+        private static async Task<bool> LoadDataBaseObjectsAsync(DataApiBuilderOptions options)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 

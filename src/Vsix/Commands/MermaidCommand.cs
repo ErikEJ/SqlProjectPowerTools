@@ -16,7 +16,7 @@
             var project = await VS.Solutions.GetActiveProjectAsync();
             if (project != null)
             {
-                await new ErDiagramHandler().BuildErDiagramAsync(project);
+                await ErDiagramHandler.BuildErDiagramAsync(project);
             }
         }
     }

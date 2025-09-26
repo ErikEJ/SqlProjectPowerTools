@@ -1,56 +1,11 @@
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace SqlProjectsPowerTools
 {
-    public class ExternalProcessLauncher
+    public static class ExternalProcessLauncher
     {
-        private readonly Project project;
-
-        public ExternalProcessLauncher(Project project)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            this.project = project;
-        }
-
-        public static List<Tuple<string, string>> BuildModelResult(string modelInfo)
-        {
-            var result = new List<Tuple<string, string>>();
-
-            var contexts = modelInfo.Split(new[] { "DbContext:" + Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-
-            foreach (var context in contexts)
-            {
-                if (context.StartsWith("info:", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                if (context.StartsWith("dbug:", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                if (context.StartsWith("warn:", StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                if (context.IndexOf("DebugView:", StringComparison.OrdinalIgnoreCase) < 0)
-                {
-                    continue;
-                }
-
-                var parts = context.Split(new[] { "DebugView:" + Environment.NewLine }, StringSplitOptions.None);
-                result.Add(new Tuple<string, string>(parts[0].Trim(), parts.Length > 1 ? parts[1].Trim() : string.Empty));
-            }
-
-            return result;
-        }
-
         public static async Task<string> RunProcessAsync(ProcessStartInfo startInfo)
         {
             startInfo.UseShellExecute = false;

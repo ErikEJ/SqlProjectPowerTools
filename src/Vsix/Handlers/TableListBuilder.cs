@@ -1,6 +1,6 @@
-﻿using DacFXToolLib.Common;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using DacFXToolLib.Common;
 
 namespace SqlProjectsPowerTools
 {
@@ -25,8 +25,8 @@ namespace SqlProjectsPowerTools
         public async Task<List<TableModel>> GetTableDefinitionsAsync()
         {
             var launcher = new ProcessLauncher();
-            // TODO: pass in the mergeDacpacs option from options - AdvancedOptions.Instance.MergeDacpacs
 
+            // TODO: pass in the mergeDacpacs option from options - AdvancedOptions.Instance.MergeDacpacs
             return await launcher.GetTablesAsync(connectionString, databaseType, schemas, false);
         }
     }

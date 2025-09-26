@@ -1,3 +1,6 @@
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using DacFXToolLib;
 using DacFXToolLib.Common;
 using DacFXToolLib.Dab;
@@ -5,9 +8,6 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SqlServer.Dac;
 using RevEng.Core.Abstractions.Model;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Text;
 
 [assembly: CLSCompliant(true)]
 [assembly: SuppressMessage("Reliability", "CA2007:Consider calling ConfigureAwait on the awaited task", Justification = "Reviewed")]
@@ -60,7 +60,6 @@ namespace DacFXTool
 
                         return 0;
                     }
-
 
                     if (args.Length == 2
                         && args[0] == "dacpacreport"
@@ -161,9 +160,7 @@ namespace DacFXTool
                             return 1;
                         }
 
-                        var unpacker = new DacPackageUnpacker();
-
-                        unpacker.Unpack(args[1], args[2]);
+                        DacPackageUnpacker.Unpack(args[1], args[2]);
 
                         await Console.Out.WriteLineAsync("Result:");
                         await Console.Out.WriteLineAsync("OK");

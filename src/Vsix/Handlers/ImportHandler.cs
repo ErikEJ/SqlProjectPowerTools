@@ -1,9 +1,9 @@
-using DacFXToolLib.Common;
-using DacFXToolLib.Dab;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using DacFXToolLib.Common;
+using DacFXToolLib.Dab;
 
 namespace SqlProjectsPowerTools
 {
@@ -132,7 +132,7 @@ namespace SqlProjectsPowerTools
             // https://learn.microsoft.com/dotnet/api/microsoft.sqlserver.dac.dacextracttarget
             var list = new List<CodeGenerationItem>
             {
-                new CodeGenerationItem { Key = 5, Value = "SchemaObjectType" },                
+                new CodeGenerationItem { Key = 5, Value = "SchemaObjectType" },
                 new CodeGenerationItem { Key = 3, Value = "ObjectType" },
                 new CodeGenerationItem { Key = 2, Value = "Flat" },
                 new CodeGenerationItem { Key = 4, Value = "Schema" },

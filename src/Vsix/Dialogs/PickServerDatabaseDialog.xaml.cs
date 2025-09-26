@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using DacFXToolLib.Common;
@@ -18,7 +17,6 @@ namespace SqlProjectsPowerTools
         public PickServerDatabaseDialog(
             IPickServerDatabaseViewModel viewModel)
         {
-
             DataContext = viewModel;
             viewModel.CloseRequested += (sender, args) =>
             {
@@ -54,9 +52,10 @@ namespace SqlProjectsPowerTools
                 {
                     viewModel.CodeGenerationModeList.Add(item);
                 }
+
                 if (viewModel.CodeGenerationModeList.Any())
                 {
-                    viewModel.CodeGenerationMode = viewModel.CodeGenerationModeList.First().Key;
+                    viewModel.CodeGenerationMode = viewModel.CodeGenerationModeList[0].Key;
                 }
             };
 
@@ -99,9 +98,9 @@ namespace SqlProjectsPowerTools
             addSchemas(schemas);
         }
 
-        public void PublishFileGenerationMode(IList<CodeGenerationItem> allowedVersions)
+        public void PublishFileGenerationMode(IList<CodeGenerationItem> methods)
         {
-            codeGeneration(allowedVersions);
+            codeGeneration(methods);
         }
 
         public void PublishUiHint(string uiHint)

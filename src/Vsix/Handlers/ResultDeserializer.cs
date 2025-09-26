@@ -1,8 +1,8 @@
-﻿using DacFXToolLib.Common;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Text;
+using DacFXToolLib.Common;
 
 namespace SqlProjectsPowerTools
 {

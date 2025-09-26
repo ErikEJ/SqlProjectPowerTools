@@ -5,9 +5,9 @@ using DacFXToolLib.Dab;
 
 namespace SqlProjectsPowerTools
 {
-    internal class UnpackHandler
+    internal static class UnpackHandler
     {
-        public async System.Threading.Tasks.Task UnpackDacpacAsync(Project project)
+        public static async System.Threading.Tasks.Task UnpackDacpacAsync(Project project)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
@@ -35,7 +35,7 @@ namespace SqlProjectsPowerTools
                 }
 
                 var result = await UnpackFilesAsync(unpackPath, dbInfo.ConnectionString);
-                
+
                 if (result == "OK")
                 {
                     VSHelper.ShowMessage($"Unpack completed to '{unpackPath}'");
@@ -82,7 +82,7 @@ namespace SqlProjectsPowerTools
             await VS.StatusBar.ShowProgressAsync("Unpacking files", 1, 2);
 
             var launcher = new ProcessLauncher();
-            
+
             var result = await launcher.GetUnpackAsync(unpackPath, connectionString);
 
             await VS.StatusBar.ShowProgressAsync("Unpacking files", 2, 2);

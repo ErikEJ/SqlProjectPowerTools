@@ -1,5 +1,5 @@
-﻿using DacFXToolLib.Common;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
+using DacFXToolLib.Common;
 
 namespace SqlProjectsPowerTools
 {

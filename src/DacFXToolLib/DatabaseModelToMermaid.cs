@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using System.Linq;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 
 namespace DacFXToolLib
