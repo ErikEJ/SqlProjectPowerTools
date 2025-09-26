@@ -1,7 +1,5 @@
 using System.IO;
 using System.Threading.Tasks;
-using DacFXToolLib.Common;
-using DacFXToolLib.Dab;
 
 namespace SqlProjectsPowerTools
 {
@@ -23,18 +21,9 @@ namespace SqlProjectsPowerTools
 
                 var unpackPath = Path.Combine(projectPath, DateTime.Now.ToString("yyyy-MM-dd_HH-mm"));
 
-                var options = new DataApiBuilderOptions();
+                var dacpacPath = await SqlProjHelper.BuildSqlProjectAsync(project.FullPath);
 
-                options.Dacpac = project.FullPath;
-
-                var dbInfo = await GetDatabaseInfoAsync(options);
-
-                if (dbInfo == null)
-                {
-                    return;
-                }
-
-                var result = await UnpackFilesAsync(unpackPath, dbInfo.ConnectionString);
+                var result = await UnpackFilesAsync(dacpacPath, unpackPath);
 
                 if (result == "OK")
                 {
@@ -54,28 +43,7 @@ namespace SqlProjectsPowerTools
             }
         }
 
-        private static async Task<DatabaseConnectionModel> GetDatabaseInfoAsync(DataApiBuilderOptions options)
-        {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            var dbInfo = new DatabaseConnectionModel();
-
-            dbInfo.DatabaseType = DatabaseType.SQLServerDacpac;
-            dbInfo.ConnectionString = $"Data Source=(local);Initial Catalog={Path.GetFileNameWithoutExtension(options.Dacpac)};Integrated Security=true;";
-            options.ConnectionString = dbInfo.ConnectionString;
-            options.DatabaseType = dbInfo.DatabaseType;
-
-            options.Dacpac = await SqlProjHelper.BuildSqlProjectAsync(options.Dacpac);
-            if (string.IsNullOrEmpty(options.Dacpac))
-            {
-                VSHelper.ShowMessage("Unable to build the database project");
-                return null;
-            }
-
-            return dbInfo;
-        }
-
-        private static async Task<string> UnpackFilesAsync(string unpackPath, string connectionString)
+        private static async Task<string> UnpackFilesAsync(string dacpacPath, string unpackPath)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
@@ -83,7 +51,7 @@ namespace SqlProjectsPowerTools
 
             var launcher = new ProcessLauncher();
 
-            var result = await launcher.GetUnpackAsync(unpackPath, connectionString);
+            var result = await launcher.GetUnpackAsync(dacpacPath, unpackPath);
 
             await VS.StatusBar.ShowProgressAsync("Unpacking files", 2, 2);
 

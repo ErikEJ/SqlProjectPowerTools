@@ -26,8 +26,7 @@ namespace SqlProjectsPowerTools
         {
             var launcher = new ProcessLauncher();
 
-            // TODO: pass in the mergeDacpacs option from options - AdvancedOptions.Instance.MergeDacpacs
-            return await launcher.GetTablesAsync(connectionString, databaseType, schemas, false);
+            return await launcher.GetTablesAsync(connectionString, databaseType, schemas, ToolOptions.Instance.MergeDacpacs);
         }
     }
 }
