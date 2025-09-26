@@ -1,4 +1,4 @@
-# SQL Database Projects Power Tools
+# SQL Database Project Power Tools
 
 Visual Studio Tools to enhance the SQL Database Projects developer experience.
 
@@ -21,10 +21,10 @@ The following features are planned. Each feature will apply to both classic .sql
 
 ## Related projects
 
-The plan is to release this as a Visual Studio extension, similar to EF Core Power Tools.
+The plan is to release this as a Visual Studio extension.
 
-In addition, the plan is to publish an extension pack for SQL Database Projects Power Tools, which will include:
+In addition, the plan is to publish an extension pack for SQL Database Project Power Tools, which will include:
 
-- SQL Database Projects Power Tools from ErikEJ
+- SQL Database Project Power Tools from ErikEJ
 - T-SQL Analyzer from ErikEJ
 - SQL Formatter from Mads Kristensen
