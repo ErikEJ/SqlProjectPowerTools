@@ -66,6 +66,15 @@ namespace SqlProjectsPowerTools
             return filePath;
         }
 
+        public async Task<string> GetUnpackAsync(string dacpacPath, string outputPath)
+        {
+            var arguments = "unpack \"" + dacpacPath.Replace("\"", "\\\"") + "\" \"" + outputPath.Replace("\"", "\\\"") + "\"";
+
+            var filePath = await GetDiagramInternalAsync(arguments);
+
+            return filePath;
+        }
+
         public async Task<string> GetErDiagramAsync(string optionsPath, string connectionString)
         {
             var arguments = "erdiagram " + " \"" + optionsPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\" ";

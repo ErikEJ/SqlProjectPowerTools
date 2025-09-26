@@ -13,7 +13,12 @@
 
         protected override async Task ExecuteAsync(OleMenuCmdEventArgs e)
         {
-            await VS.MessageBox.ShowWarningAsync("UnpackCommand", "Button clicked");
+            var project = await VS.Solutions.GetActiveProjectAsync();
+            
+            if (project != null)
+            {
+                await new UnpackHandler().UnpackAsync(project.FullPath);
+            }
         }
     }
 }
