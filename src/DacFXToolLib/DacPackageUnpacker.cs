@@ -9,8 +9,10 @@ namespace DacFXToolLib
             // Ensure output directory exists
             Directory.CreateDirectory(outputPath);
             
-            var package = DacPackage.Load(dacpacPath);
-            DacServices.Unpack(package, outputPath);
+            using (var package = DacPackage.Load(dacpacPath))
+            {
+                DacServices.Unpack(package, outputPath);
+            }
         }
     }
 }
