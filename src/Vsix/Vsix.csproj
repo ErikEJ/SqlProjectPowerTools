@@ -49,6 +49,7 @@
     <Compile Include="Commands\AnalyzeCommand.cs" />
     <Compile Include="Commands\ImportCommand.cs" />
     <Compile Include="Commands\MermaidCommand.cs" />
+    <Compile Include="Commands\OptionsCommand.cs" />
     <Compile Include="Commands\UnpackCommand.cs" />
     <Compile Include="Contracts\EventArgs\CloseRequestedEventArgs.cs" />
     <Compile Include="Contracts\ViewModels\CodeGenerationItem.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="Handlers\ProcessLauncher.cs" />
     <Compile Include="Handlers\ResultDeserializer.cs" />
     <Compile Include="Handlers\TableListBuilder.cs" />
+    <Compile Include="Handlers\UnpackHandler.cs" />
     <Compile Include="Helpers\SqlConnectionStringBuilderHelper.cs" />
     <Compile Include="Helpers\SqlProjHelper.cs" />
     <Compile Include="Handlers\ExternalProcessLauncher.cs" />
