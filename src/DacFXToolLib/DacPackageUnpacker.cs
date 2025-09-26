@@ -1,4 +1,5 @@
 using Microsoft.SqlServer.Dac;
+using System.IO;
 
 namespace DacFXToolLib
 {
