@@ -35,7 +35,9 @@ namespace DacFXToolLib
 
             var diagram = creator.CreateMermaid(createMarkdown);
 
-            var fileName = Path.Join(Path.GetTempPath(), Path.GetRandomFileName() + ".mmd");
+            var extension = createMarkdown ? ".md" : ".mmd";
+
+            var fileName = Path.Join(Path.GetTempPath(), Path.GetRandomFileName() + extension);
             File.WriteAllText(fileName, diagram, Encoding.UTF8);
 
             return fileName;
