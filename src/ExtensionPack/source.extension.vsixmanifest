@@ -3,7 +3,7 @@
     <Metadata>
         <Identity Id="SQLProjectPowerToolsExtensionPack.975FFC08-5CA4-49EC-A62F-CD348A13EE45" Version="0.1.0" Language="en-US" Publisher="ErikEJ" />
         <DisplayName>SQL Database Project Power Pack</DisplayName>
-        <Description xml:space="preserve">A package that contains 'SQL Database Project Power Tools', 'T-SQL Analyzer' and 'SQL Formatter' to improve the SQL Database Project developer experience.</Description>
+        <Description xml:space="preserve">An extension pack that contains 'SQL Database Project Power Tools', 'T-SQL Analyzer' and 'SQL Formatter' to improve the SQL Database Project developer experience.</Description>
         <License>license.txt</License>
         <Icon>logo9090.png</Icon>
         <Preview>true</Preview> 
