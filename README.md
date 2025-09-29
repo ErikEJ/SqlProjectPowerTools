@@ -4,9 +4,7 @@ Visual Studio Tools to enhance the SQL Database Projects developer experience.
 
 ## Features
 
-The following features are planned. Each feature will apply to both classic .sqlproj and MsBuild.Sdk.SqlProj projects, unless noted.
-
-### Preview 1
+The tool conatins the following features. Each feature applies to both classic .sqlproj and MsBuild.Sdk.SqlProj projects, unless noted.
 
 - **Import database** - for MsBuild.Sdk.SqlProj only
 - **Analyze** - html output of analysis of your database project
@@ -19,11 +17,9 @@ The following features are planned. Each feature will apply to both classic .sql
 - **Data API Builder scaffold** - build a Data API Builder config file from your database project
 - **Schema compare** - compare your database project to a live database or dacpac
 
-## Related projects
+## Power Pack
 
-The plan is to release this as a Visual Studio extension.
-
-In addition, the plan is to publish an extension pack for SQL Database Project Power Tools, which will include:
+In addition, the **SQL Database Project Power Pack** is available, and includes:
 
 - SQL Database Project Power Tools from ErikEJ
 - T-SQL Analyzer from ErikEJ
