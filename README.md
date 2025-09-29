@@ -4,7 +4,7 @@ Visual Studio Tools to enhance the SQL Database Projects developer experience.
 
 ## Features
 
-The tool conatins the following features. Each feature applies to both classic .sqlproj and MsBuild.Sdk.SqlProj projects, unless noted.
+The tool contains the following features. Each feature applies to both classic .sqlproj and MsBuild.Sdk.SqlProj projects, unless noted.
 
 - **Import database** - for MsBuild.Sdk.SqlProj only
 - **Analyze** - html output of analysis of your database project
