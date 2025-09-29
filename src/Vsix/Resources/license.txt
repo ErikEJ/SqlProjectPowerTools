@@ -1,2 +1,1 @@
-
 For license, see https://github.com/ErikEJ/SqlProjectPowerTools/blob/main/LICENSE
