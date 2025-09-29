@@ -1,0 +1,18 @@
+{
+  "description": "A package that contains 'SQL Database Project Power Tools', 'T-SQL Analyzer' and 'SQL Formatter' to improve the SQL Database Project developer experience.",
+  "version": "1.0.0.0",
+  "extensions": [
+    {
+      "vsixId": "SqlProjectsPowerTools.0e226f35-6d47-4156-88df-f9d40db5e2d1",
+      "name": "SQL Database Project Power Tools"
+    },
+    {
+      "vsixId": "SqlFormatter.fdf96f87-bc61-43ec-bc52-50fd011fd54f",
+      "name": "SQL Formatter for Visual Studio"
+    },
+    {
+      "vsixId": "SqlAnalyzer.abc6ba2-edd5-4419-8646-a55d0a83f7ff",
+      "name": "T-SQL Analyzer"
+    }
+  ]
+}
