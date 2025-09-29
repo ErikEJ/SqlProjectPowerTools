@@ -12,7 +12,7 @@ namespace DacFXToolLib.Routines.Extensions
         public static IServiceCollection AddSqlServerDacpacStoredProcedureDesignTimeServices(
             this IServiceCollection services,
             SqlServerDacpacDatabaseModelFactoryOptions factoryOptions,
-            IOperationReporter reporter = null)
+            IOperationReporter? reporter = null)
         {
             if (reporter == null)
             {
@@ -29,7 +29,7 @@ namespace DacFXToolLib.Routines.Extensions
         public static IServiceCollection AddSqlServerDacpacFunctionDesignTimeServices(
             this IServiceCollection services,
             SqlServerDacpacDatabaseModelFactoryOptions factoryOptions,
-            IOperationReporter reporter = null)
+            IOperationReporter? reporter = null)
         {
             if (reporter == null)
             {

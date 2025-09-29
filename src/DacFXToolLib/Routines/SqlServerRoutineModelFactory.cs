@@ -10,9 +10,9 @@ namespace DacFXToolLib.Routines
 {
     public abstract class SqlServerRoutineModelFactory
     {
-        public string RoutineSql { get; set; }
+        public string RoutineSql { get; set; } = null!;
 
-        public string RoutineType { get; set; }
+        public string RoutineType { get; set; } = null!;
 
 #pragma warning disable CA1716 // Identifiers should not match keywords
         protected abstract List<List<ModuleResultElement>> GetResultElementLists(SqlConnection connection, Routine module, bool multipleResults, bool useLegacyResultSetDiscovery);
@@ -165,7 +165,7 @@ namespace DacFXToolLib.Routines
             using var command = connection.CreateCommand();
             command.CommandText = "SELECT @@VERSION;";
             var result = command.ExecuteScalar();
-            return result as string;
+            return result as string ?? string.Empty;
         }
 
         private static Dictionary<string, List<ModuleParameter>> GetParameters(SqlConnection connection)
