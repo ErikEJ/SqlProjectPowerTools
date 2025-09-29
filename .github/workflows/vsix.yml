@@ -30,6 +30,7 @@ jobs:
     - name: Update Version
       run: |
         ((Get-Content -Path Vsix/source.extension.vsixmanifest -Raw) -Replace "0.1.0", "${{ env.VERSION }}") | Set-Content -Path Vsix/source.extension.vsixmanifest
+        ((Get-Content -Path ExtensionPack/source.extension.vsixmanifest -Raw) -Replace "0.1.0", "${{ env.VERSION }}") | Set-Content -Path ExtensionPack/source.extension.vsixmanifest
       working-directory: src
       shell: pwsh
 
@@ -54,6 +55,7 @@ jobs:
       if: github.ref == 'refs/heads/main' && github.repository_owner == 'erikej' && (github.event_name == 'push' ||  github.event_name == 'workflow_dispatch')
       run: |
         mv src/Vsix/bin/Release/Vsix.vsix SqlProjectPowerTools-${{ env.VERSION }}.vsix
+        mv src/ExtensionPack/bin/Release/ExtensionPack.vsix SqlProjectExtensionPack-${{ env.VERSION }}.vsix
 
     - name: Azure CLI login with federated credential
       if: github.event_name != 'pull_request'
