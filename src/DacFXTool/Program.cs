@@ -30,7 +30,7 @@ namespace DacFXTool
                         && int.TryParse(args[1], out int dbTypeInt)
                         && bool.TryParse(args[0], out bool mergeDacpacs))
                     {
-                        SchemaInfo[] schemas = null;
+                        SchemaInfo[]? schemas = null;
                         if (args.Length == 4)
                         {
                             schemas = args[3].Split(',').Select(s => new SchemaInfo { Name = s }).ToArray();
@@ -47,7 +47,7 @@ namespace DacFXTool
                         var procedureModelFactory = provider.GetRequiredService<IProcedureModelFactory>();
                         var functionModelFactory = provider.GetRequiredService<IFunctionModelFactory>();
                         var databaseModelFactory = provider.GetRequiredService<IDatabaseModelFactory>();
-                        var builder = new TableListBuilder(reverseEngineerCommandOptions, procedureModelFactory, functionModelFactory, databaseModelFactory, schemas);
+                        var builder = new TableListBuilder(reverseEngineerCommandOptions, procedureModelFactory, functionModelFactory, databaseModelFactory, schemas ?? []);
 
                         var buildResult = builder.GetTableModels();
 

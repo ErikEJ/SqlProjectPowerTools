@@ -15,7 +15,7 @@ namespace DacFXToolLib
         private readonly SchemaInfo[] schemas;
         private readonly DatabaseType databaseType;
         private readonly string connectionString;
-        private DatabaseModel databaseModel;
+        private DatabaseModel? databaseModel;
 
         public TableListBuilder(
             ReverseEngineerCommandOptions options,

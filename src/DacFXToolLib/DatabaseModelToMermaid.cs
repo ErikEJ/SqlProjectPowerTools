@@ -94,7 +94,7 @@ namespace DacFXToolLib
                     }
 
                     var formattedPrincipalTableName = Sanitize(foreignKey.PrincipalTable.Name);
-                    var formattedForeignKeyName = Sanitize(foreignKey.Name);
+                    var formattedForeignKeyName = Sanitize(foreignKey.Name!);
 
                     sb.AppendLine(CultureInfo.InvariantCulture, $"  {formattedTableName} {relationship}| {formattedPrincipalTableName} : {formattedForeignKeyName}");
                 }

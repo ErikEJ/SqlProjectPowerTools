@@ -2,6 +2,7 @@
 using System.Windows.Controls;
 using System.Windows.Input;
 using DacFXToolLib.Common;
+
 namespace SqlProjectsPowerTools
 {
     public partial class PickTablesDialog : IPickTablesDialog
