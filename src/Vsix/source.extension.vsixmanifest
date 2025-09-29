@@ -3,9 +3,11 @@
   <Metadata>
     <Identity Id="SqlProjectsPowerTools.0e226f35-6d47-4156-88df-f9d40db5e2d1" Version="0.1.0" Language="en-US" Publisher="ErikEJ" />
     <DisplayName>SQL Database Project Power Tools</DisplayName>
-    <Description>SQL Database Project Power Tools</Description>
-    <Icon>Resources\Icon.png</Icon>
-    <PreviewImage>Resources\Icon.png</PreviewImage>
+    <Description>Tools to enhance the SQL Database Projects developer experience, including Project and Item templates, Import existing databases, create E/R diagrams and much more.</Description>
+    <MoreInfo>https://github.com/ErikEJ/SqlProjectPowerTools/</MoreInfo>
+    <License>Resources\license.txt</License>
+    <Icon>Resources\logo9090.png</Icon>
+    <PreviewImage>Resources\logo.png</PreviewImage>
     <Preview>true</Preview>
   </Metadata>
   <Installation>
