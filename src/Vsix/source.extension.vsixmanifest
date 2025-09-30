@@ -7,7 +7,6 @@
     <MoreInfo>https://github.com/ErikEJ/SqlProjectPowerTools/</MoreInfo>
     <License>Resources\license.txt</License>
     <Icon>Resources\logo9090.png</Icon>
-    <PreviewImage>Resources\logo.png</PreviewImage>
     <Preview>true</Preview>
   </Metadata>
   <Installation>
