@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build">
+  <Sdk Name="Microsoft.Build.Sql" Version="0.2.3-preview" />
+  <PropertyGroup>
+    <Name>MsSdkStyle</Name>
+    <DSP>Microsoft.Data.Tools.Schema.Sql.Sql160DatabaseSchemaProvider</DSP>
+    <ModelCollation>1033, CI</ModelCollation>
+    <RootNamespace>MsSdkStyle</RootNamespace>
+    <AssemblyName>MsSdkStyle</AssemblyName>
+  </PropertyGroup>
+</Project>

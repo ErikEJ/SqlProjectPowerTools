@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 
 namespace SqlProjectsPowerTools
 {
@@ -9,7 +9,7 @@ namespace SqlProjectsPowerTools
         {
             ThreadHelper.JoinableTaskFactory.Run(async () =>
             {
-                var isSdkSqlProject = await Command.IsEnabledForMsBuildSdkSqlProjectAsync();
+                var isSdkSqlProject = await Command.IsEnabledModernSqlProjectAsync();
                 var hasItems = false;
 
                 var project = await VS.Solutions.GetActiveProjectAsync();
