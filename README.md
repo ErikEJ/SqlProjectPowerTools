@@ -24,7 +24,7 @@ I have also published [SQL Project Power Pack](https://marketplace.visualstudio.
 
 You can download the daily build from [Open VSIX Gallery](https://www.vsixgallery.com/extension/SqlProjectsPowerTools.0e226f35-6d47-4156-88df-f9d40db5e2d1)
 
-### Future (under consideration))
+### Future (under consideration)
 
 - **Data API Builder scaffold** - build a Data API Builder config file from your database project
 - **Schema compare** - compare your database project to a live database or dacpac
