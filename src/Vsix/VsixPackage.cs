@@ -1,4 +1,4 @@
-﻿global using System;
+global using System;
 global using Community.VisualStudio.Toolkit;
 #pragma warning disable SA1210 // Using directives should be ordered alphabetically by namespace
 global using Microsoft.VisualStudio.Shell;
@@ -25,13 +25,14 @@ namespace SqlProjectsPowerTools
     [ProvideUIContextRule(
         UIContextGuid,
         name: "Auto load based on rules",
-        expression: "SdkProject | SqlprojProject ",
-        termNames: ["SdkProject", "SqlprojProject"],
-        termValues: [$"ActiveProjectCapability:{SdkProjCapability}", "ActiveProjectBuildProperty:DSP=.*"])]
+        expression: "SdkProject | SqlprojProject | MicrosoftSdkProject ",
+        termNames: ["SdkProject", "SqlprojProject", "MicrosoftSdkProject"],
+        termValues: [$"ActiveProjectCapability:{SdkProjCapability}", "ActiveProjectBuildProperty:DSP=.*", $"ActiveProjectCapability:{MicrosoftSdkCapability}"])]
     public sealed class VsixPackage : ToolkitPackage
     {
         public const string UIContextGuid = "E098D400-A841-4C88-9B7C-267EFA15A5E4";
         public const string SdkProjCapability = "MSBuild.Sdk.SqlProj.BuildTSqlScript";
+        public const string MicrosoftSdkCapability = "SQLProject";
 
         private IServiceProvider extensionServices;
 

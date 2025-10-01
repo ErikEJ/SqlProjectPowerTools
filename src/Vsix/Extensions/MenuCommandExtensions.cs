@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.Design;
+using System.ComponentModel.Design;
 using System.Threading.Tasks;
 
 namespace SqlProjectsPowerTools
@@ -16,7 +16,7 @@ namespace SqlProjectsPowerTools
             return activeProject.IsSqlDatabaseProject();
         }
 
-        public static async Task<bool> IsEnabledForMsBuildSdkSqlProjectAsync(this MenuCommand command)
+        public static async Task<bool> IsEnabledModernSqlProjectAsync(this MenuCommand command)
         {
             var activeProject = await VS.Solutions.GetActiveProjectAsync();
             if (activeProject == null)
@@ -24,7 +24,8 @@ namespace SqlProjectsPowerTools
                 return false;
             }
 
-            return activeProject.IsMsBuildSdkSqlDatabaseProject();
+            return activeProject.IsMsBuildSdkSqlDatabaseProject()
+                || activeProject.IsMicrosoftSdkSqlDatabaseProject();
         }
     }
 }

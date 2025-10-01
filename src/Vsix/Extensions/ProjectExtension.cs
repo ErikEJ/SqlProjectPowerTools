@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 
 namespace SqlProjectsPowerTools
 {
@@ -12,7 +12,8 @@ namespace SqlProjectsPowerTools
             }
 
             return project.FullPath.EndsWith(".sqlproj", StringComparison.OrdinalIgnoreCase)
-                || project.IsCapabilityMatch(VsixPackage.SdkProjCapability);
+                || project.IsMsBuildSdkSqlDatabaseProject()
+                || project.IsMicrosoftSdkSqlDatabaseProject();
         }
 
         public static bool IsMsBuildSdkSqlDatabaseProject(this Project project)
@@ -23,6 +24,16 @@ namespace SqlProjectsPowerTools
             }
 
             return project.IsCapabilityMatch(VsixPackage.SdkProjCapability);
+        }
+
+        public static bool IsMicrosoftSdkSqlDatabaseProject(this Project project)
+        {
+            if (project == null)
+            {
+                return false;
+            }
+
+            return project.IsCapabilityMatch(VsixPackage.MicrosoftSdkCapability);
         }
 
         public static async Task<string> GetDacpacPathAsync(this Project project)
