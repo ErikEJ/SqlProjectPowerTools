@@ -62,21 +62,18 @@ namespace SqlProjectsPowerTools
                         return;
                     }
 
-                    if (File.Exists(settingsPath))
+                    await VS.StatusBar.ShowMessageAsync("Import completed successfully");
+                    var settingsString = File.ReadAllText(settingsPath, Encoding.UTF8);
+                    var settings = JsonSerializer.Deserialize<Dictionary<string, string>>(settingsString);
+                    foreach (var setting in settings)
                     {
-                        await VS.StatusBar.ShowMessageAsync("Import completed successfully");
-                        var settingsString = File.ReadAllText(settingsPath, Encoding.UTF8);
-                        var settings = JsonSerializer.Deserialize<Dictionary<string, string>>(settingsString);
-                        foreach (var setting in settings)
+                        await VS.StatusBar.ShowMessageAsync($"Saving database settings: {setting.Key}...");
+                        if (string.IsNullOrEmpty(setting.Value))
                         {
-                            await VS.StatusBar.ShowMessageAsync($"Saving database settings: {setting.Key}...");
-                            if (string.IsNullOrEmpty(setting.Value))
-                            {
-                                continue;
-                            }
-
-                            await project.TrySetAttributeAsync(setting.Key, setting.Value);
+                            continue;
                         }
+
+                        await project.TrySetAttributeAsync(setting.Key, setting.Value);
                     }
                 }
             }
