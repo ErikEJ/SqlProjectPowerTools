@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using DacFXToolLib.Common;
 using DacFXToolLib.Dab;
@@ -9,7 +11,7 @@ namespace SqlProjectsPowerTools
 {
     internal class ImportHandler
     {
-        public async Task GenerateAsync(string projectPath)
+        public async Task GenerateAsync(Project project)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
@@ -21,7 +23,7 @@ namespace SqlProjectsPowerTools
                     return;
                 }
 
-                var outputPath = Path.GetDirectoryName(projectPath);
+                var outputPath = Path.GetDirectoryName(project.FullPath);
 
                 var options = new DataApiBuilderOptions();
 
@@ -45,7 +47,34 @@ namespace SqlProjectsPowerTools
 
                 if (result == "OK")
                 {
-                    VSHelper.ShowMessage("Import completed successfully");
+                    await VS.StatusBar.ShowMessageAsync("Import completed successfully");
+                }
+
+                if (info.ImportSettings)
+                {
+                    await VS.StatusBar.ShowMessageAsync("Importing database settings...");
+
+                    var settingsPath = await RunGetDatabaseSettingsAsync(dbInfo.ConnectionString);
+
+                    if (string.IsNullOrEmpty(settingsPath) || !File.Exists(settingsPath))
+                    {
+                        await VS.StatusBar.ShowMessageAsync("Settings import failed!");
+                        return;
+                    }
+
+                    await VS.StatusBar.ShowMessageAsync("Import completed successfully");
+                    var settingsString = File.ReadAllText(settingsPath, Encoding.UTF8);
+                    var settings = JsonSerializer.Deserialize<Dictionary<string, string>>(settingsString);
+                    foreach (var setting in settings)
+                    {
+                        await VS.StatusBar.ShowMessageAsync($"Saving database settings: {setting.Key}...");
+                        if (string.IsNullOrEmpty(setting.Value))
+                        {
+                            continue;
+                        }
+
+                        await project.TrySetAttributeAsync(setting.Key, setting.Value);
+                    }
                 }
             }
             catch (AggregateException ae)
@@ -71,6 +100,12 @@ namespace SqlProjectsPowerTools
             return await launcher.GetImportAsync(filegenerationMode, optionsPath, connectionString);
         }
 
+        private static async Task<string> RunGetDatabaseSettingsAsync(string connectionString)
+        {
+            var launcher = new ProcessLauncher();
+            return await launcher.GetDatabaseSettingsAsync(connectionString);
+        }
+
         private static async Task<DatabaseConnectionModel> GetDatabaseInfoAsync(DataApiBuilderOptions options)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
@@ -92,7 +127,7 @@ namespace SqlProjectsPowerTools
             return dbInfo;
         }
 
-        private async Task<(DatabaseConnectionModel DatabaseModel, int FileGenerationMode)> ChooseDataBaseConnectionAsync(DataApiBuilderOptions options)
+        private async Task<(DatabaseConnectionModel DatabaseModel, int FileGenerationMode, bool ImportSettings)> ChooseDataBaseConnectionAsync(DataApiBuilderOptions options)
         {
             var vsDataHelper = new VsDataHelper();
             var databaseList = await vsDataHelper.GetDataConnectionsAsync();
@@ -115,7 +150,7 @@ namespace SqlProjectsPowerTools
             var pickDataSourceResult = psd.ShowAndAwaitUserResponse(true);
             if (!pickDataSourceResult.ClosedByOK)
             {
-                return (null, 0);
+                return (null, 0, false);
             }
 
             if (pickDataSourceResult.Payload.Connection != null)
@@ -124,7 +159,9 @@ namespace SqlProjectsPowerTools
                 options.DatabaseType = pickDataSourceResult.Payload.Connection.DatabaseType;
             }
 
-            return (pickDataSourceResult.Payload.Connection, pickDataSourceResult.Payload.CodeGenerationMode);
+            return (pickDataSourceResult.Payload.Connection,
+                pickDataSourceResult.Payload.CodeGenerationMode,
+                pickDataSourceResult.Payload.GetDatabaseOptions);
         }
 
         private List<CodeGenerationItem> GetCodeGenerationModes()

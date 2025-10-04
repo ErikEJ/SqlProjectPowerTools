@@ -130,7 +130,7 @@ namespace DacFXTool
                     if (args.Length == 4
                         && args[0] == "import")
                     {
-                        var importer = new DatabaseExtractor(args[3]);
+                        var importer = new SchemaExtractor(args[3]);
 
                         var target = int.TryParse(args[1], out int targetType) ? (DacExtractTarget?)targetType : null;
 
@@ -145,6 +145,20 @@ namespace DacFXTool
 
                         await Console.Out.WriteLineAsync("Result:");
                         await Console.Out.WriteLineAsync("OK");
+
+                        return 0;
+                    }
+
+                    // getdboptions "connection string"
+                    if (args.Length == 2
+                        && args[0] == "getdboptions")
+                    {
+                        var importer = new SchemaExtractor(args[1]);
+
+                        var optionsPath = importer.GetDatabaseOptions();
+
+                        await Console.Out.WriteLineAsync("Result:");
+                        await Console.Out.WriteLineAsync(optionsPath);
 
                         return 0;
                     }

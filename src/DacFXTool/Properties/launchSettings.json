@@ -2,7 +2,7 @@
   "profiles": {
     "DacFXTool": {
       "commandName": "Project",
-      "commandLineArgs": "import 5 \"C:\\temp\\testing\" \"data source=.\\SQLEXPRESS;Initial Catalog=Chinook;Integrated Security=true;Encrypt=false\""
+      "commandLineArgs": "getdboptions \"data source=.\\SQLEXPRESS;Initial Catalog=Chinook;Integrated Security=true;Encrypt=false\""
     }
   }
 }

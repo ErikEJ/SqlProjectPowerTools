@@ -66,6 +66,17 @@ namespace SqlProjectsPowerTools
             return filePath;
         }
 
+        public async Task<string> GetDatabaseSettingsAsync(string connectionString)
+        {
+            var option = "getdboptions ";
+
+            var arguments = option + " \"" + connectionString.Replace("\"", "\\\"") + "\"";
+
+            var filePath = await GetDiagramInternalAsync(arguments);
+
+            return filePath;
+        }
+
         public async Task<string> GetErDiagramAsync(string optionsPath, string connectionString)
         {
             var arguments = "erdiagram " + " \"" + optionsPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\" ";
