@@ -9,7 +9,7 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Classic", "Classic\Classic.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLib", "ClassLib\ClassLib.csproj", "{7CB1F1DE-794A-4F40-B959-881E7263A7F8}"
 EndProject
-Project("{42EA0DBD-9CF1-443E-919E-BE9C484E4577}") = "MsSdkStyle", "MsSdkStyle\MsSdkStyle.sqlproj", "{1BD17362-8D8D-4451-8076-CEC009DD731E}"
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "MsSdkStyle", "MsSdkStyle\MsSdkStyle.sqlproj", "{54FE7BAC-46C8-4611-B9F5-D8B860A20616}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,10 +31,10 @@ Global
 		{7CB1F1DE-794A-4F40-B959-881E7263A7F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7CB1F1DE-794A-4F40-B959-881E7263A7F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7CB1F1DE-794A-4F40-B959-881E7263A7F8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1BD17362-8D8D-4451-8076-CEC009DD731E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1BD17362-8D8D-4451-8076-CEC009DD731E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1BD17362-8D8D-4451-8076-CEC009DD731E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1BD17362-8D8D-4451-8076-CEC009DD731E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54FE7BAC-46C8-4611-B9F5-D8B860A20616}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54FE7BAC-46C8-4611-B9F5-D8B860A20616}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54FE7BAC-46C8-4611-B9F5-D8B860A20616}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54FE7BAC-46C8-4611-B9F5-D8B860A20616}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

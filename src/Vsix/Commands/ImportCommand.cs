@@ -29,7 +29,7 @@ namespace SqlProjectsPowerTools
 
             if (project != null)
             {
-                await new ImportHandler().GenerateAsync(project.FullPath);
+                await new ImportHandler().GenerateAsync(project);
             }
         }
     }

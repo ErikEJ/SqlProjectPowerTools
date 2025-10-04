@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using DacFXToolLib.Common;
 
 namespace SqlProjectsPowerTools
 {
-    public interface IPickServerDatabaseDialog : IDialog<(DatabaseConnectionModel Connection, int CodeGenerationMode, SchemaInfo[] Schemas, string UiHint)>
+    public interface IPickServerDatabaseDialog : IDialog<(DatabaseConnectionModel Connection, int CodeGenerationMode, SchemaInfo[] Schemas, string UiHint, bool GetDatabaseOptions)>
     {
         void PublishConnections(IEnumerable<DatabaseConnectionModel> connections);
 
@@ -15,6 +15,6 @@ namespace SqlProjectsPowerTools
 
         void PublishUiHint(string uiHint);
 
-        (DatabaseConnectionModel Connection, int CodeGenerationMode, SchemaInfo[] Schemas, string UiHint) GetResults();
+        (DatabaseConnectionModel Connection, int CodeGenerationMode, SchemaInfo[] Schemas, string UiHint, bool GetDatabaseOptions) GetResults();
     }
 }

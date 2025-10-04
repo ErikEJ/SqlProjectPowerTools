@@ -145,6 +145,16 @@
                   SelectedValue="{Binding CodeGenerationMode, Mode=TwoWay}" />
         </Grid>
 
+        <StackPanel 
+                    Grid.Row="3" 
+                    Orientation="Horizontal" 
+                    HorizontalAlignment="Left" 
+                    VerticalAlignment="Center">
+            <CheckBox x:Name="FilterSchemas" IsTabStop="False" IsChecked="{Binding FilterSchemas}">
+                <TextBlock Text="Import database settings (preview)" />
+            </CheckBox>
+        </StackPanel>
+
         <StackPanel Grid.Row="4"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right"
