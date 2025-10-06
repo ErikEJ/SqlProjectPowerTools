@@ -2,6 +2,8 @@
 
 Visual Studio Tools to enhance the SQL Database Projects developer experience.
 
+[Overview blog post](https://erikej.github.io/dotnet/dacfx/sqlserver/visualstudio/2025/09/30/sqlproj-power-tools-visualstudio.html)
+
 ## Features
 
 The tool contains the following features. Each feature applies to both classic .sqlproj and MsBuild.Sdk.SqlProj projects, unless noted.
