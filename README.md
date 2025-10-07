@@ -1,32 +1,41 @@
+[marketplace]: https://marketplace.visualstudio.com/items?itemName=ErikEJ.SQLProjectPowerTools
+[vsixgallery]: https://www.vsixgallery.com/extension/SqlProjectsPowerTools.0e226f35-6d47-4156-88df-f9d40db5e2d1
+[repo]:https://github.com/ErikEJ/SqlProjectPowerTools
+
 # SQL Database Project Power Tools
 
-Visual Studio Tools to enhance the SQL Database Projects developer experience.
+[![Build](https://github.com/ErikEJ/SqlProjectPowerTools/actions/workflows/vsix.yml/badge.svg)](https://github.com/ErikEJ/SqlProjectPowerTools/actions/workflows/visx.yml)
+![GitHub Sponsors](https://img.shields.io/github/sponsors/ErikEJ)
+
+Download this extension from the [Visual Studio Marketplace][marketplace]
+or get the [CI build][vsixgallery]
+
+----------------------------------------
+
+Visual Studio Tools to enhance the SQL Database Project developer experience.
 
 [Overview blog post: SQL Project Power Tools for Visual Studio](https://erikej.github.io/dotnet/dacfx/sqlserver/visualstudio/2025/09/30/sqlproj-power-tools-visualstudio.html)
 
 ## Features
 
-The tool contains the following features. Each feature applies to both classic .sqlproj and MsBuild.Sdk.SqlProj projects, unless noted.
+The tool contains the following features.
 
-- **Import database** - for MsBuild.Sdk.SqlProj only
-- **Analyze** - html output of analysis of your database project
+- **Import database** - for MsBuild.Sdk.SqlProj and Microsoft.Build.Sql projects only
+- **Analyze** - html report with static code analysis result of your database project
 - **Create Mermaid E/R diagram** - diagram selected tables from your database project
 - **Unpack dacpac** - extract a .dacpac into a single .sql file
-- **Include the MsBuild.Sdk.SqlProj templates** - for `New Project` and for adding new items
+- **Include the MsBuild.Sdk.SqlProj templates** - use with `New Project` and for adding new items
 
-### How to install
+### Power Pack
 
-Download the latest version of the Visual Studio extension from [Visual Studio MarketPlace](https://marketplace.visualstudio.com/items?itemName=ErikEJ.SqlProjectPowerTools)
+I have also published [SQL Project Power Pack](https://marketplace.visualstudio.com/items?itemName=ErikEJ.SqlProjectPowerPack) which adds a T-SQL Analyzer and SQL Formatter.
 
-Or simply install from the Extensions dialog in Visual Studio.
+## How can I help?
 
-I have also published [SQL Project Power Pack](https://marketplace.visualstudio.com/items?itemName=ErikEJ.SqlProjectPowerPack) which adds T-SQL Analyzer and SQL Formatter.
+If you enjoy using the extension, please give it a ★★★★★ rating on the [Visual Studio Marketplace][marketplace].
 
-### Daily build
+Should you encounter bugs or have feature requests, head over to the [GitHub repo][repo] to open an issue if one doesn't already exist.
 
-You can download the daily build from [Open VSIX Gallery](https://www.vsixgallery.com/extension/SqlProjectsPowerTools.0e226f35-6d47-4156-88df-f9d40db5e2d1)
+Another way to help out is to [sponsor me on GitHub](https://github.com/sponsors/ErikEJ).
 
-### Future (under consideration)
-
-- **Data API Builder scaffold** - build a Data API Builder config file from your database project
-- **Schema compare** - compare your database project to a live database or dacpac
+If you would like to contribute code, please fork the [GitHub repo][repo] and submit a pull request.
