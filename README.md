@@ -4,7 +4,7 @@
 
 # SQL Database Project Power Tools
 
-[![Build](https://github.com/ErikEJ/SqlProjectPowerTools/actions/workflows/vsix.yml/badge.svg)](https://github.com/ErikEJ/SqlProjectPowerTools/actions/workflows/visx.yml)
+[![Build](https://github.com/ErikEJ/SqlProjectPowerTools/actions/workflows/vsix.yml/badge.svg)](https://github.com/ErikEJ/SqlProjectPowerTools/actions/workflows/vsix.yml)
 ![GitHub Sponsors](https://img.shields.io/github/sponsors/ErikEJ)
 
 Download this extension from the [Visual Studio Marketplace][marketplace]
