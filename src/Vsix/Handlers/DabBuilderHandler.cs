@@ -10,7 +10,7 @@ namespace SqlProjectsPowerTools
 {
     internal static class DabBuilderHandler
     {
-        public static async System.Threading.Tasks.Task BuildDabConfigAsync(Project project)
+        public static async Task BuildDabConfigAsync(Project project)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
@@ -33,7 +33,7 @@ namespace SqlProjectsPowerTools
                     options = new DataApiBuilderOptions();
                 }
 
-                options.ProjectPath = Path.GetDirectoryName(project.FullPath);
+                options.ProjectPath = projectPath;
                 options.Dacpac = project.FullPath;
 
                 DatabaseConnectionModel dbInfo = null;
@@ -98,7 +98,7 @@ namespace SqlProjectsPowerTools
             return dbInfo;
         }
 
-        private static async System.Threading.Tasks.Task GenerateFilesAsync(string optionsPath, string connectionString)
+        private static async Task GenerateFilesAsync(string optionsPath, string connectionString)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
@@ -117,7 +117,7 @@ namespace SqlProjectsPowerTools
             }
         }
 
-        private static async System.Threading.Tasks.Task SaveOptionsAsync(Project project, string optionsPath, DataApiBuilderOptions options)
+        private static async Task SaveOptionsAsync(Project project, string optionsPath, DataApiBuilderOptions options)
         {
             if (File.Exists(optionsPath) && File.GetAttributes(optionsPath).HasFlag(FileAttributes.ReadOnly))
             {
@@ -139,7 +139,6 @@ namespace SqlProjectsPowerTools
 
             return await builder.GetTableDefinitionsAsync();
         }
-
 
         private static async Task<bool> LoadDataBaseObjectsAsync(DataApiBuilderOptions options)
         {
