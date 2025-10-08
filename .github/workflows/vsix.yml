@@ -29,6 +29,7 @@ jobs:
 
     - name: Update Version
       run: |
+        ((Get-Content -Path Vsix/Properties/AssemblyInfo.cs -Raw) -Replace "0.1.0", "${{ env.VERSION }}") | Set-Content -Path Vsix/Properties/AssemblyInfo.cs
         ((Get-Content -Path Vsix/source.extension.vsixmanifest -Raw) -Replace "0.1.0", "${{ env.VERSION }}") | Set-Content -Path Vsix/source.extension.vsixmanifest
         ((Get-Content -Path ExtensionPack/source.extension.vsixmanifest -Raw) -Replace "0.1.0", "${{ env.VERSION }}") | Set-Content -Path ExtensionPack/source.extension.vsixmanifest
       working-directory: src

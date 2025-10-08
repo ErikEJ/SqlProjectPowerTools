@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace SqlProjectsPowerTools
 {
     [Command(PackageIds.cmdidAbout)]
@@ -5,7 +7,9 @@ namespace SqlProjectsPowerTools
     {
         protected override async Task ExecuteAsync(OleMenuCmdEventArgs e)
         {
-            await VS.MessageBox.ShowWarningAsync("SQL Database Project Power Tools",  $"Version {Vsix.Version} from ErikEJ");
+            var version = FileVersionInfo.GetVersionInfo(typeof(VsixPackage).Assembly.Location).FileVersion ?? "N/A";
+
+            await VS.MessageBox.ShowAsync("SQL Database Project Power Tools",  $"Version {version} from ErikEJ - https://github.com/ErikEJ", buttons: Microsoft.VisualStudio.Shell.Interop.OLEMSGBUTTON.OLEMSGBUTTON_OK);
         }
     }
 }
