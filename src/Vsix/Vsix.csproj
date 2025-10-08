@@ -90,6 +90,7 @@
     <Compile Include="Extensions\MenuCommandExtensions.cs" />
     <Compile Include="Extensions\ProjectExtension.cs" />
     <Compile Include="Extensions\ZipArchiveExtensions.cs" />
+    <Compile Include="Handlers\DabBuilderHandler.cs" />
     <Compile Include="Handlers\DacpacAnalyzerHandler.cs" />
     <Compile Include="Handlers\ImportHandler.cs" />
     <Compile Include="Handlers\ErDiagramHandler.cs" />

@@ -151,7 +151,7 @@
                     HorizontalAlignment="Left" 
                     VerticalAlignment="Center">
             <CheckBox x:Name="FilterSchemas" IsTabStop="False" IsChecked="{Binding FilterSchemas}">
-                <TextBlock Text="Import database settings (preview)" />
+                <TextBlock Text="Import database settings" />
             </CheckBox>
         </StackPanel>
 
