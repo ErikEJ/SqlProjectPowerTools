@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle(SqlProjectsPowerTools.Vsix.Name)]
@@ -12,8 +12,8 @@ using System.Runtime.InteropServices;
 
 [assembly: ComVisible(false)]
 
-[assembly: AssemblyVersion(SqlProjectsPowerTools.Vsix.Version)]
-[assembly: AssemblyFileVersion(SqlProjectsPowerTools.Vsix.Version)]
+[assembly: AssemblyVersion("0.1.0")]
+[assembly: AssemblyFileVersion("0.1.0")]
 
 namespace System.Runtime.CompilerServices
 {
