@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Xml.Serialization;
 
 namespace SqlServer.Rules.Report
@@ -21,5 +21,8 @@ namespace SqlServer.Rules.Report
 
         [XmlAttribute]
         public string TypeId { get; set; }
+
+        [XmlAttribute]
+        public string Link { get; set; }
     }
 }

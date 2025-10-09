@@ -168,15 +168,18 @@ namespace SqlServer.Rules.Report
 
         private static IEnumerable<Issue> GetProblems(IEnumerable<SqlRuleProblem> problems)
         {
-            return from p in problems
-                   select new Issue
-                   {
-                       File = !string.IsNullOrWhiteSpace(p.SourceName) ? p.SourceName : GetName(p.ModelElement.Name),
-                       Line = p.StartLine,
-                       Message = p.Description,
-                       Offset = p.StartColumn.ToString(CultureInfo.InvariantCulture),
-                       TypeId = p.Rule(),
-                   };
+            foreach (var p in problems)
+            {
+                yield return new Issue
+                {
+                    File = !string.IsNullOrWhiteSpace(p.SourceName) ? p.SourceName : GetName(p.ModelElement.Name),
+                    Line = p.StartLine,
+                    Message = p.Description,
+                    Offset = p.StartColumn.ToString(CultureInfo.InvariantCulture),
+                    TypeId = p.Rule(),
+                    Link = p.Link(),
+                };
+            }
         }
 
         private static string GetName(ObjectIdentifier identifier)

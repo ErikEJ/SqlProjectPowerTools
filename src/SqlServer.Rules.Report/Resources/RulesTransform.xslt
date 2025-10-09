@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:msxsl="urn:schemas-microsoft-com:xslt"
   exclude-result-prefixes="msxsl"
@@ -283,7 +283,7 @@
         </style>
       </head>
       <body>
-        <h1>EF Core Power Tools T-SQL Analysis</h1>
+        <h1>SQL Project Power Tools T-SQL Analysis</h1>
         <h3>
           Report Date: <xsl:call-template name="formatdate">
             <xsl:with-param name="DateTimeStr" select="/Report/Information/ReportDate"/>
