@@ -25,7 +25,12 @@ namespace SqlServer.Rules.Report
             }
 
             var urlStartIndex = problem.Description.IndexOf(" (https", StringComparison.OrdinalIgnoreCase);
-            var url = urlStartIndex >= 0 ? problem.Description.Substring(urlStartIndex + 2, problem.Description.Length - urlStartIndex - 3) : string.Empty;
+            // 2 accounts for the length of " (" before the URL, 3 accounts for the length of " )" after the URL
+            const int PrefixLength = 2; // Length of " ("
+            const int SuffixLength = 3; // Length of " )"
+            var url = urlStartIndex >= 0
+                ? problem.Description.Substring(urlStartIndex + PrefixLength, problem.Description.Length - urlStartIndex - SuffixLength)
+                : string.Empty;
 
             return url;
         }
