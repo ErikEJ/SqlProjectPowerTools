@@ -21,7 +21,7 @@ namespace SqlServer.Rules.Report
 
             if (string.IsNullOrEmpty(problem.Description))
             {
-                return problem.Description;
+                return string.Empty;
             }
 
             var urlStartIndex = problem.Description.IndexOf(" (https", StringComparison.OrdinalIgnoreCase);
