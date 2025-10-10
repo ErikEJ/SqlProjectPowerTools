@@ -25,6 +25,7 @@ namespace SqlServer.Rules.Report
             }
 
             var urlStartIndex = problem.Description.IndexOf(" (https", StringComparison.OrdinalIgnoreCase);
+
             // 2 accounts for the length of " (" before the URL, 3 accounts for the length of " )" after the URL
             const int PrefixLength = 2; // Length of " ("
             const int SuffixLength = 3; // Length of " )"
