@@ -314,7 +314,9 @@
                   <xsl:value-of select="position()"/>
                 </td>
                 <td class="text-left">
-                  <xsl:value-of select="./@TypeId"/>
+                    <a href="{./@Link}">
+                        <xsl:value-of select="./@TypeId"/>
+                    </a>
                 </td>
                 <td class="text-left object has-tooltip">
                   <xsl:value-of select="./@File"/>

@@ -5,7 +5,9 @@
     <NeutralLanguage>en-US</NeutralLanguage>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="Resources\RulesTransform.xslt" />
+    <Content Include="Resources\RulesTransform.xslt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>	
   <ItemGroup>
     <PackageReference Include="ErikEJ.DacFX.TSQLSmellSCA" Version="3.0.0" />
