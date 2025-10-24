@@ -51,13 +51,13 @@ namespace SqlProjectsPowerTools
                     return;
                 }
 
-                await VS.StatusBar.ShowMessageAsync("Importing database schema...");
+                await VS.StatusBar.ShowMessageAsync("Comparing database schemas...");
 
                 var result = await RunCompareAsync(info.DatabaseIsSource, dacOptions.Dacpac, dbInfo.ConnectionString);
 
                 if (!string.IsNullOrEmpty(result))
                 {
-                    await VS.StatusBar.ShowMessageAsync("Import completed successfully");
+                    await VS.StatusBar.ShowMessageAsync("Comparison completed successfully");
 
                     await VS.Documents.OpenInPreviewTabAsync(result);
                 }
