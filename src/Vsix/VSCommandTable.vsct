@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
   <Extern href="stdidcmd.h"/>
@@ -59,7 +59,18 @@
         </Strings>
       </Button>
 
-      <Button guid="Vsix" id="cmdidAnalyze" priority="0x0101" type="Button">
+      <Button guid="Vsix" id="cmdidCompare" priority="0x0105" type="Button">
+        <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
+        <Icon guid="ImageCatalogGuid" id="CompareSchemas" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <ButtonText>Schema compare script...</ButtonText>
+        </Strings>
+      </Button>
+
+      <Button guid="Vsix" id="cmdidAnalyze" priority="0x0110" type="Button">
         <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
         <Icon guid="ImageCatalogGuid" id="CodeAnalysisWindow" />
         <CommandFlag>IconIsMoniker</CommandFlag>
@@ -70,7 +81,7 @@
         </Strings>
       </Button>
 
-      <Button guid="Vsix" id="cmdidErDiagram" priority="0x0102" type="Button">
+      <Button guid="Vsix" id="cmdidErDiagram" priority="0x0120" type="Button">
         <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
         <Icon guid="ImageCatalogGuid" id="ApplicationConnectionDiagram" />
         <CommandFlag>IconIsMoniker</CommandFlag>
@@ -81,7 +92,7 @@
         </Strings>
       </Button>
 
-      <Button guid="Vsix" id="cmdidReverseEngineerDab" priority="0x0103" type="Button">
+      <Button guid="Vsix" id="cmdidReverseEngineerDab" priority="0x0130" type="Button">
         <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
         <Icon guid="ImageCatalogGuid" id="DynamicWebSite" />
         <CommandFlag>IconIsMoniker</CommandFlag>
@@ -92,7 +103,7 @@
         </Strings>
       </Button>
 
-      <Button guid="Vsix" id="cmdidUnpack" priority="0x0104" type="Button">
+      <Button guid="Vsix" id="cmdidUnpack" priority="0x0140" type="Button">
         <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
         <Icon guid="ImageCatalogGuid" id="PackageFolderOpened" />
         <CommandFlag>IconIsMoniker</CommandFlag>
@@ -159,6 +170,7 @@
       <!-- Project Menu Entries -->
       <IDSymbol name="cmdidAnalyze" value="0x0001" />
       <IDSymbol name="cmdidImport" value="0x0002" />
+      <IDSymbol name="cmdidCompare" value="0x0005" />
       <IDSymbol name="cmdidErDiagram" value="0x0007" />
       <IDSymbol name="cmdidReverseEngineerDab" value="0x0012" />
       <IDSymbol name="cmdidAbout" value="0x0006" />

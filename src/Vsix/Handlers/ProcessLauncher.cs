@@ -66,6 +66,17 @@ namespace SqlProjectsPowerTools
             return filePath;
         }
 
+        public async Task<string> GetCompareAsync(bool databaseIsSource, string dacpacPath, string connectionString)
+        {
+            var option = "compare ";
+
+            var arguments = option + databaseIsSource.ToString() + " \"" + dacpacPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\"";
+
+            var filePath = await GetDiagramInternalAsync(arguments);
+
+            return filePath;
+        }
+
         public async Task<string> GetDatabaseSettingsAsync(string connectionString)
         {
             var option = "getdboptions ";

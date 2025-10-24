@@ -4,7 +4,12 @@ namespace SqlProjectsPowerTools
 {
     internal static class ProjectExtension
     {
-        public static bool IsSqlDatabaseProject(this Project project)
+        /// <summary>
+        /// Returns true if the project is any SQL Database Project.
+        /// </summary>
+        /// <param name="project">The project to evaluate</param>
+        /// <returns>true if it is a SQL Database Project of any kind</returns>
+        public static bool IsAnySqlDatabaseProject(this Project project)
         {
             if (project == null)
             {
@@ -16,7 +21,23 @@ namespace SqlProjectsPowerTools
                 || project.IsMicrosoftSdkSqlDatabaseProject();
         }
 
-        public static bool IsMsBuildSdkSqlDatabaseProject(this Project project)
+        /// <summary>
+        /// Returns true if the project is a modern MsBuild.Sdk.SqlProj or Microsoft.Build.Sql SQL Database Project.
+        /// </summary>
+        /// <param name="project">The project to evaluate</param>
+        /// <returns>true if it is a modern SQL Database Project</returns>
+        public static bool IsModernSqlDatabaseProject(this Project project)
+        {
+            if (project == null)
+            {
+                return false;
+            }
+
+            return project.IsMsBuildSdkSqlDatabaseProject()
+                || project.IsMicrosoftSdkSqlDatabaseProject();
+        }
+
+        private static bool IsMsBuildSdkSqlDatabaseProject(this Project project)
         {
             if (project == null)
             {
@@ -26,7 +47,7 @@ namespace SqlProjectsPowerTools
             return project.IsCapabilityMatch(VsixPackage.SdkProjCapability);
         }
 
-        public static bool IsMicrosoftSdkSqlDatabaseProject(this Project project)
+        private static bool IsMicrosoftSdkSqlDatabaseProject(this Project project)
         {
             if (project == null)
             {

@@ -32,6 +32,7 @@ namespace SqlProjectsPowerTools
         public const int cmdidSqlProjectMenuGroup = 0x0004;
         public const int cmdidAnalyze = 0x0001;
         public const int cmdidImport = 0x0002;
+        public const int cmdidCompare = 0x0005;
         public const int cmdidErDiagram = 0x0007;
         public const int cmdidReverseEngineerDab = 0x0012;
         public const int cmdidAbout = 0x0006;

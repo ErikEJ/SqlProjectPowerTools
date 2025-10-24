@@ -5,7 +5,7 @@ namespace SqlProjectsPowerTools
 {
     internal static class MenuCommandExtensions
     {
-        public static async Task<bool> IsEnabledForSqlProjectAsync(this MenuCommand command)
+        public static async Task<bool> IsEnabledForAnySqlProjectAsync(this MenuCommand command)
         {
             var activeProject = await VS.Solutions.GetActiveProjectAsync();
             if (activeProject == null)
@@ -13,10 +13,10 @@ namespace SqlProjectsPowerTools
                 return false;
             }
 
-            return activeProject.IsSqlDatabaseProject();
+            return activeProject.IsAnySqlDatabaseProject();
         }
 
-        public static async Task<bool> IsEnabledModernSqlProjectAsync(this MenuCommand command)
+        public static async Task<bool> IsEnabledForModernSqlProjectAsync(this MenuCommand command)
         {
             var activeProject = await VS.Solutions.GetActiveProjectAsync();
             if (activeProject == null)
@@ -24,8 +24,7 @@ namespace SqlProjectsPowerTools
                 return false;
             }
 
-            return activeProject.IsMsBuildSdkSqlDatabaseProject()
-                || activeProject.IsMicrosoftSdkSqlDatabaseProject();
+            return activeProject.IsModernSqlDatabaseProject();
         }
     }
 }
