@@ -1,4 +1,4 @@
-﻿namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools
 {
     [Command(PackageIds.cmdidUnpack)]
     internal sealed class UnpackCommand : BaseCommand<UnpackCommand>
@@ -7,7 +7,7 @@
         {
             ThreadHelper.JoinableTaskFactory.Run(async () =>
             {
-                Command.Enabled = await Command.IsEnabledForSqlProjectAsync();
+                Command.Enabled = await Command.IsEnabledForAnySqlProjectAsync();
             });
         }
 

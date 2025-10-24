@@ -2,7 +2,7 @@
   "profiles": {
     "DacFXTool": {
       "commandName": "Project",
-      "commandLineArgs": "dacpacreport \"C:\\dev\\GitHub\\SqlProjectPowerTools\\test\\SmokeTest\\SdkStyle\\bin\\Debug\\net8.0\\SdkStyle.dacpac\""
+      "commandLineArgs": "unpack \"C:\\dev\\AzureDevOps\\TestBed\\Database\\bin\\Release\\net8.0\\Database1.dacpac\" \"C:\\dev\\AzureDevOps\\TestBed\\Database\\bin\\Release\\net8.0\\Database1\""
     }
   }
 }

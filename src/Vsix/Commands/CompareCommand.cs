@@ -1,13 +1,13 @@
 namespace SqlProjectsPowerTools
 {
-    [Command(PackageIds.cmdidAnalyze)]
-    internal sealed class AnalyzeCommand : BaseCommand<AnalyzeCommand>
+    [Command(PackageIds.cmdidCompare)]
+    internal sealed class CompareCommand : BaseCommand<CompareCommand>
     {
         protected override void BeforeQueryStatus(EventArgs e)
         {
             ThreadHelper.JoinableTaskFactory.Run(async () =>
             {
-                Command.Enabled = await Command.IsEnabledForAnySqlProjectAsync();
+                Command.Enabled = await Command.IsEnabledForModernSqlProjectAsync();
             });
         }
 
@@ -16,7 +16,7 @@ namespace SqlProjectsPowerTools
             var project = await VS.Solutions.GetActiveProjectAsync();
             if (project != null)
             {
-                await DacpacAnalyzerHandler.GenerateAsync(project.FullPath);
+                await CompareHandler.GenerateAsync(project);
             }
         }
     }

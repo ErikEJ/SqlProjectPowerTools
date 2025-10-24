@@ -48,6 +48,16 @@ namespace SqlProjectsPowerTools
             };
             codeGeneration = (allowedVersions) =>
             {
+                if (allowedVersions.Count == 1
+                    && allowedVersions[0].Value == "Compare")
+                {
+                    grdRow1.Height = new GridLength(0);
+                    grdRow2.Height = new GridLength(0);
+                    FilterSchemas.Content = "Use database as source";
+                    viewModel.FilterSchemas = true;
+                    return;
+                }
+
                 foreach (var item in allowedVersions)
                 {
                     viewModel.CodeGenerationModeList.Add(item);

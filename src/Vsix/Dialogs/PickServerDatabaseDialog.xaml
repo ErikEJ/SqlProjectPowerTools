@@ -146,7 +146,7 @@
         </Grid>
 
         <StackPanel 
-                    Grid.Row="3" 
+                    Grid.Row="3"
                     Orientation="Horizontal" 
                     HorizontalAlignment="Left" 
                     VerticalAlignment="Center">
