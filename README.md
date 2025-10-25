@@ -20,11 +20,12 @@ Visual Studio Tools to enhance the SQL Database Project developer experience.
 
 The tool contains the following features.
 
-- **Import database** - for MsBuild.Sdk.SqlProj and Microsoft.Build.Sql projects only
-- **Analyze** - html report with static code analysis result of your database project
-- **Create Mermaid E/R diagram** - diagram selected tables from your database project
+- **Templates** - for use with `New Project` and for adding new items
+- **Import database** - import the schema and database settings from an existing database
+- **Schema compare** - compare your database project with a live database and get a script to update the database or your project
+- **Analyze** - report with static code analysis result of your database project
+- **Create Mermaid E/R diagram** - create an Entity/Relationship diagram of selected tables from your database project
 - **Unpack dacpac** - extract a .dacpac into a single .sql file
-- **Include the MsBuild.Sdk.SqlProj templates** - use with `New Project` and for adding new items
 
 ### Power Pack
 
