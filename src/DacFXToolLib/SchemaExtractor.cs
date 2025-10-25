@@ -1,10 +1,9 @@
-using Microsoft.Data.SqlClient;
-using Microsoft.SqlServer.Dac;
-using Microsoft.SqlServer.Dac.Model;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
+using Microsoft.Data.SqlClient;
+using Microsoft.SqlServer.Dac;
+using Microsoft.SqlServer.Dac.Model;
 
 namespace DacFXToolLib
 {
