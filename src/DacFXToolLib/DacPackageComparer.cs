@@ -50,6 +50,8 @@ namespace DacFXToolLib
                     throw new InvalidOperationException($"Script generation encountered errors: {result.Message}");
                 }
 
+                return errors + Environment.NewLine + result.Script;
+            }
 
             var diffScript = new StringBuilder();
 
