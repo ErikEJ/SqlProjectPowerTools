@@ -56,8 +56,6 @@ namespace DacFXToolLib
             {
                 var diffScript = new StringBuilder();
 
-                diffScript.Append(string.Empty);
-
                 foreach (var difference in compareResult.Differences)
                 {
                     diffScript.AppendLine();
