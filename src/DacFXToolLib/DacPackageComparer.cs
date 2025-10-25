@@ -14,13 +14,9 @@ namespace DacFXToolLib
             var dacpac = new SchemaCompareDacpacEndpoint(dacpacPath);
             var database = new SchemaCompareDatabaseEndpoint(connectionString);
 
-            var comparison = new SchemaComparison(dacpac, database);
-
-            if (databaseIsSource)
-            {
-                comparison = new SchemaComparison(database, dacpac);
-            }
-
+            var comparison = databaseIsSource
+                ? new SchemaComparison(database, dacpac)
+                : new SchemaComparison(dacpac, database);
             var compareResult = comparison.Compare();
 
             var errors = string.Empty;
