@@ -181,6 +181,35 @@ namespace DacFXTool
 
                         return 0;
                     }
+
+                    // compare true "<DACPAC_PATH>" "connectionString"
+                    if (args.Length == 4
+                        && (args[0] == "compare")
+                        && bool.TryParse(args[1], out bool databaseIsSource))
+                    {
+                        if (!new FileInfo(args[2]).Exists)
+                        {
+                            await Console.Out.WriteLineAsync("Error:");
+                            await Console.Out.WriteLineAsync($"DACPAC file '{args[2]}' not found");
+                            return 1;
+                        }
+
+                        var script = DacPackageComparer.Compare(args[2], args[3], databaseIsSource);
+
+                        var path = Path.Join(Path.GetTempPath(), "SqlProjDiff.sql");
+
+                        if (string.IsNullOrEmpty(script))
+                        {
+                            script = "-- No differences found";
+                        }
+
+                        await File.WriteAllTextAsync(path, script, Encoding.UTF8);
+
+                        await Console.Out.WriteLineAsync("Result:");
+                        await Console.Out.WriteLineAsync(path);
+
+                        return 0;
+                    }
                 }
                 else
                 {
