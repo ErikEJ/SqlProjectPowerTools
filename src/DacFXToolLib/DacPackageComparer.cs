@@ -50,21 +50,19 @@ namespace DacFXToolLib
                     throw new InvalidOperationException($"Script generation encountered errors: {result.Message}");
                 }
 
-                return errors + Environment.NewLine + result.Script;
-            }
-            else
+
+            var diffScript = new StringBuilder();
+
+            diffScript.Append(string.Empty);
+
+            foreach (var difference in compareResult.Differences)
             {
-                var diffScript = new StringBuilder();
-
-                foreach (var difference in compareResult.Differences)
-                {
-                    diffScript.AppendLine();
-                    diffScript.AppendLine(CultureInfo.InvariantCulture, $"-- Difference: {difference.SourceObject.Name} ({difference.SourceObject.ObjectType.Name})");
-                    diffScript.AppendLine(compareResult.GetDiffEntrySourceScript(difference));
-                }
-
-                return diffScript.ToString();
+                diffScript.AppendLine();
+                diffScript.AppendLine(CultureInfo.InvariantCulture, $"-- Difference: {difference.SourceObject.Name} ({difference.SourceObject.ObjectType.Name})");
+                diffScript.AppendLine(compareResult.GetDiffEntrySourceScript(difference));
             }
+
+            return diffScript.ToString();
         }
     }
 }
