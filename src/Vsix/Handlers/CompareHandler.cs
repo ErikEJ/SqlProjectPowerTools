@@ -58,8 +58,8 @@ namespace SqlProjectsPowerTools
 
                 try
                 {
-                    var dialogFactory = await VS.Services.GetThreadedWaitDialogAsync();
-                    dialogFactory.CreateInstance(out dialog);
+                    var dialogFactory = await VS.GetServiceAsync<SVsThreadedWaitDialogFactory, IVsThreadedWaitDialogFactory>();
+                    dialogFactory?.CreateInstance(out dialog);
 
                     dialog?.StartWaitDialog(
                         szWaitCaption: "SQL Database Project Power Tools",
