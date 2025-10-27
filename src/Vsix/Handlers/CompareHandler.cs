@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DacFXToolLib.Common;
 using DacFXToolLib.Dab;
+using Microsoft.VisualStudio.Shell.Interop;
 
 namespace SqlProjectsPowerTools
 {
@@ -51,15 +52,35 @@ namespace SqlProjectsPowerTools
                     return;
                 }
 
-                await VS.StatusBar.ShowMessageAsync("Comparing database schemas...");
+                // Use threaded wait dialog for better UX feedback
+                IVsThreadedWaitDialog2 dialog = null;
+                string result = null;
 
-                var result = await RunCompareAsync(info.DatabaseIsSource, dacOptions.Dacpac, dbInfo.ConnectionString);
-
-                if (!string.IsNullOrEmpty(result))
+                try
                 {
-                    await VS.StatusBar.ShowMessageAsync("Comparison completed successfully");
+                    var dialogFactory = await VS.GetServiceAsync<SVsThreadedWaitDialogFactory, IVsThreadedWaitDialogFactory>();
+                    dialogFactory?.CreateInstance(out dialog);
 
-                    await VS.Documents.OpenInPreviewTabAsync(result);
+                    dialog?.StartWaitDialog(
+                        szWaitCaption: "SQL Database Project Power Tools",
+                        szWaitMessage: "Comparing database schemas...",
+                        szProgressText: null,
+                        varStatusBmpAnim: null,
+                        szStatusBarText: "Comparing database schemas...",
+                        iDelayToShowDialog: 0,
+                        fIsCancelable: false,
+                        fShowMarqueeProgress: true);
+
+                    result = await RunCompareAsync(info.DatabaseIsSource, dacOptions.Dacpac, dbInfo.ConnectionString);
+
+                    if (!string.IsNullOrEmpty(result))
+                    {
+                        await VS.Documents.OpenInPreviewTabAsync(result);
+                    }
+                }
+                finally
+                {
+                    dialog?.EndWaitDialog(out int usercancel);
                 }
             }
             catch (AggregateException ae)
@@ -72,10 +93,6 @@ namespace SqlProjectsPowerTools
             catch (Exception exception)
             {
                 await VS.MessageBox.ShowErrorAsync("SQL Database Project Power Tools", exception.Message);
-            }
-            finally
-            {
-                await VS.StatusBar.ClearAsync();
             }
         }
 
