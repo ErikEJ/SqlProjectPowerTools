@@ -52,12 +52,14 @@ namespace SqlProjectsPowerTools
                     return;
                 }
 
+                await VS.StatusBar.ShowMessageAsync("Comparing database schemas...");
+
                 // Use threaded wait dialog for better UX feedback
                 IVsThreadedWaitDialog2 dialog = null;
-                string result = null;
 
                 try
                 {
+                    string result = null;
                     var dialogFactory = await VS.GetServiceAsync<SVsThreadedWaitDialogFactory, IVsThreadedWaitDialogFactory>();
                     dialogFactory?.CreateInstance(out dialog);
 
@@ -80,7 +82,7 @@ namespace SqlProjectsPowerTools
                 }
                 finally
                 {
-                    dialog?.EndWaitDialog(out int usercancel);
+                    dialog?.EndWaitDialog(out int _);
                 }
             }
             catch (AggregateException ae)
@@ -93,6 +95,10 @@ namespace SqlProjectsPowerTools
             catch (Exception exception)
             {
                 await VS.MessageBox.ShowErrorAsync("SQL Database Project Power Tools", exception.Message);
+            }
+            finally
+            {
+                await VS.StatusBar.ClearAsync();
             }
         }
 
