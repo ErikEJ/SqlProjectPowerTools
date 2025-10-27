@@ -1,11 +1,12 @@
+using DacFXToolLib.Common;
+using DacFXToolLib.Dab;
+using Microsoft.VisualStudio.Shell.Interop;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using DacFXToolLib.Common;
-using DacFXToolLib.Dab;
 
 namespace SqlProjectsPowerTools
 {
@@ -43,7 +44,33 @@ namespace SqlProjectsPowerTools
 
                 await VS.StatusBar.ShowMessageAsync("Importing database schema...");
 
-                var result = await RunImportAsync(info.FileGenerationMode, outputPath, dbInfo.ConnectionString);
+                // Use threaded wait dialog for better UX feedback
+                IVsThreadedWaitDialog2 dialog = null;
+
+                string result = string.Empty;
+
+                try
+                {
+                    var dialogFactory = await VS.GetServiceAsync<SVsThreadedWaitDialogFactory, IVsThreadedWaitDialogFactory>();
+                    dialogFactory?.CreateInstance(out dialog);
+
+                    dialog?.StartWaitDialog(
+                        szWaitCaption: "SQL Database Project Power Tools",
+                        szWaitMessage: "Importing database schema...",
+                        szProgressText: null,
+                        varStatusBmpAnim: null,
+                        szStatusBarText: "Importing database schema...",
+                        iDelayToShowDialog: 0,
+                        fIsCancelable: false,
+                        fShowMarqueeProgress: true);
+
+                    result = await RunImportAsync(info.FileGenerationMode, outputPath, dbInfo.ConnectionString);
+                }
+                finally
+                {
+                    dialog?.EndWaitDialog(out int _);
+                    await VS.StatusBar.ClearAsync();
+                }
 
                 if (result == "OK")
                 {
