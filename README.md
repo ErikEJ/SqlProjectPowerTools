@@ -31,6 +31,18 @@ The tool contains the following features.
 
 I have also published [SQL Project Power Pack](https://marketplace.visualstudio.com/items?itemName=ErikEJ.SqlProjectPowerPack) which adds a T-SQL Analyzer and SQL Formatter.
 
+## Advanced topic
+
+Have a look at our extensive [user guide](https://github.com/rr-wfm/MSBuild.Sdk.SqlProj/blob/master/README.md) for more information on topics like:
+
+- reference user and system database
+- set database and build properties
+- use pre- and post-deployment scripts
+- pack and publish dacpacs
+- use sqlcmd variables
+- static code analysis customization
+- and much more
+
 ## How can I help?
 
 If you enjoy using the extension, please give it a ★★★★★ rating on the [Visual Studio Marketplace][marketplace].
