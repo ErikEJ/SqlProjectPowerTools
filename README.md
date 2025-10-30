@@ -29,9 +29,12 @@ The tool contains the following features.
 
 ### Power Pack
 
-I have also published [SQL Project Power Pack](https://marketplace.visualstudio.com/items?itemName=ErikEJ.SqlProjectPowerPack) which adds a T-SQL Analyzer and SQL Formatter.
+I have also published [SQL Project Power Pack](https://marketplace.visualstudio.com/items?itemName=ErikEJ.SqlProjectPowerPack) which adds additional features.
 
-## Advanced topic
+- [T-SQL Analyzer](https://marketplace.visualstudio.com/items?itemName=ErikEJ.TSqlAnalyzer) - live code analysis of your T-SQL object creation code for design, naming and performance issues using more than 140 rules.
+- [SQL Formatter](https://marketplace.visualstudio.com/items?itemName=MadsKristensen.SqlFormatter) - formats T-SQL code to a consistent and readable layout with .editorconfig support.
+
+## Advanced topics
 
 Have a look at our extensive [user guide](https://github.com/rr-wfm/MSBuild.Sdk.SqlProj/blob/master/README.md) for more information on topics like:
 
