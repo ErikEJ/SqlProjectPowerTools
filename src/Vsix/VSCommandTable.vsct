@@ -109,7 +109,8 @@
         <CommandFlag>IconIsMoniker</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>TextChanges</CommandFlag>
-        <Strings>          <ButtonText>Script Database Model</ButtonText>
+        <Strings>
+          <ButtonText>Script Database Model</ButtonText>
         </Strings>
       </Button>
 
