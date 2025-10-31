@@ -110,7 +110,7 @@
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
-          <ButtonText>Unpack</ButtonText>
+          <ButtonText>Script Database Model</ButtonText>
         </Strings>
       </Button>
 

@@ -25,7 +25,7 @@ The tool contains the following features.
 - **Schema compare** - compare your database project with a live database and get a script to update the database or your project
 - **Analyze** - report with static code analysis result of your database project
 - **Create Mermaid E/R diagram** - create an Entity/Relationship diagram of selected tables from your database project
-- **Unpack dacpac** - extract a .dacpac into a single .sql file
+- **Script Database Model** - extract a .dacpac into a single .sql file
 
 ### Power Pack
 
@@ -38,7 +38,7 @@ I have also published [SQL Project Power Pack](https://marketplace.visualstudio.
 
 Have a look at our extensive [user guide](https://github.com/rr-wfm/MSBuild.Sdk.SqlProj/blob/master/README.md) for more information on topics like:
 
-- reference user and system database
+- reference user and system databases
 - set database and build properties
 - use pre- and post-deployment scripts
 - pack and publish dacpacs
