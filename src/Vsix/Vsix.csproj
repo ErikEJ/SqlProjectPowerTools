@@ -94,6 +94,7 @@
     <Compile Include="Handlers\DabBuilderHandler.cs" />
     <Compile Include="Handlers\DacpacAnalyzerHandler.cs" />
     <Compile Include="Handlers\CompareHandler.cs" />
+    <Compile Include="Handlers\HandlerHelper.cs" />
     <Compile Include="Handlers\ImportHandler.cs" />
     <Compile Include="Handlers\ErDiagramHandler.cs" />
     <Compile Include="Handlers\PackageManager.cs" />
