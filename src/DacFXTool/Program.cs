@@ -210,6 +210,18 @@ namespace DacFXTool
 
                         return 0;
                     }
+
+                    // merge "projectpath" "connectionString" "tableName" "schema"
+                    if (args.Length == 5
+                        && (args[0] == "merge"))
+                    {
+                        MergeGenerator.Generate(args[1], args[2], args[3], args[4]);
+
+                        await Console.Out.WriteLineAsync("Result:");
+                        await Console.Out.WriteLineAsync("OK");
+
+                        return 0;
+                    }
                 }
                 else
                 {
