@@ -114,6 +114,17 @@
         </Strings>
       </Button>
 
+      <Button guid="Vsix" id="cmdidSeed" priority="0x0150" type="Button">
+        <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
+        <Icon guid="ImageCatalogGuid" id="DatabaseScript" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <ButtonText>Script Seed Data...</ButtonText>
+        </Strings>
+      </Button>
+
       <Button guid="Vsix" id="cmdidOptions" priority="0x0700" type="Button">
         <Parent guid="Vsix" id="cmdidSqlAboutMenuItemsGroup" />
         <Icon guid="ImageCatalogGuid" id="Settings" />
@@ -176,6 +187,7 @@
       <IDSymbol name="cmdidAbout" value="0x0006" />
       <IDSymbol name="cmdidOptions" value="0x0010" />
       <IDSymbol name="cmdidUnpack" value="0x0008" />
+      <IDSymbol name="cmdidSeed" value="0x0009" />
     </GuidSymbol>
 
   </Symbols>
