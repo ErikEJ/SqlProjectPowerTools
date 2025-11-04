@@ -37,7 +37,7 @@ namespace SqlProjectsPowerTools
                 || project.IsMicrosoftSdkSqlDatabaseProject();
         }
 
-        private static bool IsMsBuildSdkSqlDatabaseProject(this Project project)
+        public static bool IsMsBuildSdkSqlDatabaseProject(this Project project)
         {
             if (project == null)
             {

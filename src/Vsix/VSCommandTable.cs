@@ -38,5 +38,6 @@ namespace SqlProjectsPowerTools
         public const int cmdidAbout = 0x0006;
         public const int cmdidOptions = 0x0010;
         public const int cmdidUnpack = 0x0008;
+        public const int cmdidSeed = 0x0009;
     }
 }

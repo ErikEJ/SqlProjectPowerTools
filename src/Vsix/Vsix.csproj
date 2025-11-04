@@ -49,6 +49,7 @@
     <Compile Include="Commands\AnalyzeCommand.cs" />
     <Compile Include="Commands\DabCommand.cs" />
     <Compile Include="Commands\CompareCommand.cs" />
+    <Compile Include="Commands\SeedCommand.cs" />
     <Compile Include="Commands\ImportCommand.cs" />
     <Compile Include="Commands\MermaidCommand.cs" />
     <Compile Include="Commands\OptionsCommand.cs" />
