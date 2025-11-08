@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.SqlServer.Design.Internal;
+using Microsoft.EntityFrameworkCore.SqlServer.Scaffolding.Internal;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -38,7 +39,12 @@ namespace DacFXToolLib
             switch (options.DatabaseType)
             {
                 case DatabaseType.SQLServerDacpac:
-                    AddSqlServerProviderServices(serviceCollection, options); break;
+                    AddSqlServerProviderServices(serviceCollection, options);
+                    break;
+
+                case DatabaseType.SQLServer:
+                    AddSqlServerProviderServices(serviceCollection, options);
+                    break;
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(options), $"unsupported database type: {options.DatabaseType}");
@@ -55,7 +61,6 @@ namespace DacFXToolLib
 #if CORE100
             serviceCollection.AddSingleton(new SqlServerSingletonOptions());
 #endif
-
             if (options.DatabaseType == DatabaseType.SQLServerDacpac)
             {
                 var excludedIndexes = options.Tables?.Select(t => new { t.Name, t.ExcludedIndexes });
@@ -78,6 +83,12 @@ namespace DacFXToolLib
                 {
                     MergeDacpacs = options.MergeDacpacs,
                 });
+            }
+
+            if (options.DatabaseType == DatabaseType.SQLServer)
+            {
+                serviceCollection.AddSingleton(options);
+                serviceCollection.AddSingleton<IDatabaseModelFactory, SqlServerDatabaseModelFactory>();
             }
         }
     }

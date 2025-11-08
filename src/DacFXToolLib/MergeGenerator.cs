@@ -6,7 +6,7 @@ namespace DacFXToolLib
 {
     public static class MergeGenerator
     {
-        public static void Generate(string projectPath, string connectionString, string tableName, string schema)
+        public static string Generate(string projectPath, string connectionString, string tableName, string schema)
         {
             var script = ReadScript();
 
@@ -28,10 +28,10 @@ namespace DacFXToolLib
 
             connection.Close();
 
-            WriteResult(projectPath, tableName, result);
+            return WriteResult(projectPath, tableName, result);
         }
 
-        private static void WriteResult(string projectPath, string tableName, object result)
+        private static string WriteResult(string projectPath, string tableName, object result)
         {
             var projectDirectory = Path.GetDirectoryName(projectPath);
 
@@ -48,6 +48,8 @@ namespace DacFXToolLib
             }
 
             File.WriteAllText(outputPath, result.ToString(), Encoding.UTF8);
+
+            return outputPath;
         }
 
         private static string ReadScript()

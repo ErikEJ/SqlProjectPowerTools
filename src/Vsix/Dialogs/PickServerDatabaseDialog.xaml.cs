@@ -58,6 +58,15 @@ namespace SqlProjectsPowerTools
                     return;
                 }
 
+                if (allowedVersions.Count == 1
+                    && allowedVersions[0].Value == "Seed")
+                {
+                    grdRow1.Height = new GridLength(0);
+                    grdRow2.Height = new GridLength(0);
+                    grdRow3.Height = new GridLength(0);
+                    return;
+                }
+
                 foreach (var item in allowedVersions)
                 {
                     viewModel.CodeGenerationModeList.Add(item);

@@ -19,7 +19,8 @@ namespace SqlProjectsPowerTools
 
             if (project != null)
             {
-                await VS.MessageBox.ShowConfirmAsync("Seed functionality is not yet implemented.");
+                var handler = new SeedHandler();
+                await handler.GenerateSeedScriptsAsync(project);
             }
         }
     }
