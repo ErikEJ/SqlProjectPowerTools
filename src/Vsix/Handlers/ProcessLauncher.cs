@@ -126,6 +126,16 @@ namespace SqlProjectsPowerTools
             return filePath;
         }
 
+        // merge "projectpath" "connectionString" "tableName" "schema"
+        public async Task<string> CreateMergeScriptAsync(string projectPath, string connectionString, string tablename, string schema)
+        {
+            var arguments = "merge " + " \"" + projectPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\" \"" + tablename.Replace("\"", "\\\"") + "\" \"" + schema.Replace("\"", "\\\"") + "\"";
+
+            var result = await GetDiagramInternalAsync(arguments);
+
+            return result;
+        }
+
         private static async Task<string> RunProcessAsync(ProcessStartInfo startInfo)
         {
             return await ExternalProcessLauncher.RunProcessAsync(startInfo);

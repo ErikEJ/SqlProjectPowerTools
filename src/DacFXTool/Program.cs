@@ -44,8 +44,8 @@ namespace DacFXTool
                         };
 
                         var provider = new ServiceCollection().AddEfpt(reverseEngineerCommandOptions, new List<string>(), new List<string>(), new List<string>()).BuildServiceProvider();
-                        var procedureModelFactory = provider.GetRequiredService<IProcedureModelFactory>();
-                        var functionModelFactory = provider.GetRequiredService<IFunctionModelFactory>();
+                        var procedureModelFactory = provider.GetService<IProcedureModelFactory>();
+                        var functionModelFactory = provider.GetService<IFunctionModelFactory>();
                         var databaseModelFactory = provider.GetRequiredService<IDatabaseModelFactory>();
                         var builder = new TableListBuilder(reverseEngineerCommandOptions, procedureModelFactory, functionModelFactory, databaseModelFactory, schemas ?? []);
 
@@ -215,10 +215,10 @@ namespace DacFXTool
                     if (args.Length == 5
                         && (args[0] == "merge"))
                     {
-                        MergeGenerator.Generate(args[1], args[2], args[3], args[4]);
+                        var result = MergeGenerator.Generate(args[1], args[2], args[3], args[4]);
 
                         await Console.Out.WriteLineAsync("Result:");
-                        await Console.Out.WriteLineAsync("OK");
+                        await Console.Out.WriteLineAsync(result);
 
                         return 0;
                     }

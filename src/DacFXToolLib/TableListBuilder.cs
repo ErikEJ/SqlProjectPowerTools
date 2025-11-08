@@ -1,4 +1,4 @@
-﻿using DacFXToolLib.Common;
+using DacFXToolLib.Common;
 using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using RevEng.Core.Abstractions;
@@ -8,8 +8,8 @@ namespace DacFXToolLib
 {
     public class TableListBuilder
     {
-        private readonly IProcedureModelFactory procedureModelFactory;
-        private readonly IFunctionModelFactory functionModelFactory;
+        private readonly IProcedureModelFactory? procedureModelFactory;
+        private readonly IFunctionModelFactory? functionModelFactory;
         private readonly IDatabaseModelFactory databaseModelFactory;
 
         private readonly SchemaInfo[] schemas;
@@ -19,8 +19,8 @@ namespace DacFXToolLib
 
         public TableListBuilder(
             ReverseEngineerCommandOptions options,
-            IProcedureModelFactory procedureModelFactory,
-            IFunctionModelFactory functionModelFactory,
+            IProcedureModelFactory? procedureModelFactory,
+            IFunctionModelFactory? functionModelFactory,
             IDatabaseModelFactory databaseModelFactory,
             SchemaInfo[] schemas)
         {

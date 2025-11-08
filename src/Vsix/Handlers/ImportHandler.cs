@@ -1,12 +1,12 @@
-using DacFXToolLib.Common;
-using DacFXToolLib.Dab;
-using Microsoft.VisualStudio.Shell.Interop;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using DacFXToolLib.Common;
+using DacFXToolLib.Dab;
+using Microsoft.VisualStudio.Shell.Interop;
 
 namespace SqlProjectsPowerTools
 {
