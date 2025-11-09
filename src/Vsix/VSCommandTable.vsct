@@ -59,6 +59,17 @@
         </Strings>
       </Button>
 
+      <Button guid="Vsix" id="cmdidSeed" priority="0x0102" type="Button">
+        <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
+        <Icon guid="ImageCatalogGuid" id="DatabaseScript" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <ButtonText>Script Table Data...</ButtonText>
+        </Strings>
+      </Button>
+
       <Button guid="Vsix" id="cmdidCompare" priority="0x0105" type="Button">
         <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
         <Icon guid="ImageCatalogGuid" id="CompareSchemas" />
@@ -111,17 +122,6 @@
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
           <ButtonText>Script Database Model</ButtonText>
-        </Strings>
-      </Button>
-
-      <Button guid="Vsix" id="cmdidSeed" priority="0x0150" type="Button">
-        <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
-        <Icon guid="ImageCatalogGuid" id="DatabaseScript" />
-        <CommandFlag>IconIsMoniker</CommandFlag>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>TextChanges</CommandFlag>
-        <Strings>
-          <ButtonText>Script Table Data...</ButtonText>
         </Strings>
       </Button>
 
