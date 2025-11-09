@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using DacFXToolLib.Common;
 using DacFXToolLib.Dab;
@@ -45,7 +46,7 @@ namespace SqlProjectsPowerTools
                     return;
                 }
 
-                await GenerateScriptAsync(options, dbInfo.ConnectionString);
+                await GenerateScriptAsync(options, dbInfo.ConnectionString, project);
             }
             catch (AggregateException ae)
             {
@@ -64,7 +65,7 @@ namespace SqlProjectsPowerTools
             }
         }
 
-        private static async Task GenerateScriptAsync(DataApiBuilderOptions options, string connectionString)
+        private static async Task GenerateScriptAsync(DataApiBuilderOptions options, string connectionString, Project project)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
@@ -90,6 +91,28 @@ namespace SqlProjectsPowerTools
             if (File.Exists(result))
             {
                 await VS.Documents.OpenAsync(result);
+
+                var projectDirectory = Path.GetDirectoryName(project.FullPath);
+
+                var insertStatement = $":r ./{Path.GetFileName(result)}";
+
+                var postDeployDirPath = Path.Combine(projectDirectory, "Post-Deployment");
+
+                if (File.Exists(Path.Combine(postDeployDirPath, "postdeploy.sql")))
+                {
+                    var textLines = File.ReadAllLines(Path.Combine(projectDirectory, "Post-Deployment", "postdeploy.sql")).ToList();
+
+                    if (!textLines.Any(line => line.Trim().Equals(insertStatement, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        textLines.Add(string.Empty);
+                        textLines.Add(insertStatement);
+                        File.WriteAllLines(Path.Combine(projectDirectory, "Post-Deployment", "postdeploy.sql"), textLines, Encoding.UTF8);
+                    }
+                }
+                else
+                {
+                    File.WriteAllLines(Path.Combine(postDeployDirPath, "postdeploy.sql"), new List<string> { insertStatement }, Encoding.UTF8);
+                }
             }
         }
 
