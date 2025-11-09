@@ -33,13 +33,14 @@ namespace DacFXToolLib
                 throw new InvalidOperationException("Merge script generation failed.");
             }
 
-            var preamble = "-- Add the following ItemGroup to your project file to include the merge script in your project:";
-            preamble += Environment.NewLine + Environment.NewLine + "-- <ItemGroup>";
-            preamble += Environment.NewLine + $"--   <PostDeploy Include=\"Post-Deployment/postdeploy.sql\" />";
-            preamble += Environment.NewLine + "-- </ItemGroup>";
+            var preamble = $@"-- Add the following ItemGroup to your project file to include the merge script in your project:
 
-            preamble += Environment.NewLine + Environment.NewLine + $"--EXEC [#sp_generate_merge] @schema = '{schema}', @table_name = '{tableName}', @results_to_text = 1, @include_use_db = 0";
+-- <ItemGroup>
+--   <PostDeploy Include=""Post-Deployment/postdeploy.sql"" />
+-- </ItemGroup>
 
+--EXEC [#sp_generate_merge] @schema = '{schema}', @table_name = '{tableName}', @results_to_text = 1, @include_use_db = 0
+";
             result = preamble + result;
 
             return WriteResult(projectPath, tableName, result);
