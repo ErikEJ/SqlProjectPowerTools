@@ -106,7 +106,7 @@ namespace SqlProjectsPowerTools
                     {
                         textLines.Add(string.Empty);
                         textLines.Add(insertStatement);
-                        File.WriteAllLines(Path.Combine(projectDirectory, "Post-Deployment", "postdeploy.sql"), textLines, Encoding.UTF8);
+                        File.WriteAllLines(postDeployFilePath, textLines, Encoding.UTF8);
                     }
                 }
                 else
