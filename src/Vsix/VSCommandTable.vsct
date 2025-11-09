@@ -121,7 +121,7 @@
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
-          <ButtonText>Script Seed Data...</ButtonText>
+          <ButtonText>Script Table Data...</ButtonText>
         </Strings>
       </Button>
 

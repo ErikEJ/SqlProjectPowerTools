@@ -24,14 +24,30 @@ namespace DacFXToolLib
             mergeCommand.Parameters.AddWithValue("@schema", schema);
             mergeCommand.Parameters.AddWithValue("@results_to_text", 1);
             mergeCommand.Parameters.AddWithValue("@include_use_db", 0);
-            var result = mergeCommand.ExecuteScalar();
+            var result = (string?)mergeCommand.ExecuteScalar();
 
             connection.Close();
+
+            if (result == null)
+            {
+                throw new InvalidOperationException("Merge script generation failed.");
+            }
+
+            var preamble = "-- Add the following ItemGroup to your project file to include the merge script in your project:";
+            preamble += Environment.NewLine + "-- <ItemGroup>";
+            preamble += Environment.NewLine + $"--   <PostDeploy Include=\"Post-Deployment\\{tableName}_merge.sql\" />";
+            preamble += Environment.NewLine + "-- </ItemGroup>";
+
+            result = preamble + Environment.NewLine + result;
+
+            var commandText = $"-- EXEC [#sp_generate_merge] @schema = '{schema}', @table_name = '{tableName}', @results_to_text = 1, @include_use_db = 0"; 
+
+            result = commandText + Environment.NewLine + result;
 
             return WriteResult(projectPath, tableName, result);
         }
 
-        private static string WriteResult(string projectPath, string tableName, object result)
+        private static string WriteResult(string projectPath, string tableName, string result)
         {
             var projectDirectory = Path.GetDirectoryName(projectPath);
 

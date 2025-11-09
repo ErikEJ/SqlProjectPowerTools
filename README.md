@@ -26,6 +26,7 @@ The tool contains the following features.
 - **Analyze** - report with static code analysis result of your database project
 - **Create Mermaid E/R diagram** - create an Entity/Relationship diagram of selected tables from your database project
 - **Script Database Model** - extract a .dacpac into a single .sql file
+- **Script Table Data** - generate insert statements for table data in your database project, based on [generate-sql-merge](https://github.com/dnlnln/generate-sql-merge)
 
 ### Power Pack
 
