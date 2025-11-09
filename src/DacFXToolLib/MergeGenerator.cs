@@ -38,11 +38,11 @@ namespace DacFXToolLib
             preamble += Environment.NewLine + $"--   <PostDeploy Include=\"Post-Deployment\\{tableName}_merge.sql\" />";
             preamble += Environment.NewLine + "-- </ItemGroup>";
 
-            result = preamble + Environment.NewLine;
+            result = preamble + Environment.NewLine + result;
 
-            var commandText = $"-- EXEC [#sp_generate_merge] @schema = '{schema}', @table_name = '{tableName}', @results_to_text = 1, @include_use_db = 0"
+            var commandText = $"-- EXEC [#sp_generate_merge] @schema = '{schema}', @table_name = '{tableName}', @results_to_text = 1, @include_use_db = 0"; 
 
-            result = commandText + Environment.NewLine + result.ToString();
+            result = commandText + Environment.NewLine + result;
 
             return WriteResult(projectPath, tableName, result);
         }

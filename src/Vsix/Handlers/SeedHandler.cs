@@ -96,11 +96,11 @@ namespace SqlProjectsPowerTools
 
                 var insertStatement = $":r ./{Path.GetFileName(result)}";
 
-                var postDeployDirPath = Path.Combine(projectDirectory, "Post-Deployment");
+                var postDeployFilePath = Path.Combine(projectDirectory, "Post-Deployment", "postdeploy.sql");
 
-                if (File.Exists(Path.Combine(postDeployDirPath, "postdeploy.sql")))
+                if (File.Exists(postDeployFilePath))
                 {
-                    var textLines = File.ReadAllLines(Path.Combine(projectDirectory, "Post-Deployment", "postdeploy.sql")).ToList();
+                    var textLines = File.ReadAllLines(postDeployFilePath).ToList();
 
                     if (!textLines.Any(line => line.Trim().Equals(insertStatement, StringComparison.OrdinalIgnoreCase)))
                     {
@@ -111,7 +111,7 @@ namespace SqlProjectsPowerTools
                 }
                 else
                 {
-                    File.WriteAllLines(Path.Combine(postDeployDirPath, "postdeploy.sql"), new List<string> { insertStatement }, Encoding.UTF8);
+                    File.WriteAllLines(postDeployFilePath, new List<string> { insertStatement }, Encoding.UTF8);
                 }
             }
         }
