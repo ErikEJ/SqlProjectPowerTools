@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using DacFXToolLib.Common;
 using DacFXToolLib.Dab;
 
@@ -113,6 +114,9 @@ namespace SqlProjectsPowerTools
                 {
                     File.WriteAllLines(postDeployFilePath, new List<string> { insertStatement }, Encoding.UTF8);
                 }
+
+                // Add the PostDeploy item to the project file
+                AddPostDeployToProject(project.FullPath, "Post-Deployment/postdeploy.sql");
             }
         }
 
@@ -227,6 +231,45 @@ namespace SqlProjectsPowerTools
                 new CodeGenerationItem { Key = 0, Value = "Seed" },
             };
             return list;
+        }
+
+        private static void AddPostDeployToProject(string projectFilePath, string itemInclude)
+        {
+            if (!File.Exists(projectFilePath))
+            {
+                return;
+            }
+
+            var doc = XDocument.Load(projectFilePath);
+            var ns = doc.Root?.Name.Namespace ?? XNamespace.None;
+
+            // Check if the PostDeploy item already exists
+            var existingPostDeploy = doc.Descendants(ns + "PostDeploy")
+                .FirstOrDefault(e => e.Attribute("Include")?.Value == itemInclude);
+
+            if (existingPostDeploy != null)
+            {
+                // Item already exists, no need to add it again
+                return;
+            }
+
+            // Find an existing ItemGroup with PostDeploy elements, or create a new one
+            var itemGroup = doc.Descendants(ns + "ItemGroup")
+                .FirstOrDefault(ig => ig.Elements(ns + "PostDeploy").Any());
+
+            if (itemGroup == null)
+            {
+                // Create a new ItemGroup for PostDeploy
+                itemGroup = new XElement(ns + "ItemGroup");
+                doc.Root?.Add(itemGroup);
+            }
+
+            // Add the PostDeploy item
+            var postDeployElement = new XElement(ns + "PostDeploy");
+            postDeployElement.SetAttributeValue("Include", itemInclude);
+            itemGroup.Add(postDeployElement);
+
+            doc.Save(projectFilePath);
         }
     }
 }
