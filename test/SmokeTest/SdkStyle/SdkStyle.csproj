@@ -1,32 +1,27 @@
-﻿<Project Sdk="MSBuild.Sdk.SqlProj/3.2.0">
-    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <SqlServerVersion>Sql160</SqlServerVersion>
-        <RunSqlCodeAnalysis>True</RunSqlCodeAnalysis>
-        <!-- For additional properties that can be set here, please refer to https://github.com/rr-wfm/MSBuild.Sdk.SqlProj#model-properties -->
-    </PropertyGroup>
-    <ItemGroup>
-      <None Remove="bin/**" />
-    </ItemGroup>
-
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="MSBuild.Sdk.SqlProj/3.3.0">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <SqlServerVersion>Sql160</SqlServerVersion>
+    <RunSqlCodeAnalysis>True</RunSqlCodeAnalysis>
+    <!-- For additional properties that can be set here, please refer to https://github.com/rr-wfm/MSBuild.Sdk.SqlProj#model-properties -->
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- These packages adds additional code analysis rules -->
+    <!-- We recommend using these, but they can be removed if desired -->
+    <PackageReference Include="ErikEJ.DacFX.SqlServer.Rules" Version="3.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="ErikEJ.DacFX.TSQLSmellSCA" Version="3.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <PropertyGroup>
+    <!-- Refer to https://github.com/rr-wfm/MSBuild.Sdk.SqlProj#publishing-support for supported publishing options -->
+  </PropertyGroup>
   <ItemGroup>
     <PostDeploy Include="Post-Deployment/postdeploy.sql" />
   </ItemGroup>
-
-  <ItemGroup>
-        <!-- These packages adds additional code analysis rules -->
-        <!-- We recommend using these, but they can be removed if desired -->
-        <PackageReference Include="ErikEJ.DacFX.SqlServer.Rules" Version="3.0.0">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-        <PackageReference Include="ErikEJ.DacFX.TSQLSmellSCA" Version="3.0.0">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-        </PackageReference>
-    </ItemGroup>
-
-    <PropertyGroup>
-        <!-- Refer to https://github.com/rr-wfm/MSBuild.Sdk.SqlProj#publishing-support for supported publishing options -->
-    </PropertyGroup>
 </Project>
