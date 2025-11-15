@@ -2,7 +2,7 @@
   "profiles": {
     "DacFXTool": {
       "commandName": "Project",
-      "commandLineArgs": "merge \"C:\\Temp\\test.csproj\" \"Data Source=.\\SQLEXPRESS;Initial catalog=Chinook;Integrated Security=True;Encrypt=false\" \"Album\" \"dbo\""
+      "commandLineArgs": "merge \"C:\\dev\\GitHub\\SqlProjectPowerTools\\test\\SmokeTest\\SdkStyle\\SdkStyle.csproj\" \"Data Source=.\\SQLEXPRESS;Initial catalog=Chinook;Integrated Security=True;Encrypt=false\" \"Artist\" \"dbo\""
     }
   }
 }

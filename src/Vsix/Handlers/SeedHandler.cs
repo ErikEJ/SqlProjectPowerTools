@@ -115,7 +115,6 @@ namespace SqlProjectsPowerTools
                     File.WriteAllLines(postDeployFilePath, new List<string> { insertStatement }, Encoding.UTF8);
                 }
 
-                // Add the PostDeploy item to the project file
                 AddPostDeployToProject(project.FullPath, "Post-Deployment/postdeploy.sql");
             }
         }

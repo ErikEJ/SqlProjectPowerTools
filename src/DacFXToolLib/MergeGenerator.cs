@@ -43,6 +43,8 @@ namespace DacFXToolLib
 ";
             result = preamble + result;
 
+            result = result.ReplaceLineEndings();
+
             return WriteResult(projectPath, tableName, result);
         }
 
