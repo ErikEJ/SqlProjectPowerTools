@@ -63,6 +63,12 @@ namespace DacFXToolLib
 
             var model = GetModelInternal();
 
+            // Remove excluded columns once before processing tables
+            foreach (var dbObject in model.Tables)
+            {
+                RemoveExcludedColumns(dbObject);
+            }
+
             var sb = new StringBuilder();
 
             sb.AppendLine(CultureInfo.InvariantCulture, $"@echo off");
@@ -85,8 +91,6 @@ namespace DacFXToolLib
                 {
                     continue;
                 }
-
-                RemoveExcludedColumns(dbObject);
 
                 var columnList = string.Join(
                     ",",
@@ -116,8 +120,6 @@ namespace DacFXToolLib
                 {
                     continue;
                 }
-
-                RemoveExcludedColumns(dbObject);
 
                 var columnList = string.Join(
                     ",",
