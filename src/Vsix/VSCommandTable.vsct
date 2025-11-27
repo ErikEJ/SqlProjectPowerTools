@@ -114,7 +114,7 @@
         </Strings>
       </Button>
 
-      <Button guid="Vsix" id="cmdidUnpack" priority="0x0140" type="Button">
+      <!--<Button guid="Vsix" id="cmdidUnpack" priority="0x0140" type="Button">
         <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
         <Icon guid="ImageCatalogGuid" id="PackageFolderOpened" />
         <CommandFlag>IconIsMoniker</CommandFlag>
@@ -123,7 +123,7 @@
         <Strings>
           <ButtonText>Script Database Model</ButtonText>
         </Strings>
-      </Button>
+      </Button>-->
 
       <Button guid="Vsix" id="cmdidOptions" priority="0x0700" type="Button">
         <Parent guid="Vsix" id="cmdidSqlAboutMenuItemsGroup" />

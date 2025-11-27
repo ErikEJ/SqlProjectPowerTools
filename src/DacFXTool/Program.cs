@@ -182,6 +182,25 @@ namespace DacFXTool
                         return 0;
                     }
 
+                    // unpack "dacpac path" "output path"
+                    if (args.Length == 3
+                        && args[0] == "script")
+                    {
+                        if (!new FileInfo(args[1]).Exists)
+                        {
+                            await Console.Out.WriteLineAsync("Error:");
+                            await Console.Out.WriteLineAsync($"DACPAC file '{args[1]}' not found");
+                            return 1;
+                        }
+
+                        var result = DacPackageScripter.Script(args[1], args[2]);
+
+                        await Console.Out.WriteLineAsync("Result:");
+                        await Console.Out.WriteLineAsync(result);
+
+                        return 0;
+                    }
+
                     // compare true "<DACPAC_PATH>" "connectionString"
                     if (args.Length == 4
                         && (args[0] == "compare")
