@@ -268,7 +268,7 @@ namespace SqlProjectsPowerTools
             postDeployElement.SetAttributeValue("Include", itemInclude);
             itemGroup.Add(postDeployElement);
 
-            doc.Save(projectFilePath);
+            File.WriteAllText(projectFilePath, doc.ToString());
         }
     }
 }
