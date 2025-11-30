@@ -37,7 +37,7 @@ namespace DacFXToolLib
 
             var extension = createMarkdown ? ".md" : ".mmd";
 
-            var fileName = Path.Join(Path.GetTempPath(), Path.GetRandomFileName() + extension);
+            var fileName = Path.Join(dataApiBuilderOptions.ProjectPath, "dbdiagram" + extension);
             File.WriteAllText(fileName, diagram, Encoding.UTF8);
 
             return fileName;
