@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 
 namespace DacFXToolLib
@@ -37,8 +37,6 @@ namespace DacFXToolLib
 
             if (createMarkdown)
             {
-                sb.AppendLine(CultureInfo.InvariantCulture, $"## {databaseModel.DatabaseName}");
-                sb.AppendLine();
                 sb.AppendLine("```mermaid");
             }
 
