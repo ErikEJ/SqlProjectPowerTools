@@ -76,44 +76,6 @@ namespace SqlProjectsPowerTools.TreeViewer
             return await project?.GetDacpacPathAsync() ?? null;
         }
 
-        /// <summary>
-        /// Recursively searches within a project (which may be a solution folder) for the target project.
-        /// </summary>
-        private EnvDTE.Project FindProjectRecursive(EnvDTE.Project project)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            if (project == null)
-            {
-                return null;
-            }
-
-            // Check if this is our target project
-            if (string.Equals(project.FullName, projectPath, StringComparison.OrdinalIgnoreCase))
-            {
-                return project;
-            }
-
-            // If this is a solution folder, search its nested projects
-            if (project.Kind == EnvDTE.Constants.vsProjectKindSolutionItems)
-            {
-                foreach (ProjectItem projectItem in project.ProjectItems)
-                {
-                    EnvDTE.Project subProject = projectItem.SubProject;
-                    if (subProject != null)
-                    {
-                        EnvDTE.Project found = FindProjectRecursive(subProject);
-                        if (found != null)
-                        {
-                            return found;
-                        }
-                    }
-                }
-            }
-
-            return null;
-        }
-
         public object SourceItem => this;
 
         public bool HasItems => item != null;
