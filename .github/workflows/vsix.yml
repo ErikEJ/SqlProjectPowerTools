@@ -13,7 +13,7 @@ permissions:
   id-token: write # This is required for the federated credential to work
 
 env:
-  VERSION: 0.1.${{ github.run_number }}
+  VERSION: 1.0.${{ github.run_number }}
 
 jobs:
   build:
@@ -29,9 +29,9 @@ jobs:
 
     - name: Update Version
       run: |
-        ((Get-Content -Path Vsix/Properties/AssemblyInfo.cs -Raw) -Replace "0.1.0", "${{ env.VERSION }}") | Set-Content -Path Vsix/Properties/AssemblyInfo.cs
-        ((Get-Content -Path Vsix/source.extension.vsixmanifest -Raw) -Replace "0.1.0", "${{ env.VERSION }}") | Set-Content -Path Vsix/source.extension.vsixmanifest
-        ((Get-Content -Path ExtensionPack/source.extension.vsixmanifest -Raw) -Replace "0.1.0", "${{ env.VERSION }}") | Set-Content -Path ExtensionPack/source.extension.vsixmanifest
+        ((Get-Content -Path Vsix/Properties/AssemblyInfo.cs -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path Vsix/Properties/AssemblyInfo.cs
+        ((Get-Content -Path Vsix/source.extension.vsixmanifest -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path Vsix/source.extension.vsixmanifest
+        ((Get-Content -Path ExtensionPack/source.extension.vsixmanifest -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path ExtensionPack/source.extension.vsixmanifest
       working-directory: src
       shell: pwsh
 

@@ -98,6 +98,8 @@ These diagrams are perfect for documentation and help team members understand th
 
 The extension adds a Solution Explorer node for .dacpac files, making it easy to explore their contents without deploying them.
 
+![Solution Explorer node](../img/SolutionExplorer.png)
+
 To view a .dacpac file:
 
 1. Add a .dacpac file to your project
@@ -108,15 +110,14 @@ This is helpful when working with database packages from other projects or vendo
 
 ## Scripting Table Data
 
-When you need to include data in your database project, the Script Table Data feature generates INSERT statements for you.
+When you need to include seed data in your database project, the Script Table Data feature generates INSERT statements for you.
 
 To script table data:
 
-1. Right-click on a table in your database project
-2. Select **SQL Project Power Tools > Script Table Data**
-3. Choose your data source and options
-4. The tool generates INSERT statements for the table data
-5. Add the generated script to your project
+1. Select **SQL Project Power Tools > Script Table Data**
+2. Choose your data source and options
+3. The tool generates INSERT statements for the table data
+4. The tool adds the generated script to your project in the `Post-Deployment` folder
 
 This is based on the popular [generate-sql-merge](https://github.com/dnlnln/generate-sql-merge) tool and supports various options for data scripting.
 
