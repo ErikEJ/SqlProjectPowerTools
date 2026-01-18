@@ -42,7 +42,7 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
 
         public void Rebuild(string outputPath, string dacpacPath)
         {
-            Text = Path.GetFileName(outputPath) ?? ".vsix content";
+            Text = Path.GetFileName(outputPath) ?? ".dacpac content";
             IsCut = false;
             isLoaded = false;
             var hadItems = HasItems;

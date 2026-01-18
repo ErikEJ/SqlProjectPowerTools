@@ -46,7 +46,7 @@ namespace SqlProjectsPowerTools.TreeViewer
                 async () =>
                 {
                     await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                    var dacpacPath = GetDacpacPath();
+                    var dacpacPath = await GetDacpacPathAsync();
 
                     await TaskScheduler.Default;
 
@@ -67,47 +67,13 @@ namespace SqlProjectsPowerTools.TreeViewer
                 VsTaskRunContext.UIThreadIdlePriority).FireAndForget();
         }
 
-        private string GetDacpacPath()
+        private async Task<string> GetDacpacPathAsync()
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            var projects = await VS.Solutions.GetAllProjectsAsync();
 
-            EnvDTE.Project project = FindProjectRecursive(dte.Solution.Projects);
+            var project = projects.FirstOrDefault(p => p.FullPath.Equals(projectPath, StringComparison.OrdinalIgnoreCase));
 
-            if (project != null)
-            {
-                // TODO : use correct way to get output path for a .dacpac
-                var outputPath = project.ConfigurationManager.ActiveConfiguration.Properties.Item("SqlTargetPath").Value.ToString();
-
-                if (string.IsNullOrEmpty(outputPath))
-                {
-                    outputPath = project.ConfigurationManager.ActiveConfiguration.Properties.Item("TargetPath").Value.ToString();
-                }
-
-                var binDir = Path.Combine(Path.GetDirectoryName(project.FullName), outputPath);
-
-                return Directory.Exists(binDir) ? Directory.GetFiles(binDir, "*.dacpac", SearchOption.TopDirectoryOnly).FirstOrDefault() : null;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Recursively searches for a project by path, including projects nested in solution folders.
-        /// </summary>
-        private EnvDTE.Project FindProjectRecursive(Projects projects)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            foreach (EnvDTE.Project project in projects)
-            {
-                EnvDTE.Project found = FindProjectRecursive(project);
-                if (found != null)
-                {
-                    return found;
-                }
-            }
-
-            return null;
+            return await project?.GetDacpacPathAsync() ?? null;
         }
 
         /// <summary>

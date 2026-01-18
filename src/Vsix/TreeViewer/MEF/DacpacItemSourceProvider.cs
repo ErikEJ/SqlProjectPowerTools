@@ -1,7 +1,11 @@
+using Microsoft.Internal.VisualStudio.PlatformUI;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Utilities;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using Microsoft.Internal.VisualStudio.PlatformUI;
-using Microsoft.VisualStudio.Utilities;
+using System.IO;
+using System.Linq;
 
 namespace SqlProjectsPowerTools.TreeViewer.MEF
 {
@@ -69,6 +73,8 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
+            var isSqlProject = false;
+
             try
             {
                 if (!HierarchyUtilities.IsProject(hierarchyItem.HierarchyIdentity))
@@ -76,19 +82,27 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
                     return false;
                 }
 
-                ThreadHelper.JoinableTaskFactory.Run(async () =>
-                {
-                    var project = await VS.Solutions.GetActiveProjectAsync();
+                IVsHierarchy hierarchy = hierarchyItem.GetHierarchy();
 
-                    return project.IsAnySqlDatabaseProject();
-                });
+
+                if (hierarchy.TryGetItemProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_ProjectDir, out string projectDir))
+                {
+                    ThreadHelper.JoinableTaskFactory.Run(async () =>
+                    {
+                        var projects = await VS.Solutions.GetAllProjectsAsync();
+
+                        var project = projects.FirstOrDefault(p => Path.GetDirectoryName(p.FullPath).Equals(projectDir, StringComparison.OrdinalIgnoreCase));
+
+                        isSqlProject = project?.IsAnySqlDatabaseProject() ?? false;
+                    });
+                }
             }
             catch (Exception ex)
             {
                 ex.Log();
             }
 
-            return false;
+            return isSqlProject;
         }
 
         private static string GetProjectPath(IVsHierarchyItem hierarchyItem)
