@@ -12,9 +12,9 @@ namespace SqlProjectsPowerTools
         public const string Name = "SQL Database Project Power Tools";
         public const string Description = @"Tools to enhance the SQL Database Projects developer experience, including Project and Item templates, Import existing databases, create E/R diagrams and much more.";
         public const string Language = "en-US";
-        public const string Version = "0.1.0";
+        public const string Version = "1.0.0";
         public const string Author = "ErikEJ";
         public const string Tags = "";
-        public const bool IsPreview = true;
+        public const bool IsPreview = false;
     }
 }

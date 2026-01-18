@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="SqlProjectsPowerTools.0e226f35-6d47-4156-88df-f9d40db5e2d1" Version="0.1.0" Language="en-US" Publisher="ErikEJ" />
+    <Identity Id="SqlProjectsPowerTools.0e226f35-6d47-4156-88df-f9d40db5e2d1" Version="1.0.0" Language="en-US" Publisher="ErikEJ" />
     <DisplayName>SQL Database Project Power Tools</DisplayName>
     <Description>Tools to enhance the SQL Database Projects developer experience, including Project and Item templates, Import existing databases, create E/R diagrams and much more.</Description>
     <MoreInfo>https://github.com/ErikEJ/SqlProjectPowerTools/</MoreInfo>
     <License>Resources\license.txt</License>
     <Icon>Resources\logo9090.png</Icon>
-    <Preview>true</Preview>
   </Metadata>
   <Installation>
     <InstallationTarget Id="Microsoft.VisualStudio.Community" Version="[17.0, 19.0)">
