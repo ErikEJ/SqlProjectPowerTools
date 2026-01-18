@@ -119,6 +119,13 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="TreeViewer\Debouncer.cs" />
+    <Compile Include="TreeViewer\IconMapper.cs" />
+    <Compile Include="TreeViewer\MEF\DacpacItemInvocationController.cs" />
+    <Compile Include="TreeViewer\MEF\DacpacItemNode.cs" />
+    <Compile Include="TreeViewer\MEF\DacpacItemSourceProvider.cs" />
+    <Compile Include="TreeViewer\MEF\DacpacRootNode.cs" />
+    <Compile Include="TreeViewer\Relationships.cs" />
     <Compile Include="ViewModels\ColumnChildrenViewModel.cs" />
     <Compile Include="ViewModels\ColumnInformationViewModel.cs" />
     <Compile Include="ViewModels\DatabaseConnectionModel.cs" />
@@ -197,7 +204,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Community.VisualStudio.VSCT" Version="16.0.29.6" PrivateAssets="all" />
-    <PackageReference Include="Community.VisualStudio.Toolkit.17" Version="17.0.533" ExcludeAssets="Runtime">
+    <PackageReference Include="Community.VisualStudio.Toolkit.17" Version="17.0.545" ExcludeAssets="Runtime">
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="JetBrains.Annotations">

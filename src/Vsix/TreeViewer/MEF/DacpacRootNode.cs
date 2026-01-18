@@ -1,0 +1,127 @@
+using System.Collections;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using EnvDTE;
+using Microsoft.Internal.VisualStudio.PlatformUI;
+using Microsoft.VisualStudio.Threading;
+using SqlProjectsPowerTools.TreeViewer.MEF;
+
+namespace SqlProjectsPowerTools.TreeViewer
+{
+#pragma warning disable S3881 // "IDisposable" should be implemented correctly
+    internal class DacpacRootNode : IAttachedCollectionSource, INotifyPropertyChanged, IDisposable
+#pragma warning restore S3881 // "IDisposable" should be implemented correctly
+    {
+        private readonly DacpacItemNode item;
+        private readonly string projectPath;
+        private readonly DTE dte;
+        private readonly string defaultName;
+
+        public DacpacRootNode(IVsHierarchyItem hierarchyItem)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+            EnvDTE.Project project = HierarchyUtilities.GetProject(hierarchyItem);
+            defaultName = project.Name + ".dacpac";
+            item = new(this, defaultName, "root");
+            dte = project.DTE;
+            projectPath = project.FullName;
+
+            Rebuild(false);
+            dte.Events.BuildEvents.OnBuildProjConfigDone += BuildEvents_OnBuildProjConfigDone;
+        }
+
+        private void BuildEvents_OnBuildProjConfigDone(string project, string projectConfig, string platform, string solutionConfig, bool success)
+        {
+            if (success && projectPath.EndsWith(project))
+            {
+                Debouncer.Debounce(projectPath, () => Rebuild(true), 500);
+            }
+        }
+
+        private void Rebuild(bool force)
+        {
+            ThreadHelper.JoinableTaskFactory.StartOnIdle(
+                async () =>
+                {
+                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                    var dacpacPath = await GetDacpacPathAsync();
+
+                    await TaskScheduler.Default;
+
+                    if (!string.IsNullOrEmpty(dacpacPath))
+                    {
+                        var unpackedPath = UnpackDacpac(dacpacPath, force);
+
+                        if (!string.IsNullOrEmpty(unpackedPath))
+                        {
+                            item.Rebuild(unpackedPath, dacpacPath);
+                        }
+                    }
+                    else
+                    {
+                        item.Rebuild(defaultName, "root");
+                    }
+                },
+                VsTaskRunContext.UIThreadIdlePriority).FireAndForget();
+        }
+
+        private async Task<string> GetDacpacPathAsync()
+        {
+            var projects = await VS.Solutions.GetAllProjectsAsync();
+
+            var project = projects.FirstOrDefault(p => p.FullPath.Equals(projectPath, StringComparison.OrdinalIgnoreCase));
+
+            return await project?.GetDacpacPathAsync() ?? null;
+        }
+
+        public object SourceItem => this;
+
+        public bool HasItems => item != null;
+
+        public IEnumerable Items => new[] { item };
+
+        private static string UnpackDacpac(string dacpacPath, bool force)
+        {
+            if (!File.Exists(dacpacPath))
+            {
+                return null;
+            }
+
+            var path = Path.Combine(Path.GetTempPath(), Vsix.Name, Path.GetFileName(dacpacPath));
+
+            if (Directory.Exists(path))
+            {
+                if (!force && Directory.GetLastWriteTime(path) > File.GetLastWriteTime(dacpacPath))
+                {
+                    return path;
+                }
+
+                Directory.Delete(path, true);
+            }
+
+            try
+            {
+                System.IO.Compression.ZipFile.ExtractToDirectory(dacpacPath, path);
+                return path;
+            }
+            catch (IOException ex)
+            {
+                ex.Log();
+                return null;
+            }
+        }
+
+        public void RaisePropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        public void Dispose()
+        {
+        }
+    }
+}

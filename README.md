@@ -25,7 +25,7 @@ The tool contains the following features.
 - **Schema compare** - compare your database project with a live database and get a script to update the database or your project
 - **Analyze** - report with static code analysis result of your database project
 - **Create Mermaid E/R diagram** - create an Entity/Relationship diagram of selected tables from your database project
-- **Script Database Model** - extract a .dacpac into a single .sql file
+- **.dacpac Solution explorer node** - view the contents of a dacpac file in Solution Explorer
 - **Script Table Data** - generate insert statements for table data in your database project, based on [generate-sql-merge](https://github.com/dnlnln/generate-sql-merge)
 
 ### Power Pack
