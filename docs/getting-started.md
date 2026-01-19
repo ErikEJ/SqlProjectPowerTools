@@ -43,7 +43,7 @@ To import a database:
 1. Right-click on your SQL database project in Solution Explorer
 2. Select **SQL Project Power Tools > Import database**
 3. Enter your database connection details
-4. Choose which objects you want to import (tables, views, stored procedures, etc.)
+4. Choose the file layout for the imported objects
 5. Click **Import**
 
 The tool will create all the necessary files in your project, organized by object type.
@@ -59,9 +59,9 @@ To use schema compare:
 
 1. Right-click on your SQL database project in Solution Explorer
 2. Select **SQL Project Power Tools > Schema compare**
-3. Choose your comparison source and target
-4. Review the differences
-5. Generate a script to apply the changes
+3. Choose your comparison source database and target (project or database)
+4. Review the differences in the generated script
+5. Apply the changes as needed
 
 This is especially useful when working in teams or managing multiple environments.
 
@@ -74,9 +74,9 @@ To analyze your project:
 1. Right-click on your SQL database project in Solution Explorer
 2. Select **SQL Project Power Tools > Analyze**
 3. Review the analysis report
-4. Address any issues found
+4. Address any issues found and improve your code quality
 
-The analysis includes checks for design issues, naming conventions, performance concerns, and more.
+The analysis includes checks for design issues, naming conventions, performance concerns, and more. Consider adding this step to your regular development workflow.
 
 ## Creating Entity/Relationship Diagrams
 
@@ -90,7 +90,7 @@ To create a diagram:
 2. Select **SQL Project Power Tools > Create Mermaid E/R diagram**
 3. Choose which tables to include
 4. The tool generates a Mermaid markdown diagram
-5. View the diagram in any Mermaid-compatible viewer or documentation
+5. View the diagram in Visual Studio or use it for documentation
 
 These diagrams are perfect for documentation and help team members understand the database structure.
 
@@ -104,9 +104,9 @@ To view a .dacpac file:
 
 1. Add a .dacpac file to your project
 2. Expand the file in Solution Explorer
-3. Browse through the database objects contained in the package
+3. Browse through the xml files and post/predeploy scripts contained in the package
 
-This is helpful when working with database packages from other projects or vendors.
+This is helpful when troubleshooting post and predeployment script issues.
 
 ## Scripting Table Data
 
@@ -115,7 +115,7 @@ When you need to include seed data in your database project, the Script Table Da
 To script table data:
 
 1. Select **SQL Project Power Tools > Script Table Data**
-2. Choose your data source and options
+2. Choose your data source and pick the table to script
 3. The tool generates INSERT statements for the table data
 4. The tool adds the generated script to your project in the `Post-Deployment` folder
 
