@@ -1,11 +1,11 @@
-using Microsoft.Internal.VisualStudio.PlatformUI;
-using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Shell.Interop;
-using Microsoft.VisualStudio.Utilities;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
+using Microsoft.Internal.VisualStudio.PlatformUI;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Shell.Interop;
+using Microsoft.VisualStudio.Utilities;
 
 namespace SqlProjectsPowerTools.TreeViewer.MEF
 {
@@ -83,7 +83,6 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
                 }
 
                 IVsHierarchy hierarchy = hierarchyItem.GetHierarchy();
-
 
                 if (hierarchy.TryGetItemProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_ProjectDir, out string projectDir))
                 {
