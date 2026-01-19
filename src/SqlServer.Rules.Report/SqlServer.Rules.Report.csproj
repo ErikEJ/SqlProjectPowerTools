@@ -11,8 +11,8 @@
   </ItemGroup>	
   <ItemGroup>
     <PackageReference Include="ErikEJ.DacFX.TSQLSmellSCA" Version="3.0.0" />
-    <PackageReference Include="ErikEJ.DacFX.SqlServer.Rules" Version="3.0.0" />
-    <PackageReference Include="Microsoft.SqlServer.DacFx" Version="170.1.61" />
-    <PackageReference Include="System.ComponentModel.Composition" Version="9.0.9" />    
+    <PackageReference Include="ErikEJ.DacFX.SqlServer.Rules" Version="3.1.0" />
+    <PackageReference Include="Microsoft.SqlServer.DacFx" Version="170.2.70" />
+    <PackageReference Include="System.ComponentModel.Composition" Version="9.0.12" />    
   </ItemGroup>
 </Project>
