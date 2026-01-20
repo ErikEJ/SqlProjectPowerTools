@@ -103,7 +103,18 @@
         </Strings>
       </Button>
 
-      <Button guid="Vsix" id="cmdidReverseEngineerDab" priority="0x0130" type="Button">
+      <Button guid="Vsix" id="cmdidDeployScript" priority="0x0140" type="Button">
+        <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
+        <Icon guid="ImageCatalogGuid" id="PostDeploymentScript" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <ButtonText>Add deployment scripts</ButtonText>
+        </Strings>
+      </Button>
+
+      <Button guid="Vsix" id="cmdidReverseEngineerDab" priority="0x0200" type="Button">
         <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
         <Icon guid="ImageCatalogGuid" id="DynamicWebSite" />
         <CommandFlag>IconIsMoniker</CommandFlag>
@@ -113,17 +124,6 @@
           <ButtonText>Data API Builder Scaffold (preview)...</ButtonText>
         </Strings>
       </Button>
-
-      <!--<Button guid="Vsix" id="cmdidUnpack" priority="0x0140" type="Button">
-        <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
-        <Icon guid="ImageCatalogGuid" id="PackageFolderOpened" />
-        <CommandFlag>IconIsMoniker</CommandFlag>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>TextChanges</CommandFlag>
-        <Strings>
-          <ButtonText>Script Database Model</ButtonText>
-        </Strings>
-      </Button>-->
 
       <Button guid="Vsix" id="cmdidOptions" priority="0x0700" type="Button">
         <Parent guid="Vsix" id="cmdidSqlAboutMenuItemsGroup" />
@@ -186,7 +186,7 @@
       <IDSymbol name="cmdidReverseEngineerDab" value="0x0012" />
       <IDSymbol name="cmdidAbout" value="0x0006" />
       <IDSymbol name="cmdidOptions" value="0x0010" />
-      <IDSymbol name="cmdidUnpack" value="0x0008" />
+      <IDSymbol name="cmdidDeployScript" value="0x0008" />
       <IDSymbol name="cmdidSeed" value="0x0009" />
     </GuidSymbol>
 

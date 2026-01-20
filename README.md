@@ -27,6 +27,7 @@ The tool contains the following features.
 - **Create Mermaid E/R diagram** - create an Entity/Relationship diagram of selected tables from your database project
 - **.dacpac Solution explorer node** - view the contents of a dacpac file in Solution Explorer
 - **Script Table Data** - generate insert statements for table data in your database project, based on [generate-sql-merge](https://github.com/dnlnln/generate-sql-merge)
+- **Add new pre- and post-deployment scripts** - easily add new pre- and post-deployment scripts to your database project
 
 ### Power Pack
 
