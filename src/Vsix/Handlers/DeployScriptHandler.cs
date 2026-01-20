@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace SqlProjectsPowerTools
@@ -112,7 +113,7 @@ Post-Deployment Script Template
             var doc = XDocument.Load(projectFilePath);
             var ns = doc.Root?.Name.Namespace ?? XNamespace.None;
 
-            // Check if the PostDeploy item already exists
+            // Check if the item already exists
             var existingDeploy = doc.Descendants(ns + section)
                 .FirstOrDefault(e => e.Attribute("Include")?.Value == itemInclude);
 
@@ -122,23 +123,45 @@ Post-Deployment Script Template
                 return;
             }
 
-            // Find an existing ItemGroup with PostDeploy elements, or create a new one
+            // Find an existing ItemGroup with elements of this section type, or create a new one
             var itemGroup = doc.Descendants(ns + "ItemGroup")
                 .FirstOrDefault(ig => ig.Elements(ns + section).Any());
 
             if (itemGroup == null)
             {
-                // Create a new ItemGroup for PostDeploy
+                // Create a new ItemGroup
                 itemGroup = new XElement(ns + "ItemGroup");
+
+                // Add blank line and indent before the new ItemGroup
+                doc.Root?.Add(new XText("\n\n  "));
                 doc.Root?.Add(itemGroup);
+                doc.Root?.Add(new XText("\n"));
             }
 
-            // Add the PostDeploy item
+            // Add newline and indent before the element
+            itemGroup.Add(new XText("\n    "));
+
+            // Add the deploy item
             var deployElement = new XElement(ns + section);
             deployElement.SetAttributeValue("Include", itemInclude);
             itemGroup.Add(deployElement);
 
-            File.WriteAllText(projectFilePath, doc.ToString());
+            // Add newline after the element
+            itemGroup.Add(new XText("\n  "));
+
+            // Save with proper formatting
+            var settings = new XmlWriterSettings
+            {
+                OmitXmlDeclaration = true,
+                Indent = true,
+                IndentChars = "  ",
+                Encoding = new UTF8Encoding(false), // UTF-8 without BOM
+            };
+
+            using (var writer = XmlWriter.Create(projectFilePath, settings))
+            {
+                doc.Save(writer);
+            }
         }
     }
 }
