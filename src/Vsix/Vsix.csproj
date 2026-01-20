@@ -53,7 +53,7 @@
     <Compile Include="Commands\ImportCommand.cs" />
     <Compile Include="Commands\MermaidCommand.cs" />
     <Compile Include="Commands\OptionsCommand.cs" />
-    <Compile Include="Commands\UnpackCommand.cs" />
+    <Compile Include="Commands\DeployScriptCommand.cs" />
     <Compile Include="Contracts\EventArgs\CloseRequestedEventArgs.cs" />
     <Compile Include="Contracts\ViewModels\CodeGenerationItem.cs" />
     <Compile Include="Contracts\ViewModels\IColumnChildrenViewModel.cs" />
@@ -92,6 +92,7 @@
     <Compile Include="Extensions\MenuCommandExtensions.cs" />
     <Compile Include="Extensions\ProjectExtension.cs" />
     <Compile Include="Extensions\ZipArchiveExtensions.cs" />
+    <Compile Include="Handlers\DeployScriptHandler.cs" />
     <Compile Include="Handlers\SeedHandler.cs" />
     <Compile Include="Handlers\DabBuilderHandler.cs" />
     <Compile Include="Handlers\DacpacAnalyzerHandler.cs" />

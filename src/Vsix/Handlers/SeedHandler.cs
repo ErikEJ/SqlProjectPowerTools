@@ -97,7 +97,7 @@ namespace SqlProjectsPowerTools
 
                 var insertStatement = $":r ./{Path.GetFileName(result)}";
 
-                var postDeployFilePath = Path.Combine(projectDirectory, "Post-Deployment", "postdeploy.sql");
+                var postDeployFilePath = Path.Combine(projectDirectory, "Post-Deployment", "Script.PostDeployment.sql");
 
                 if (File.Exists(postDeployFilePath))
                 {
@@ -115,7 +115,7 @@ namespace SqlProjectsPowerTools
                     File.WriteAllLines(postDeployFilePath, new List<string> { insertStatement }, Encoding.UTF8);
                 }
 
-                AddPostDeployToProject(project.FullPath, "Post-Deployment/postdeploy.sql");
+                AddPostDeployToProject(project.FullPath, "Post-Deployment/Script.PostDeployment.sql");
             }
         }
 
