@@ -158,7 +158,7 @@ Post-Deployment Script Template
                 OmitXmlDeclaration = true,
                 Indent = true,
                 IndentChars = indent,
-                Encoding = new UTF8Encoding(false),
+                Encoding = new UTF8Encoding(false)
             };
 
             using (var writer = XmlWriter.Create(projectFilePath, settings))
