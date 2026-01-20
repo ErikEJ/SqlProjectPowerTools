@@ -127,19 +127,22 @@ Post-Deployment Script Template
             var itemGroup = doc.Descendants(ns + "ItemGroup")
                 .FirstOrDefault(ig => ig.Elements(ns + section).Any());
 
+            const string indent = "  ";
+            const string itemIndent = "    ";
+
             if (itemGroup == null)
             {
                 // Create a new ItemGroup
                 itemGroup = new XElement(ns + "ItemGroup");
 
                 // Add blank line and indent before the new ItemGroup
-                doc.Root?.Add(new XText("\n\n  "));
+                doc.Root?.Add(new XText($"\n\n{indent}"));
                 doc.Root?.Add(itemGroup);
                 doc.Root?.Add(new XText("\n"));
             }
 
             // Add newline and indent before the element
-            itemGroup.Add(new XText("\n    "));
+            itemGroup.Add(new XText($"\n{itemIndent}"));
 
             // Add the deploy item
             var deployElement = new XElement(ns + section);
@@ -147,15 +150,15 @@ Post-Deployment Script Template
             itemGroup.Add(deployElement);
 
             // Add newline after the element
-            itemGroup.Add(new XText("\n  "));
+            itemGroup.Add(new XText($"\n{indent}"));
 
             // Save with proper formatting
             var settings = new XmlWriterSettings
             {
                 OmitXmlDeclaration = true,
                 Indent = true,
-                IndentChars = "  ",
-                Encoding = new UTF8Encoding(false), // UTF-8 without BOM
+                IndentChars = indent,
+                Encoding = new UTF8Encoding(false),
             };
 
             using (var writer = XmlWriter.Create(projectFilePath, settings))
