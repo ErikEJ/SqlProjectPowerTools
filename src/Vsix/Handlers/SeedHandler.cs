@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
 using System.Xml.Linq;
 using DacFXToolLib.Common;
 using DacFXToolLib.Dab;
@@ -239,7 +240,7 @@ namespace SqlProjectsPowerTools
                 return;
             }
 
-            var doc = XDocument.Load(projectFilePath);
+            var doc = XDocument.Load(projectFilePath, LoadOptions.PreserveWhitespace);
             var ns = doc.Root?.Name.Namespace ?? XNamespace.None;
 
             // Check if the PostDeploy item already exists
@@ -259,16 +260,42 @@ namespace SqlProjectsPowerTools
             if (itemGroup == null)
             {
                 // Create a new ItemGroup for PostDeploy
-                itemGroup = new XElement(ns + "ItemGroup");
+                itemGroup = new XElement(ns + "ItemGroup",
+                    new XText("\n    "),
+                    new XElement(ns + "PostDeploy",
+                        new XAttribute("Include", itemInclude)),
+                    new XText("\n  "));
+
+                doc.Root?.Add(new XText("\n\n  "));
                 doc.Root?.Add(itemGroup);
+                doc.Root?.Add(new XText("\n"));
+            }
+            else
+            {
+                // Add to existing ItemGroup
+                var lastElement = itemGroup.Elements().LastOrDefault();
+                if (lastElement != null)
+                {
+                    lastElement.AddAfterSelf(
+                        new XText("\n    "),
+                        new XElement(ns + "PostDeploy",
+                            new XAttribute("Include", itemInclude)));
+                }
             }
 
-            // Add the PostDeploy item
-            var postDeployElement = new XElement(ns + "PostDeploy");
-            postDeployElement.SetAttributeValue("Include", itemInclude);
-            itemGroup.Add(postDeployElement);
+            // Save with proper settings to preserve formatting
+            var settings = new XmlWriterSettings
+            {
+                OmitXmlDeclaration = doc.Declaration == null,
+                Indent = false,
+                NewLineOnAttributes = false,
+                Encoding = new UTF8Encoding(false), // UTF-8 without BOM
+            };
 
-            File.WriteAllText(projectFilePath, doc.ToString());
+            using (var writer = XmlWriter.Create(projectFilePath, settings))
+            {
+                doc.Save(writer);
+            }
         }
     }
 }

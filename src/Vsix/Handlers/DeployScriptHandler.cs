@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace SqlProjectsPowerTools
@@ -109,10 +110,10 @@ Post-Deployment Script Template
                 return;
             }
 
-            var doc = XDocument.Load(projectFilePath);
+            var doc = XDocument.Load(projectFilePath, LoadOptions.PreserveWhitespace);
             var ns = doc.Root?.Name.Namespace ?? XNamespace.None;
 
-            // Check if the PostDeploy item already exists
+            // Check if the deploy item already exists
             var existingDeploy = doc.Descendants(ns + section)
                 .FirstOrDefault(e => e.Attribute("Include")?.Value == itemInclude);
 
@@ -122,23 +123,49 @@ Post-Deployment Script Template
                 return;
             }
 
-            // Find an existing ItemGroup with PostDeploy elements, or create a new one
+            // Find an existing ItemGroup with deploy elements, or create a new one
             var itemGroup = doc.Descendants(ns + "ItemGroup")
                 .FirstOrDefault(ig => ig.Elements(ns + section).Any());
 
             if (itemGroup == null)
             {
-                // Create a new ItemGroup for PostDeploy
-                itemGroup = new XElement(ns + "ItemGroup");
+                // Create a new ItemGroup for deploy item
+                itemGroup = new XElement(ns + "ItemGroup",
+                    new XText("\n    "),
+                    new XElement(ns + section,
+                        new XAttribute("Include", itemInclude)),
+                    new XText("\n  "));
+
+                doc.Root?.Add(new XText("\n\n  "));
                 doc.Root?.Add(itemGroup);
+                doc.Root?.Add(new XText("\n"));
+            }
+            else
+            {
+                // Add to existing ItemGroup
+                var lastElement = itemGroup.Elements().LastOrDefault();
+                if (lastElement != null)
+                {
+                    lastElement.AddAfterSelf(
+                        new XText("\n    "),
+                        new XElement(ns + section,
+                            new XAttribute("Include", itemInclude)));
+                }
             }
 
-            // Add the PostDeploy item
-            var deployElement = new XElement(ns + section);
-            deployElement.SetAttributeValue("Include", itemInclude);
-            itemGroup.Add(deployElement);
+            // Save with proper settings to preserve formatting
+            var settings = new XmlWriterSettings
+            {
+                OmitXmlDeclaration = doc.Declaration == null,
+                Indent = false,
+                NewLineOnAttributes = false,
+                Encoding = new UTF8Encoding(false), // UTF-8 without BOM
+            };
 
-            File.WriteAllText(projectFilePath, doc.ToString());
+            using (var writer = XmlWriter.Create(projectFilePath, settings))
+            {
+                doc.Save(writer);
+            }
         }
     }
 }
