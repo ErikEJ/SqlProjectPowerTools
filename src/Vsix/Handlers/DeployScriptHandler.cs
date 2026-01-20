@@ -9,6 +9,11 @@ namespace SqlProjectsPowerTools
 {
     internal static class DeployScriptHandler
     {
+        private const string Indent = "\n    ";
+        private const string EndElementIndent = "\n  ";
+        private const string NewLine = "\n";
+        private const string DoubleNewLine = "\n\n  ";
+
         public static async Task AddDeploymentScriptsAsync(Project project)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
@@ -131,14 +136,14 @@ Post-Deployment Script Template
             {
                 // Create a new ItemGroup for deploy item
                 itemGroup = new XElement(ns + "ItemGroup",
-                    new XText("\n    "),
+                    new XText(Indent),
                     new XElement(ns + section,
                         new XAttribute("Include", itemInclude)),
-                    new XText("\n  "));
+                    new XText(EndElementIndent));
 
-                doc.Root?.Add(new XText("\n\n  "));
+                doc.Root?.Add(new XText(DoubleNewLine));
                 doc.Root?.Add(itemGroup);
-                doc.Root?.Add(new XText("\n"));
+                doc.Root?.Add(new XText(NewLine));
             }
             else
             {
@@ -147,7 +152,7 @@ Post-Deployment Script Template
                 if (lastElement != null)
                 {
                     lastElement.AddAfterSelf(
-                        new XText("\n    "),
+                        new XText(Indent),
                         new XElement(ns + section,
                             new XAttribute("Include", itemInclude)));
                 }
@@ -159,7 +164,7 @@ Post-Deployment Script Template
                 OmitXmlDeclaration = doc.Declaration == null,
                 Indent = false,
                 NewLineOnAttributes = false,
-                Encoding = new UTF8Encoding(false), // UTF-8 without BOM
+                Encoding = Encoding.UTF8,
             };
 
             using (var writer = XmlWriter.Create(projectFilePath, settings))

@@ -12,6 +12,11 @@ namespace SqlProjectsPowerTools
 {
     internal class SeedHandler
     {
+        private const string Indent = "\n    ";
+        private const string EndElementIndent = "\n  ";
+        private const string NewLine = "\n";
+        private const string DoubleNewLine = "\n\n  ";
+
         public async Task GenerateSeedScriptsAsync(Project project)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
@@ -261,14 +266,14 @@ namespace SqlProjectsPowerTools
             {
                 // Create a new ItemGroup for PostDeploy
                 itemGroup = new XElement(ns + "ItemGroup",
-                    new XText("\n    "),
+                    new XText(Indent),
                     new XElement(ns + "PostDeploy",
                         new XAttribute("Include", itemInclude)),
-                    new XText("\n  "));
+                    new XText(EndElementIndent));
 
-                doc.Root?.Add(new XText("\n\n  "));
+                doc.Root?.Add(new XText(DoubleNewLine));
                 doc.Root?.Add(itemGroup);
-                doc.Root?.Add(new XText("\n"));
+                doc.Root?.Add(new XText(NewLine));
             }
             else
             {
@@ -277,7 +282,7 @@ namespace SqlProjectsPowerTools
                 if (lastElement != null)
                 {
                     lastElement.AddAfterSelf(
-                        new XText("\n    "),
+                        new XText(Indent),
                         new XElement(ns + "PostDeploy",
                             new XAttribute("Include", itemInclude)));
                 }
@@ -289,7 +294,7 @@ namespace SqlProjectsPowerTools
                 OmitXmlDeclaration = doc.Declaration == null,
                 Indent = false,
                 NewLineOnAttributes = false,
-                Encoding = new UTF8Encoding(false), // UTF-8 without BOM
+                Encoding = Encoding.UTF8,
             };
 
             using (var writer = XmlWriter.Create(projectFilePath, settings))
