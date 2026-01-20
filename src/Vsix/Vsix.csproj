@@ -157,6 +157,10 @@
       <Link>dacfxtool.exe.zip</Link>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Resource Include="Resources\Column.png" />
+    <Resource Include="Resources\GlyphDown.png" />
+    <Resource Include="Resources\KeyVertical.png" />
+    <Resource Include="Resources\DatabaseStoredProcedures.png" />
     <Content Include="Resources\license.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
@@ -164,7 +168,12 @@
     <Content Include="Resources\logo9090.png">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Resource Include="Resources\Schema.png" />
+    <Resource Include="Resources\ScalarFunction.png" />
     <Content Include="Resources\sdpt.ico" />
+    <Resource Include="Resources\Table.png" />
+    <Resource Include="Resources\View.png" />
+    <Resource Include="Resources\TableWarning.png" />
     <Content Include="Templates.pkgdef">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -200,8 +209,10 @@
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Community.VisualStudio.VSCT" Version="16.0.29.6" PrivateAssets="all" />
