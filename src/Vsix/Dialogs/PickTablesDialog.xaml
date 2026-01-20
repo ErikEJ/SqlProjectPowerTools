@@ -1,4 +1,4 @@
-﻿<dw:DialogWindow x:Class="SqlProjectsPowerTools.PickTablesDialog"
+<dw:DialogWindow x:Class="SqlProjectsPowerTools.PickTablesDialog"
                  xmlns:dw="clr-namespace:Microsoft.VisualStudio.PlatformUI;assembly=Microsoft.VisualStudio.Shell.15.0"
                  xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -34,19 +34,19 @@
                     </Style>
                     <Style x:Key="PrimaryKeyImageStyle" TargetType="Image">
                         <Setter Property="ToolTip" Value="You cannot uncheck a primary key"/>
-                        <Setter Property="Source" Value="/EFCorePowerTools;component/Resources/KeyVertical.png"/>
+                        <Setter Property="Source" Value="/Vsix;component/Resources/KeyVertical.png"/>
                         <Setter Property="Width" Value="16"/>
                         <Setter Property="Height" Value="16"/>
                         <Setter Property="Margin" Value="0, 0, 0, 0"/>
                     </Style>
                     <Style x:Key="ColumnImageStyle" TargetType="Image">
-                        <Setter Property="Source" Value="/EFCorePowerTools;component/Resources/Column.png"/>
+                        <Setter Property="Source" Value="/Vsix;component/Resources/Column.png"/>
                         <Setter Property="Width" Value="16"/>
                         <Setter Property="Height" Value="16"/>
                         <Setter Property="Margin" Value="0, 0, 0, 0"/>
                     </Style>
                     <Style x:Key="SchemaImageStyle" TargetType="Image">
-                        <Setter Property="Source" Value="/EFCorePowerTools;component/Resources/Schema.png"/>
+                        <Setter Property="Source" Value="/Vsix;component/Resources/Schema.png"/>
                         <Setter Property="Width" Value="16"/>
                         <Setter Property="Height" Value="16"/>
                         <Setter Property="Margin" Value="0, 0, 0, 0"/>
@@ -113,7 +113,7 @@
 
             <Button Name="MainButton" Grid.Column="3" Height="22" BorderThickness="0,1,1,1" BorderBrush="{Binding BorderBrush, ElementName=Search}">
                 <Button.Content>
-                    <Image Source="pack://application:,,,/EFCorePowerTools;component/Resources/GlyphDown.png" Width="16"/>
+                    <Image Source="/Vsix;component/Resources/GlyphDown.png" Width="16"/>
                 </Button.Content>
                 <Button.Triggers>
                     <EventTrigger RoutedEvent="Button.Click">
