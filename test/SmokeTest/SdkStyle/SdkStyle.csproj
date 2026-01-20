@@ -1,4 +1,4 @@
-<Project Sdk="MSBuild.Sdk.SqlProj/3.3.0">
+﻿<Project Sdk="MSBuild.Sdk.SqlProj/3.3.0">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <SqlServerVersion>Sql160</SqlServerVersion>
@@ -22,6 +22,7 @@
   <PropertyGroup>
     <!-- Refer to https://github.com/rr-wfm/MSBuild.Sdk.SqlProj#publishing-support for supported publishing options -->
   </PropertyGroup>
+
 
   <ItemGroup>
     <PostDeploy Include="Post-Deployment/Script.PostDeployment.sql" />
