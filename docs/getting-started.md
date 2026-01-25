@@ -96,15 +96,15 @@ These diagrams are perfect for documentation and help team members understand th
 
 ## Viewing .dacpac Files
 
-The extension adds a Solution Explorer node for .dacpac files, making it easy to explore their contents without deploying them.
+The extension adds a Solution Explorer node for the output of your project (a .dacpac file), making it easy to explore their contents.
 
 ![Solution Explorer node](../img/SolutionExplorer.png)
 
 To view a .dacpac file:
 
-1. Add a .dacpac file to your project
-2. Expand the file in Solution Explorer
-3. Browse through the xml files and post/predeploy scripts contained in the package
+1. Build your project
+2. Expand the project in Solution Explorer
+3. Browse through the xml files and postdeploy / predeploy scripts contained in the package
 
 This is helpful when troubleshooting post and predeployment script issues.
 
@@ -119,7 +119,7 @@ To script table data:
 3. The tool generates INSERT statements for the table data
 4. The tool adds the generated script to your project in the `Post-Deployment` folder
 
-This is based on the popular [generate-sql-merge](https://github.com/dnlnln/generate-sql-merge) tool and supports various options for data scripting.
+This is based on the popular [generate-sql-merge](https://github.com/dnlnln/generate-sql-merge) script.
 
 ## Accessing the Tools
 
@@ -140,7 +140,7 @@ For even more features, consider installing the [SQL Project Power Pack](https:/
 
 - **Start with Import**: If you have an existing database, use the import feature to get started quickly
 - **Regular Schema Compares**: Keep your project and database in sync by comparing regularly
-- **Use Analysis**: Run the analyzer before deploying to catch issues early
+- **Use Analysis**: Run the analyzer before deploying to catch issues early, or integrate static code analysis into your CI/CD pipeline
 - **Document with Diagrams**: Create E/R diagrams to help your team understand the database structure
 - **Version Control**: Keep your database project in source control to track changes over time
 
@@ -148,7 +148,7 @@ For even more features, consider installing the [SQL Project Power Pack](https:/
 
 If you need help or want to learn more:
 
-- Review the [user guide](https://github.com/rr-wfm/MSBuild.Sdk.SqlProj/blob/master/README.md) for advanced topics
+- Review the SDK [user guide](https://github.com/rr-wfm/MSBuild.Sdk.SqlProj/blob/master/README.md) for advanced topics
 - Report issues or request features on [GitHub](https://github.com/ErikEJ/SqlProjectPowerTools)
 - Rate the extension on the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ErikEJ.SQLProjectPowerTools)
 
