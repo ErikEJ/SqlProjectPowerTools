@@ -44,6 +44,7 @@ namespace DacFXToolLib
             var databaseType = string.Empty;
 
             var entityTypeNames = new HashSet<string>();
+            var tableToEntityMap = new Dictionary<string, string>();
 
             switch (options.DatabaseType)
             {
@@ -79,7 +80,7 @@ namespace DacFXToolLib
             sb.AppendLine(CultureInfo.InvariantCulture, $"@echo ** Make sure to exclude the .env file from source control **");
             sb.AppendLine(CultureInfo.InvariantCulture, $"@echo **");
 
-            sb.AppendLine(CultureInfo.InvariantCulture, $"dotnet tool install -g Microsoft.DataApiBuilder");
+            sb.AppendLine(CultureInfo.InvariantCulture, $"dotnet tool install -g Microsoft.DataApiBuilder --prerelease");
 
             sb.AppendLine(CultureInfo.InvariantCulture, $"dab init -c dab-config.json --database-type {databaseType} --connection-string \"@env('dab-connection-string')\" --host-mode Development");
 
@@ -106,9 +107,13 @@ namespace DacFXToolLib
 
                 entityTypeNames.Add(type);
 
+                var tableKey = $"[{dbObject.Schema}].[{dbObject.Name}]";
+                tableToEntityMap[tableKey] = type;
+
                 if (dbObject.PrimaryKey != null)
                 {
-                    sb.AppendLine(CultureInfo.InvariantCulture, $"dab add \"{type}\" --source \"[{dbObject.Schema}].[{dbObject.Name}]\" --fields.include \"{columnList}\" --permissions \"anonymous:*\" ");
+                    var descriptionParam = GetDescriptionParameter(dbObject.Comment);
+                    sb.AppendLine(CultureInfo.InvariantCulture, $"dab add \"{type}\" --source \"[{dbObject.Schema}].[{dbObject.Name}]\" --fields.include \"{columnList}\" --permissions \"anonymous:*\" {descriptionParam}");
                 }
             }
 
@@ -135,6 +140,9 @@ namespace DacFXToolLib
 
                 entityTypeNames.Add(type);
 
+                var tableKey = $"[{dbObject.Schema}].[{dbObject.Name}]";
+                tableToEntityMap[tableKey] = type;
+
                 if (dbObject.PrimaryKey == null)
                 {
                     var strategy = "Id column";
@@ -151,7 +159,35 @@ namespace DacFXToolLib
                     }
 
                     sb.AppendLine(CultureInfo.InvariantCulture, $"@echo No primary key found for table/view '{dbObject.Name}', using {strategy} ({candidate.Name}) as key field");
-                    sb.AppendLine(CultureInfo.InvariantCulture, $"dab add \"{type}\" --source \"[{dbObject.Schema}].[{dbObject.Name}]\" --fields.include \"{columnList}\" --source.type \"view\" --source.key-fields \"{candidate.Name}\" --permissions \"anonymous:*\" ");
+                    var descriptionParam = GetDescriptionParameter(dbObject.Comment);
+                    sb.AppendLine(CultureInfo.InvariantCulture, $"dab add \"{type}\" --source \"[{dbObject.Schema}].[{dbObject.Name}]\" --fields.include \"{columnList}\" --source.type \"view\" --source.key-fields \"{candidate.Name}\" --permissions \"anonymous:*\" {descriptionParam}");
+                }
+            }
+
+            sb.AppendLine(CultureInfo.InvariantCulture, $"@echo Adding column descriptions");
+
+            foreach (var dbObject in model.Tables)
+            {
+                if (BreaksOn(dbObject))
+                {
+                    continue;
+                }
+
+                var tableKey = $"[{dbObject.Schema}].[{dbObject.Name}]";
+                if (!tableToEntityMap.TryGetValue(tableKey, out var type))
+                {
+                    continue;
+                }
+
+                foreach (var column in dbObject.Columns)
+                {
+                    if (!string.IsNullOrWhiteSpace(column.Comment))
+                    {
+                        var columnName = column.Name;
+                        var columnAlias = GenerateEntityName(columnName.Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase));
+                        var columnDescription = EscapeDescription(column.Comment);
+                        sb.AppendLine(CultureInfo.InvariantCulture, $"dab update {type} --fields.{columnAlias} \"{columnName}\" --fields.description \"{columnDescription}\"");
+                    }
                 }
             }
 
@@ -237,6 +273,16 @@ namespace DacFXToolLib
             var candidate = candidateStringBuilder.ToString();
 
             return pluralizer.Singularize(candidate);
+        }
+
+        private static string EscapeDescription(string description)
+        {
+            return description?.Replace("\"", "\\\"") ?? string.Empty;
+        }
+
+        private static string GetDescriptionParameter(string? comment)
+        {
+            return !string.IsNullOrWhiteSpace(comment) ? $"--description \"{EscapeDescription(comment)}\"" : string.Empty;
         }
 
         private void RemoveExcludedColumns(DatabaseTable dbObject)
