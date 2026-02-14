@@ -173,8 +173,9 @@ namespace DacFXToolLib
                     if (!string.IsNullOrWhiteSpace(column.Comment))
                     {
                         var columnName = column.Name;
+                        var columnAlias = GenerateEntityName(columnName.Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase));
                         var columnDescription = EscapeDescription(column.Comment);
-                        sb.AppendLine(CultureInfo.InvariantCulture, $"dab update {type} --fields.{columnName} {columnName} --fields.description \"{columnDescription}\"");
+                        sb.AppendLine(CultureInfo.InvariantCulture, $"dab update {type} --fields.{columnAlias} \"{columnName}\" --fields.description \"{columnDescription}\"");
                     }
                 }
             }
