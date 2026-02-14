@@ -108,7 +108,7 @@ namespace DacFXToolLib
 
                 if (dbObject.PrimaryKey != null)
                 {
-                    var descriptionParam = !string.IsNullOrWhiteSpace(dbObject.Comment) ? $"--description \"{dbObject.Comment.Replace("\"", "\\\"")}\" " : string.Empty;
+                    var descriptionParam = !string.IsNullOrWhiteSpace(dbObject.Comment) ? $"--description \"{EscapeDescription(dbObject.Comment)}\" " : string.Empty;
                     sb.AppendLine(CultureInfo.InvariantCulture, $"dab add \"{type}\" --source \"[{dbObject.Schema}].[{dbObject.Name}]\" --fields.include \"{columnList}\" --permissions \"anonymous:*\" {descriptionParam}");
                 }
             }
@@ -152,7 +152,7 @@ namespace DacFXToolLib
                     }
 
                     sb.AppendLine(CultureInfo.InvariantCulture, $"@echo No primary key found for table/view '{dbObject.Name}', using {strategy} ({candidate.Name}) as key field");
-                    var descriptionParam = !string.IsNullOrWhiteSpace(dbObject.Comment) ? $"--description \"{dbObject.Comment.Replace("\"", "\\\"")}\" " : string.Empty;
+                    var descriptionParam = !string.IsNullOrWhiteSpace(dbObject.Comment) ? $"--description \"{EscapeDescription(dbObject.Comment)}\" " : string.Empty;
                     sb.AppendLine(CultureInfo.InvariantCulture, $"dab add \"{type}\" --source \"[{dbObject.Schema}].[{dbObject.Name}]\" --fields.include \"{columnList}\" --source.type \"view\" --source.key-fields \"{candidate.Name}\" --permissions \"anonymous:*\" {descriptionParam}");
                 }
             }
@@ -172,8 +172,9 @@ namespace DacFXToolLib
                 {
                     if (!string.IsNullOrWhiteSpace(column.Comment))
                     {
-                        var columnDescription = column.Comment.Replace("\"", "\\\"");
-                        sb.AppendLine(CultureInfo.InvariantCulture, $"dab update {type} --fields.{column.Name} {column.Name} --fields.description \"{columnDescription}\"");
+                        var columnName = column.Name;
+                        var columnDescription = EscapeDescription(column.Comment);
+                        sb.AppendLine(CultureInfo.InvariantCulture, $"dab update {type} --fields.{columnName} {columnName} --fields.description \"{columnDescription}\"");
                     }
                 }
             }
@@ -260,6 +261,11 @@ namespace DacFXToolLib
             var candidate = candidateStringBuilder.ToString();
 
             return pluralizer.Singularize(candidate);
+        }
+
+        private static string EscapeDescription(string description)
+        {
+            return description?.Replace("\"", "\\\"") ?? string.Empty;
         }
 
         private void RemoveExcludedColumns(DatabaseTable dbObject)
