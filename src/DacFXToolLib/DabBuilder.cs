@@ -44,6 +44,7 @@ namespace DacFXToolLib
             var databaseType = string.Empty;
 
             var entityTypeNames = new HashSet<string>();
+            var tableToEntityMap = new Dictionary<string, string>();
 
             switch (options.DatabaseType)
             {
@@ -106,6 +107,9 @@ namespace DacFXToolLib
 
                 entityTypeNames.Add(type);
 
+                var tableKey = $"[{dbObject.Schema}].[{dbObject.Name}]";
+                tableToEntityMap[tableKey] = type;
+
                 if (dbObject.PrimaryKey != null)
                 {
                     var descriptionParam = GetDescriptionParameter(dbObject.Comment);
@@ -135,6 +139,9 @@ namespace DacFXToolLib
                 }
 
                 entityTypeNames.Add(type);
+
+                var tableKey = $"[{dbObject.Schema}].[{dbObject.Name}]";
+                tableToEntityMap[tableKey] = type;
 
                 if (dbObject.PrimaryKey == null)
                 {
@@ -166,7 +173,11 @@ namespace DacFXToolLib
                     continue;
                 }
 
-                var type = GenerateEntityName(dbObject.Name.Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase));
+                var tableKey = $"[{dbObject.Schema}].[{dbObject.Name}]";
+                if (!tableToEntityMap.TryGetValue(tableKey, out var type))
+                {
+                    continue;
+                }
 
                 foreach (var column in dbObject.Columns)
                 {
