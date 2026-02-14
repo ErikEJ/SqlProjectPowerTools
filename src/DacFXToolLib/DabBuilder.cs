@@ -108,7 +108,7 @@ namespace DacFXToolLib
 
                 if (dbObject.PrimaryKey != null)
                 {
-                    var descriptionParam = !string.IsNullOrWhiteSpace(dbObject.Comment) ? $"--description \"{EscapeDescription(dbObject.Comment)}\" " : string.Empty;
+                    var descriptionParam = GetDescriptionParameter(dbObject.Comment);
                     sb.AppendLine(CultureInfo.InvariantCulture, $"dab add \"{type}\" --source \"[{dbObject.Schema}].[{dbObject.Name}]\" --fields.include \"{columnList}\" --permissions \"anonymous:*\" {descriptionParam}");
                 }
             }
@@ -152,7 +152,7 @@ namespace DacFXToolLib
                     }
 
                     sb.AppendLine(CultureInfo.InvariantCulture, $"@echo No primary key found for table/view '{dbObject.Name}', using {strategy} ({candidate.Name}) as key field");
-                    var descriptionParam = !string.IsNullOrWhiteSpace(dbObject.Comment) ? $"--description \"{EscapeDescription(dbObject.Comment)}\" " : string.Empty;
+                    var descriptionParam = GetDescriptionParameter(dbObject.Comment);
                     sb.AppendLine(CultureInfo.InvariantCulture, $"dab add \"{type}\" --source \"[{dbObject.Schema}].[{dbObject.Name}]\" --fields.include \"{columnList}\" --source.type \"view\" --source.key-fields \"{candidate.Name}\" --permissions \"anonymous:*\" {descriptionParam}");
                 }
             }
@@ -266,6 +266,11 @@ namespace DacFXToolLib
         private static string EscapeDescription(string description)
         {
             return description?.Replace("\"", "\\\"") ?? string.Empty;
+        }
+
+        private static string GetDescriptionParameter(string? comment)
+        {
+            return !string.IsNullOrWhiteSpace(comment) ? $"--description \"{EscapeDescription(comment)}\"" : string.Empty;
         }
 
         private void RemoveExcludedColumns(DatabaseTable dbObject)
