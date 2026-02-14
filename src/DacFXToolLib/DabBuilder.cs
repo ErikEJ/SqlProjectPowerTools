@@ -79,7 +79,7 @@ namespace DacFXToolLib
             sb.AppendLine(CultureInfo.InvariantCulture, $"@echo ** Make sure to exclude the .env file from source control **");
             sb.AppendLine(CultureInfo.InvariantCulture, $"@echo **");
 
-            sb.AppendLine(CultureInfo.InvariantCulture, $"dotnet tool install -g Microsoft.DataApiBuilder");
+            sb.AppendLine(CultureInfo.InvariantCulture, $"dotnet tool install -g Microsoft.DataApiBuilder --prerelease");
 
             sb.AppendLine(CultureInfo.InvariantCulture, $"dab init -c dab-config.json --database-type {databaseType} --connection-string \"@env('dab-connection-string')\" --host-mode Development");
 
@@ -108,7 +108,8 @@ namespace DacFXToolLib
 
                 if (dbObject.PrimaryKey != null)
                 {
-                    sb.AppendLine(CultureInfo.InvariantCulture, $"dab add \"{type}\" --source \"[{dbObject.Schema}].[{dbObject.Name}]\" --fields.include \"{columnList}\" --permissions \"anonymous:*\" ");
+                    var descriptionParam = !string.IsNullOrWhiteSpace(dbObject.Comment) ? $"--description \"{dbObject.Comment.Replace("\"", "\\\"")}\" " : string.Empty;
+                    sb.AppendLine(CultureInfo.InvariantCulture, $"dab add \"{type}\" --source \"[{dbObject.Schema}].[{dbObject.Name}]\" --fields.include \"{columnList}\" --permissions \"anonymous:*\" {descriptionParam}");
                 }
             }
 
@@ -151,7 +152,29 @@ namespace DacFXToolLib
                     }
 
                     sb.AppendLine(CultureInfo.InvariantCulture, $"@echo No primary key found for table/view '{dbObject.Name}', using {strategy} ({candidate.Name}) as key field");
-                    sb.AppendLine(CultureInfo.InvariantCulture, $"dab add \"{type}\" --source \"[{dbObject.Schema}].[{dbObject.Name}]\" --fields.include \"{columnList}\" --source.type \"view\" --source.key-fields \"{candidate.Name}\" --permissions \"anonymous:*\" ");
+                    var descriptionParam = !string.IsNullOrWhiteSpace(dbObject.Comment) ? $"--description \"{dbObject.Comment.Replace("\"", "\\\"")}\" " : string.Empty;
+                    sb.AppendLine(CultureInfo.InvariantCulture, $"dab add \"{type}\" --source \"[{dbObject.Schema}].[{dbObject.Name}]\" --fields.include \"{columnList}\" --source.type \"view\" --source.key-fields \"{candidate.Name}\" --permissions \"anonymous:*\" {descriptionParam}");
+                }
+            }
+
+            sb.AppendLine(CultureInfo.InvariantCulture, $"@echo Adding column descriptions");
+
+            foreach (var dbObject in model.Tables)
+            {
+                if (BreaksOn(dbObject))
+                {
+                    continue;
+                }
+
+                var type = GenerateEntityName(dbObject.Name.Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase));
+
+                foreach (var column in dbObject.Columns)
+                {
+                    if (!string.IsNullOrWhiteSpace(column.Comment))
+                    {
+                        var columnDescription = column.Comment.Replace("\"", "\\\"");
+                        sb.AppendLine(CultureInfo.InvariantCulture, $"dab update {type} --fields.{column.Name} {column.Name} --fields.description \"{columnDescription}\"");
+                    }
                 }
             }
 
