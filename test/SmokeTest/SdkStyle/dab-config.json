@@ -1,0 +1,291 @@
+{
+  "$schema": "https://github.com/Azure/data-api-builder/releases/download/v1.7.86/dab.draft.schema.json",
+  "data-source": {
+    "database-type": "mssql",
+    "connection-string": "@env('dab-connection-string')",
+    "options": {
+      "set-session-context": false
+    }
+  },
+  "runtime": {
+    "rest": {
+      "enabled": true,
+      "path": "/api",
+      "request-body-strict": true
+    },
+    "graphql": {
+      "enabled": true,
+      "path": "/graphql",
+      "allow-introspection": true
+    },
+    "mcp": {
+      "enabled": true,
+      "path": "/mcp"
+    },
+    "host": {
+      "cors": {
+        "origins": [],
+        "allow-credentials": false
+      },
+      "authentication": {
+        "provider": "AppService"
+      },
+      "mode": "development"
+    }
+  },
+  "entities": {
+    "Album": {
+      "source": {
+        "object": "[dbo].[Album]",
+        "type": "table"
+      },
+      "fields": [],
+      "graphql": {
+        "enabled": true,
+        "type": {
+          "singular": "Album",
+          "plural": "Albums"
+        }
+      },
+      "rest": {
+        "enabled": true
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            {
+              "action": "*",
+              "fields": {
+                "exclude": [],
+                "include": [
+                  "AlbumId",
+                  "Title",
+                  "ArtistId",
+                  "Valid"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "relationships": {
+        "Artist": {
+          "cardinality": "one",
+          "target.entity": "Artist",
+          "source.fields": [],
+          "target.fields": [],
+          "linking.source.fields": [],
+          "linking.target.fields": []
+        },
+        "Track": {
+          "cardinality": "many",
+          "target.entity": "Track",
+          "source.fields": [],
+          "target.fields": [],
+          "linking.source.fields": [],
+          "linking.target.fields": []
+        }
+      }
+    },
+    "Artist": {
+      "source": {
+        "object": "[dbo].[Artist]",
+        "type": "table"
+      },
+      "fields": [],
+      "graphql": {
+        "enabled": true,
+        "type": {
+          "singular": "Artist",
+          "plural": "Artists"
+        }
+      },
+      "rest": {
+        "enabled": true
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            {
+              "action": "*",
+              "fields": {
+                "exclude": [],
+                "include": [
+                  "ArtistId",
+                  "Name"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "relationships": {
+        "Album": {
+          "cardinality": "many",
+          "target.entity": "Album",
+          "source.fields": [],
+          "target.fields": [],
+          "linking.source.fields": [],
+          "linking.target.fields": []
+        }
+      }
+    },
+    "Genre": {
+      "source": {
+        "object": "[dbo].[Genre]",
+        "type": "table"
+      },
+      "fields": [],
+      "graphql": {
+        "enabled": true,
+        "type": {
+          "singular": "Genre",
+          "plural": "Genres"
+        }
+      },
+      "rest": {
+        "enabled": true
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            {
+              "action": "*",
+              "fields": {
+                "exclude": [],
+                "include": [
+                  "GenreId",
+                  "Name"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "relationships": {
+        "Track": {
+          "cardinality": "many",
+          "target.entity": "Track",
+          "source.fields": [],
+          "target.fields": [],
+          "linking.source.fields": [],
+          "linking.target.fields": []
+        }
+      }
+    },
+    "MediaType": {
+      "source": {
+        "object": "[dbo].[MediaType]",
+        "type": "table"
+      },
+      "fields": [],
+      "graphql": {
+        "enabled": true,
+        "type": {
+          "singular": "MediaType",
+          "plural": "MediaTypes"
+        }
+      },
+      "rest": {
+        "enabled": true
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            {
+              "action": "*",
+              "fields": {
+                "exclude": [],
+                "include": [
+                  "MediaTypeId",
+                  "Name"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "relationships": {
+        "Track": {
+          "cardinality": "many",
+          "target.entity": "Track",
+          "source.fields": [],
+          "target.fields": [],
+          "linking.source.fields": [],
+          "linking.target.fields": []
+        }
+      }
+    },
+    "Track": {
+      "source": {
+        "object": "[dbo].[Track]",
+        "type": "table"
+      },
+      "fields": [],
+      "graphql": {
+        "enabled": true,
+        "type": {
+          "singular": "Track",
+          "plural": "Tracks"
+        }
+      },
+      "rest": {
+        "enabled": true
+      },
+      "permissions": [
+        {
+          "role": "anonymous",
+          "actions": [
+            {
+              "action": "*",
+              "fields": {
+                "exclude": [],
+                "include": [
+                  "TrackId",
+                  "Name",
+                  "AlbumId",
+                  "MediaTypeId",
+                  "GenreId",
+                  "Composer",
+                  "Milliseconds",
+                  "Bytes",
+                  "UnitPrice"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "relationships": {
+        "Album": {
+          "cardinality": "one",
+          "target.entity": "Album",
+          "source.fields": [],
+          "target.fields": [],
+          "linking.source.fields": [],
+          "linking.target.fields": []
+        },
+        "Genre": {
+          "cardinality": "one",
+          "target.entity": "Genre",
+          "source.fields": [],
+          "target.fields": [],
+          "linking.source.fields": [],
+          "linking.target.fields": []
+        },
+        "MediaType": {
+          "cardinality": "one",
+          "target.entity": "MediaType",
+          "source.fields": [],
+          "target.fields": [],
+          "linking.source.fields": [],
+          "linking.target.fields": []
+        }
+      }
+    }
+  }
+}

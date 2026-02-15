@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Text;
 using DacFXToolLib.Common;
 using DacFXToolLib.Dab;
@@ -179,15 +179,12 @@ namespace DacFXToolLib
                     continue;
                 }
 
-                foreach (var column in dbObject.Columns)
+                foreach (var column in dbObject.Columns.Where(column => !string.IsNullOrWhiteSpace(column.Comment)))
                 {
-                    if (!string.IsNullOrWhiteSpace(column.Comment))
-                    {
-                        var columnName = column.Name;
-                        var columnAlias = GenerateEntityName(columnName.Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase));
-                        var columnDescription = EscapeDescription(column.Comment);
-                        sb.AppendLine(CultureInfo.InvariantCulture, $"dab update {type} --fields.{columnAlias} \"{columnName}\" --fields.description \"{columnDescription}\"");
-                    }
+                    var columnName = column.Name;
+                    var columnAlias = GenerateEntityName(columnName.Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase));
+                    var columnDescription = EscapeDescription(column.Comment!);
+                    sb.AppendLine(CultureInfo.InvariantCulture, $"dab update {type} --fields.{columnAlias} \"{columnName}\" --fields.description \"{columnDescription}\"");
                 }
             }
 
@@ -277,7 +274,7 @@ namespace DacFXToolLib
 
         private static string EscapeDescription(string description)
         {
-            return description?.Replace("\"", "\\\"") ?? string.Empty;
+            return description?.Replace("\"", "\\\"", StringComparison.OrdinalIgnoreCase) ?? string.Empty;
         }
 
         private static string GetDescriptionParameter(string? comment)
