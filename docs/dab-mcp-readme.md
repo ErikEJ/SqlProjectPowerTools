@@ -62,31 +62,30 @@ The generated `dab-config.json` file uses an environment variable for the connec
 }
 ```
 
-Set the environment variable before running DAB:
+Set the connection string using a `.env` file (recommended approach used by the scaffolded script):
 
-```bash
-# Windows (Command Prompt)
-set dab-connection-string=Server=localhost;Database=MyDatabase;Integrated Security=true;
+1. Create a `.env` file in your project directory with the following content:
 
-# Windows (PowerShell)
-$env:dab-connection-string="Server=localhost;Database=MyDatabase;Integrated Security=true;"
-
-# Linux/macOS
-export dab-connection-string="Server=localhost;Database=MyDatabase;Integrated Security=true;"
 ```
+dab-connection-string=Server=localhost;Database=MyDatabase;Integrated Security=true;
+```
+
+2. **Important:** Add `.env` to your `.gitignore` to avoid committing credentials to source control.
+
+The Data API Builder will automatically load environment variables from the `.env` file when it starts.
 
 ### 3. Install Data API Builder CLI
 
-Install the DAB CLI tool globally:
+Install the DAB CLI tool globally with the `--prerelease` flag (required for MCP support):
 
 ```bash
-dotnet tool install -g Microsoft.DataApiBuilder
+dotnet tool install -g Microsoft.DataApiBuilder --prerelease
 ```
 
 Or update if already installed:
 
 ```bash
-dotnet tool update -g Microsoft.DataApiBuilder
+dotnet tool update -g Microsoft.DataApiBuilder --prerelease
 ```
 
 ### 4. Run DAB
@@ -94,8 +93,10 @@ dotnet tool update -g Microsoft.DataApiBuilder
 Start the Data API Builder server:
 
 ```bash
-dab start
+dab start --no-https-redirect
 ```
+
+The `--no-https-redirect` flag is used to match the Visual Studio MCP server configuration and simplifies local development.
 
 By default, DAB will:
 - Host REST API at: `http://localhost:5000/api`
@@ -204,12 +205,13 @@ Enable AI assistants to understand and query your database schema through the Mo
 ### DAB CLI Not Found
 - Ensure .NET SDK is installed
 - Add .NET tools path to your PATH environment variable
-- Try reinstalling: `dotnet tool uninstall -g Microsoft.DataApiBuilder && dotnet tool install -g Microsoft.DataApiBuilder`
+- Try reinstalling: `dotnet tool uninstall -g Microsoft.DataApiBuilder && dotnet tool install -g Microsoft.DataApiBuilder --prerelease`
 
 ### MCP Server Not Responding
 - Verify MCP is enabled in `dab-config.json`
-- Check that DAB is running (`dab start`)
+- Check that DAB is running (`dab start --no-https-redirect`)
 - Review DAB logs for errors
+- Ensure the `.env` file exists with your connection string
 
 ## Support
 
