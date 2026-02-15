@@ -274,7 +274,7 @@ namespace DacFXToolLib
 
         private static string EscapeDescription(string description)
         {
-            return description?.Replace("\"", "\\\"", StringComparison.OrdinalIgnoreCase) ?? string.Empty;
+            return description?.Replace("\"", "\\\"", StringComparison.Ordinal) ?? string.Empty;
         }
 
         private static string GetDescriptionParameter(string? comment)
