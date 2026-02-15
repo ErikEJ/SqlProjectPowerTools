@@ -1,0 +1,30 @@
+﻿{
+   "ConnectionStringName": "dab-connection-string",
+   "Dacpac": "C:\\dev\\GitHub\\SqlProjectPowerTools\\test\\SmokeTest\\SdkStyle\\bin\\Debug\\net8.0\\SdkStyle.dacpac",
+   "DatabaseType": 8,
+   "MergeDacpacs": false,
+   "Optional": false,
+   "ProjectPath": "C:\\dev\\GitHub\\SqlProjectPowerTools\\test\\SmokeTest\\SdkStyle",
+   "Tables": [
+      {
+         "Name": "[dbo].[Album]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Artist]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Genre]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[MediaType]",
+         "ObjectType": 0
+      },
+      {
+         "Name": "[dbo].[Track]",
+         "ObjectType": 0
+      }
+   ]
+}
