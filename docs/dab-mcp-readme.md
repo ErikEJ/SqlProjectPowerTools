@@ -13,17 +13,17 @@ Data API Builder (DAB) SQL MCP server enables AI-powered assistants like GitHub 
 
 ## Installation
 
-### Visual Studio MCP Servers
+### Install DAB MCP Server in Visual Studio
 
-To use DAB SQL MCP in Visual Studio, follow the official documentation:
+Click the link below to install the Data API Builder MCP server in Visual Studio:
 
-📖 **[Install and configure MCP servers in Visual Studio](https://learn.microsoft.com/en-us/visualstudio/ide/mcp-servers?view=visualstudio)**
+📦 **[Install DAB MCP Server](vscode://msft.dab?install-mcp-server=%7B%22name%22%3A%22dab-mcp%22%2C%22command%22%3A%22dab%22%2C%22args%22%3A%5B%22start%22%2C%22--no-https-redirect%22%5D%7D)**
+
+This will configure Visual Studio to use the Data API Builder MCP server for database interactions.
 
 ### DAB MCP Configuration
 
-To configure the Data API Builder MCP server, refer to:
-
-📖 **[DAB MCP Quickstart - Create your MCP server definition](https://learn.microsoft.com/en-us/azure/data-api-builder/mcp/quickstart-visual-studio-code#create-your-mcp-server-definition)**
+Refer to the [DAB MCP Quickstart documentation](https://learn.microsoft.com/en-us/azure/data-api-builder/mcp/quickstart-visual-studio-code#create-your-mcp-server-definition) for detailed configuration options.
 
 ## Getting Started with Data API Builder
 
@@ -91,14 +91,7 @@ By default, DAB will:
 
 ### 5. Configure MCP in Visual Studio
 
-To enable the DAB MCP server in Visual Studio:
-
-1. Open Visual Studio settings
-2. Navigate to MCP servers configuration
-3. Add the DAB MCP server endpoint
-4. Configure authentication if required
-
-Refer to the [Visual Studio MCP documentation](https://learn.microsoft.com/en-us/visualstudio/ide/mcp-servers?view=visualstudio) for detailed steps.
+Use the installation link at the top of this document to automatically configure the DAB MCP server in Visual Studio. Once installed, the server will be available for AI-powered database interactions.
 
 ## DAB Configuration Example
 
@@ -186,7 +179,6 @@ Enable AI assistants to understand and query your database schema through the Mo
 
 - [Data API Builder Documentation](https://learn.microsoft.com/azure/data-api-builder/)
 - [DAB GitHub Repository](https://github.com/Azure/data-api-builder)
-- [Visual Studio MCP Servers](https://learn.microsoft.com/en-us/visualstudio/ide/mcp-servers?view=visualstudio)
 - [SQL Project Power Tools Documentation](getting-started.md)
 
 ## Troubleshooting
