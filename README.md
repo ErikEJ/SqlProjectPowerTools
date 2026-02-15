@@ -1,6 +1,6 @@
 [marketplace]: <https://marketplace.visualstudio.com/items?itemName=ErikEJ.SQLProjectPowerTools>
 [vsixgallery]: <https://www.vsixgallery.com/extension/SqlProjectsPowerTools.0e226f35-6d47-4156-88df-f9d40db5e2d1>
-[repo]:<https://github.com/ErikEJ/SqlProjectPowerTools>
+[repo]: <https://github.com/ErikEJ/SqlProjectPowerTools>
 
 # SQL Database Project Power Tools
 
