@@ -1,6 +1,6 @@
-[marketplace]: https://marketplace.visualstudio.com/items?itemName=ErikEJ.SQLProjectPowerTools
-[vsixgallery]: https://www.vsixgallery.com/extension/SqlProjectsPowerTools.0e226f35-6d47-4156-88df-f9d40db5e2d1
-[repo]:https://github.com/ErikEJ/SqlProjectPowerTools
+[marketplace]: <https://marketplace.visualstudio.com/items?itemName=ErikEJ.SQLProjectPowerTools>
+[vsixgallery]: <https://www.vsixgallery.com/extension/SqlProjectsPowerTools.0e226f35-6d47-4156-88df-f9d40db5e2d1>
+[repo]:<https://github.com/ErikEJ/SqlProjectPowerTools>
 
 # SQL Database Project Power Tools
 
@@ -28,6 +28,7 @@ The tool contains the following features.
 - **.dacpac Solution explorer node** - view the contents of a dacpac file in Solution Explorer
 - **Script Table Data** - generate insert statements for table data in your database project, based on [generate-sql-merge](https://github.com/dnlnln/generate-sql-merge)
 - **Add new pre- and post-deployment scripts** - easily add new pre- and post-deployment scripts to your database project
+- **Scaffold Data API Builder (preview)** - generate a Data API Builder configuration file based on your database project, for use with [Data API Builder](https://learn.microsoft.com/azure/data-api-builder/)
 
 ### Power Pack
 
