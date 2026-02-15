@@ -141,7 +141,10 @@ namespace DacFXToolLib
                 entityTypeNames.Add(type);
 
                 var tableKey = $"[{dbObject.Schema}].[{dbObject.Name}]";
-                tableToEntityMap[tableKey] = type;
+                if (!tableToEntityMap.ContainsKey(tableKey))
+                {
+                    tableToEntityMap[tableKey] = type;
+                }
 
                 if (dbObject.PrimaryKey == null)
                 {
@@ -181,7 +184,7 @@ namespace DacFXToolLib
 
                 foreach (var column in dbObject.Columns.Where(column => !string.IsNullOrWhiteSpace(column.Comment)))
                 {
-                    var columnName = column.Name;
+                    var columnName = EscapeDescription(column.Name);
                     var columnAlias = GenerateEntityName(columnName.Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase));
                     var columnDescription = EscapeDescription(column.Comment!);
                     sb.AppendLine(CultureInfo.InvariantCulture, $"dab update {type} --fields.{columnAlias} \"{columnName}\" --fields.description \"{columnDescription}\"");
@@ -274,7 +277,32 @@ namespace DacFXToolLib
 
         private static string EscapeDescription(string description)
         {
-            return description?.Replace("\"", "\\\"", StringComparison.Ordinal) ?? string.Empty;
+            if (string.IsNullOrEmpty(description))
+            {
+                return string.Empty;
+            }
+
+            // Escape characters that are special in Windows CMD/batch files, even inside quotes.
+            // Order matters: escape caret first, then other control characters, then percent, then quotes.
+            var result = description
+
+                // caret: escape character itself
+                .Replace("^", "^^", StringComparison.Ordinal)
+
+                // control characters: escape with leading caret
+                .Replace("&", "^&", StringComparison.Ordinal)
+                .Replace("|", "^|", StringComparison.Ordinal)
+                .Replace("<", "^<", StringComparison.Ordinal)
+                .Replace(">", "^>", StringComparison.Ordinal)
+                .Replace("!", "^!", StringComparison.Ordinal)
+
+                // percent: double to avoid variable expansion
+                .Replace("%", "%%", StringComparison.Ordinal)
+
+                // double quote: escape for inclusion inside quoted argument
+                .Replace("\"", "\\\"", StringComparison.Ordinal);
+
+            return result;
         }
 
         private static string GetDescriptionParameter(string? comment)
