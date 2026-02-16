@@ -17,7 +17,7 @@ Data API Builder (DAB) SQL MCP server enables AI-powered assistants like GitHub 
 
 To install the Data API Builder MCP server in Visual Studio, use the following link:
 
-📦 **[Install DAB MCP Server](https://learn.microsoft.com/en-us/visualstudio/ide/mcp-servers?view=visualstudio&install=%7B%22mcpServers%22%3A%7B%22dab-mcp%22%3A%7B%22command%22%3A%22dab%22%2C%22args%22%3A%5B%22start%22%2C%22--no-https-redirect%22%5D%7D%7D%7D)**
+📦 **[Install DAB MCP Server](https://learn.microsoft.com/en-us/visualstudio/ide/mcp-servers?view=visualstudio&install=%7B%22mcpServers%22%3A%7B%22dab-mcp%22%3A%7B%22command%22%3A%22dab%22%2C%22args%22%3A%5B%22start%22%5D%7D%7D%7D)**
 
 This will configure Visual Studio to use the Data API Builder MCP server for database interactions.
 
@@ -28,7 +28,7 @@ Alternatively, you can manually add the MCP server configuration in Visual Studi
   "mcpServers": {
     "dab-mcp": {
       "command": "dab",
-      "args": ["start", "--no-https-redirect"]
+      "args": ["start"]
     }
   }
 }
@@ -93,10 +93,8 @@ dotnet tool update -g Microsoft.DataApiBuilder --prerelease
 Start the Data API Builder server:
 
 ```bash
-dab start --no-https-redirect
+dab start
 ```
-
-The `--no-https-redirect` flag is used to match the Visual Studio MCP server configuration and simplifies local development.
 
 By default, DAB will:
 - Host REST API at: `http://localhost:5000/api`
@@ -209,7 +207,7 @@ Enable AI assistants to understand and query your database schema through the Mo
 
 ### MCP Server Not Responding
 - Verify MCP is enabled in `dab-config.json`
-- Check that DAB is running (`dab start --no-https-redirect`)
+- Check that DAB is running (`dab start`)
 - Review DAB logs for errors
 - Ensure the `.env` file exists with your connection string
 
