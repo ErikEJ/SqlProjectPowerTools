@@ -17,7 +17,7 @@ Data API Builder (DAB) SQL MCP server enables AI-powered assistants like GitHub 
 
 To install the Data API Builder MCP server in Visual Studio, use the following link:
 
-📦 **[Install DAB MCP Server](https://learn.microsoft.com/en-us/visualstudio/ide/mcp-servers?view=visualstudio&install=%7B%22mcpServers%22%3A%7B%22dab-mcp%22%3A%7B%22command%22%3A%22dab%22%2C%22args%22%3A%5B%22start%22%5D%7D%7D%7D)**
+📦 **[Install DAB MCP Server](https://vs-open.link/mcp-install?%7B%22servers%22%3A%7B%22sql-mcp-server%22%3A%7B%22type%22%3A%22http%22%2C%22url%22%3A%22http%3A//localhost%3A5000/mcp%22%7D%7D%7D)**
 
 This will configure Visual Studio to use the Data API Builder MCP server for database interactions.
 
@@ -25,10 +25,10 @@ Alternatively, you can manually add the MCP server configuration in Visual Studi
 
 ```json
 {
-  "mcpServers": {
-    "dab-mcp": {
-      "command": "dab",
-      "args": ["start"]
+  "servers": {
+    "sql-mcp-server": {
+      "type": "http",
+      "url": "http://localhost:5000/mcp"
     }
   }
 }
