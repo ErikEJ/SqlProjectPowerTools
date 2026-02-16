@@ -11,43 +11,17 @@ Data API Builder (DAB) SQL MCP server enables AI-powered assistants like GitHub 
 - Execute safe read-only queries
 - Generate database-aware code and SQL statements
 
-## Installation
+## Quick Start with SQL Project Power Tools
 
-### Install DAB MCP Server in Visual Studio
-
-To install the Data API Builder MCP server in Visual Studio, use the following link:
-
-📦 **[Install DAB MCP Server](https://vs-open.link/mcp-install?%7B%22servers%22%3A%7B%22sql-mcp-server%22%3A%7B%22type%22%3A%22http%22%2C%22url%22%3A%22http%3A//localhost%3A5000/mcp%22%7D%7D%7D)**
-
-This will configure Visual Studio to use the Data API Builder MCP server for database interactions.
-
-Alternatively, you can manually add the MCP server configuration in Visual Studio settings:
-
-```json
-{
-  "servers": {
-    "sql-mcp-server": {
-      "type": "http",
-      "url": "http://localhost:5000/mcp"
-    }
-  }
-}
-```
-
-### DAB MCP Configuration
-
-Refer to the [DAB MCP Quickstart documentation](https://learn.microsoft.com/en-us/azure/data-api-builder/mcp/quickstart-visual-studio-code#create-your-mcp-server-definition) for detailed configuration options.
-
-## Getting Started with Data API Builder
+SQL Database Project Power Tools makes it easy to scaffold DAB configuration files directly from your database project:
 
 ### 1. Generate a DAB Configuration File
 
-If you're using SQL Database Project Power Tools, you can scaffold a DAB configuration file directly from your database project:
+Right-click on your SQL database project in Solution Explorer and select **SQL Project Power Tools > Scaffold Data API Builder**:
 
-1. Right-click on your SQL database project in Solution Explorer
-2. Select **SQL Project Power Tools > Scaffold Data API Builder**
-3. Choose the tables you want to expose
-4. A `dab-config.json` file will be generated in your project
+1. Choose the tables you want to expose
+2. A `dab-config.json` file and `dab-build.cmd` script will be generated in your project
+3. The generated script includes commands to set up and run DAB with MCP support
 
 ### 2. Configure Your Connection String
 
@@ -62,48 +36,68 @@ The generated `dab-config.json` file uses an environment variable for the connec
 }
 ```
 
-Set the connection string using a `.env` file (recommended approach used by the scaffolded script):
-
-1. Create a `.env` file in your project directory with the following content:
+Create a `.env` file in your project directory with the following content:
 
 ```
 dab-connection-string=Server=localhost;Database=MyDatabase;Integrated Security=true;
 ```
 
-2. **Important:** Add `.env` to your `.gitignore` to avoid committing credentials to source control.
+**Important:** Add `.env` to your `.gitignore` to avoid committing credentials to source control.
 
-The Data API Builder will automatically load environment variables from the `.env` file when it starts.
+### 3. Install and Run DAB
 
-### 3. Install Data API Builder CLI
+The scaffolded `dab-build.cmd` script includes all necessary commands. Run it to:
 
-Install the DAB CLI tool globally with the `--prerelease` flag (required for MCP support):
+1. Install the DAB CLI tool globally:
+   ```bash
+   dotnet tool install -g Microsoft.DataApiBuilder --prerelease
+   ```
 
-```bash
-dotnet tool install -g Microsoft.DataApiBuilder --prerelease
-```
+2. Initialize and configure DAB with your database entities
 
-Or update if already installed:
-
-```bash
-dotnet tool update -g Microsoft.DataApiBuilder --prerelease
-```
-
-### 4. Run DAB
-
-Start the Data API Builder server:
-
-```bash
-dab start
-```
+3. Start the Data API Builder server:
+   ```bash
+   dab start
+   ```
 
 By default, DAB will:
 - Host REST API at: `http://localhost:5000/api`
 - Host GraphQL endpoint at: `http://localhost:5000/graphql`
 - Enable MCP endpoint at: `http://localhost:5000/mcp` (if configured)
 
-### 5. Configure MCP in Visual Studio
+### 4. Install DAB MCP Server in Visual Studio
 
-Use the installation link at the top of this document to automatically configure the DAB MCP server in Visual Studio, or manually add the configuration to Visual Studio's MCP settings. Once configured, the server will be available for AI-powered database interactions.
+Once DAB is running, configure Visual Studio to use it as an MCP server:
+
+📦 **[Install DAB MCP Server](https://vs-open.link/mcp-install?%7B%22servers%22%3A%7B%22sql-mcp-server%22%3A%7B%22type%22%3A%22http%22%2C%22url%22%3A%22http%3A//localhost%3A5000/mcp%22%7D%7D%7D)**
+
+This will configure Visual Studio to use the Data API Builder MCP server for database interactions with AI assistants like GitHub Copilot.
+
+Alternatively, you can manually add the MCP server configuration in Visual Studio settings:
+
+```json
+{
+  "servers": {
+    "sql-mcp-server": {
+      "type": "http",
+      "url": "http://localhost:5000/mcp"
+    }
+  }
+}
+```
+
+## Complete Workflow with SQL Project Power Tools
+
+This integrated workflow makes database development seamless:
+
+1. **Import your database** using Power Tools if you haven't already
+2. **Scaffold DAB configuration** from the context menu
+3. **Customize the generated config** to fit your needs
+4. **Deploy your database** using the project
+5. **Run DAB** with the generated configuration
+6. **Configure MCP** in Visual Studio using the install link above
+
+This workflow integrates database development, versioning (via SQL projects), API generation, and AI-powered interactions seamlessly.
 
 ## DAB Configuration Example
 
@@ -150,17 +144,7 @@ Here's a minimal `dab-config.json` with MCP enabled:
 }
 ```
 
-## Using DAB with SQL Project Power Tools
-
-SQL Database Project Power Tools can automatically scaffold DAB configuration files from your database project:
-
-1. **Import your database** using Power Tools if you haven't already
-2. **Scaffold DAB configuration** from the context menu
-3. **Customize the generated config** to fit your needs
-4. **Deploy your database** using the project
-5. **Run DAB** with the generated configuration
-
-This workflow integrates database development, versioning (via SQL projects), and API generation seamlessly.
+**Note:** When using SQL Project Power Tools scaffolding, most of this configuration is generated automatically for you.
 
 ## Key Features
 
@@ -189,9 +173,10 @@ Enable AI assistants to understand and query your database schema through the Mo
 
 ## Learn More
 
-- [Data API Builder Documentation](https://learn.microsoft.com/azure/data-api-builder/)
-- [DAB GitHub Repository](https://github.com/Azure/data-api-builder)
 - [SQL Project Power Tools Documentation](getting-started.md)
+- [Data API Builder Documentation](https://learn.microsoft.com/azure/data-api-builder/)
+- [DAB MCP Quickstart](https://learn.microsoft.com/en-us/azure/data-api-builder/mcp/quickstart-visual-studio-code#create-your-mcp-server-definition)
+- [DAB GitHub Repository](https://github.com/Azure/data-api-builder)
 
 ## Troubleshooting
 
