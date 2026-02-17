@@ -38,13 +38,13 @@ The generated `dab-config.json` file uses an environment variable for the connec
 
 Create a `.env` file in your project directory with the following content:
 
-```
+```bash
 dab-connection-string=Server=localhost;Database=MyDatabase;Integrated Security=true;
 ```
 
 **Important:** Add `.env` to your `.gitignore` to avoid committing credentials to source control.
 
-### 3. Install and Run DAB
+### 3. Install, Configure and Run DAB
 
 The scaffolded `dab-build.cmd` script includes all necessary commands. Run it to:
 
@@ -61,6 +61,7 @@ The scaffolded `dab-build.cmd` script includes all necessary commands. Run it to
    ```
 
 By default, DAB will:
+
 - Host REST API at: `http://localhost:5000/api`
 - Host GraphQL endpoint at: `http://localhost:5000/graphql`
 - Enable MCP endpoint at: `http://localhost:5000/mcp` (if configured)
@@ -69,20 +70,18 @@ By default, DAB will:
 
 Once DAB is running, configure Visual Studio to use it as an MCP server:
 
-📦 **[Install DAB MCP Server](https://vs-open.link/mcp-install?%7B%22servers%22%3A%7B%22sql-mcp-server%22%3A%7B%22type%22%3A%22http%22%2C%22url%22%3A%22http%3A//localhost%3A5000/mcp%22%7D%7D%7D)**
+📦 **[Install DAB MCP Server](https://vs-open.link/mcp-install?%7B%22name%22%3A%22sql-mcp-server%22%2C%22type%22%3A%22http%22%2C%22url%22%3A%22http%3A//localhost%3A5000/mcp%22%7D)**
 
 This will configure Visual Studio to use the Data API Builder MCP server for database interactions with AI assistants like GitHub Copilot.
 
-Alternatively, you can manually add the MCP server configuration in Visual Studio settings:
+Alternatively, you can manually add the MCP server configuration in Visual Studio settings `.mcp.json` file:
 
 ```json
 {
-  "servers": {
     "sql-mcp-server": {
       "type": "http",
       "url": "http://localhost:5000/mcp"
     }
-  }
 }
 ```
 
@@ -97,7 +96,7 @@ This integrated workflow makes database development seamless:
 5. **Run DAB** with the generated configuration
 6. **Configure MCP** in Visual Studio using the install link above
 
-This workflow integrates database development, versioning (via SQL projects), API generation, and AI-powered interactions seamlessly.
+This workflow integrates database development, schema versioning (via SQL database projects), API generation, and AI-powered interactions seamlessly.
 
 ## DAB Configuration Example
 
@@ -149,14 +148,18 @@ Here's a minimal `dab-config.json` with MCP enabled:
 ## Key Features
 
 ### REST API
+
 Access your data via RESTful endpoints:
-```
+
+```text
 GET http://localhost:5000/api/YourTable
 GET http://localhost:5000/api/YourTable/id/123
 ```
 
 ### GraphQL API
+
 Query data using GraphQL:
+
 ```graphql
 query {
   yourTable {
@@ -169,28 +172,32 @@ query {
 ```
 
 ### MCP Integration
+
 Enable AI assistants to understand and query your database schema through the Model Context Protocol.
 
 ## Learn More
 
 - [SQL Project Power Tools Documentation](getting-started.md)
 - [Data API Builder Documentation](https://learn.microsoft.com/azure/data-api-builder/)
-- [DAB MCP Quickstart](https://learn.microsoft.com/en-us/azure/data-api-builder/mcp/quickstart-visual-studio-code#create-your-mcp-server-definition)
+- [DAB MCP Quickstart](https://learn.microsoft.com/azure/data-api-builder/mcp/quickstart-visual-studio-code#create-your-mcp-server-definition)
 - [DAB GitHub Repository](https://github.com/Azure/data-api-builder)
 
 ## Troubleshooting
 
 ### Connection Issues
+
 - Verify your connection string is correct
 - Ensure the database server is accessible
 - Check firewall settings
 
 ### DAB CLI Not Found
+
 - Ensure .NET SDK is installed
 - Add .NET tools path to your PATH environment variable
 - Try reinstalling: `dotnet tool uninstall -g Microsoft.DataApiBuilder && dotnet tool install -g Microsoft.DataApiBuilder --prerelease`
 
 ### MCP Server Not Responding
+
 - Verify MCP is enabled in `dab-config.json`
 - Check that DAB is running (`dab start`)
 - Review DAB logs for errors
@@ -199,6 +206,7 @@ Enable AI assistants to understand and query your database schema through the Mo
 ## Support
 
 For issues related to:
+
 - **SQL Project Power Tools**: [GitHub Issues](https://github.com/ErikEJ/SqlProjectPowerTools/issues)
 - **Data API Builder**: [DAB GitHub Issues](https://github.com/Azure/data-api-builder/issues)
 - **Visual Studio MCP**: [Visual Studio Feedback](https://developercommunity.visualstudio.com/)

@@ -14,7 +14,7 @@ or get the [CI build][vsixgallery]
 
 Visual Studio Tools to enhance the SQL Database Project developer experience.
 
-[Getting Started Guide](docs/getting-started.md) | [Overview blog post: SQL Project Power Tools for Visual Studio](https://erikej.github.io/dotnet/dacfx/sqlserver/visualstudio/2025/09/30/sqlproj-power-tools-visualstudio.html)
+[Getting Started Guide](docs/getting-started.md) | [Getting started with Data API Builder SQL MCP Server](docs/dab-mcp-readme.md) | [Overview blog post: SQL Project Power Tools for Visual Studio](https://erikej.github.io/dotnet/dacfx/sqlserver/visualstudio/2025/09/30/sqlproj-power-tools-visualstudio.html)
 
 ## Features
 
@@ -28,7 +28,7 @@ The tool contains the following features.
 - **.dacpac Solution explorer node** - view the contents of a dacpac file in Solution Explorer
 - **Script Table Data** - generate insert statements for table data in your database project, based on [generate-sql-merge](https://github.com/dnlnln/generate-sql-merge)
 - **Add new pre- and post-deployment scripts** - easily add new pre- and post-deployment scripts to your database project
-- **Scaffold Data API Builder (preview)** - generate a Data API Builder configuration file based on your database project, for use with [Data API Builder](https://learn.microsoft.com/azure/data-api-builder/)
+- **Scaffold Data API Builder (preview)** - generate a Data API Builder configuration file based on your database project, for use with [Data API Builder](docs/dab-mcp-readme.md)
 
 ### Power Pack
 
