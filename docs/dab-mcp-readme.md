@@ -11,7 +11,7 @@ Data API Builder (DAB) SQL MCP server enables AI-powered assistants like GitHub 
 - Execute safe read-only queries
 - Generate database-aware code and SQL statements
 
-## Quick Start with SQL Project Power Tools
+## Quick Start with SQL Database Project Power Tools
 
 SQL Database Project Power Tools makes it easy to scaffold DAB configuration files directly from your database project:
 
@@ -85,11 +85,11 @@ Alternatively, you can manually add the MCP server configuration in Visual Studi
 }
 ```
 
-## Complete Workflow with SQL Project Power Tools
+## Complete Workflow with SQL Database Project Power Tools
 
 This integrated workflow makes database development seamless:
 
-1. **Import your database** using Power Tools if you haven't already
+1. **Import your database** if you haven't already
 2. **Scaffold DAB configuration** from the context menu
 3. **Customize the generated config** to fit your needs
 4. **Deploy your database** using the project
@@ -143,7 +143,7 @@ Here's a minimal `dab-config.json` with MCP enabled:
 }
 ```
 
-**Note:** When using SQL Project Power Tools scaffolding, most of this configuration is generated automatically for you.
+**Note:** When using SQL Database Project Power Tools scaffolding, most of this configuration is generated automatically for you.
 
 ## Key Features
 
@@ -177,9 +177,9 @@ Enable AI assistants to understand and query your database schema through the Mo
 
 ## Learn More
 
-- [SQL Project Power Tools Documentation](getting-started.md)
+- [SQL Database Project Power Tools Documentation](getting-started.md)
 - [Data API Builder Documentation](https://learn.microsoft.com/azure/data-api-builder/)
-- [DAB MCP Quickstart](https://learn.microsoft.com/azure/data-api-builder/mcp/quickstart-visual-studio-code#create-your-mcp-server-definition)
+- [DAB MCP Quickstart VS Code](https://learn.microsoft.com/azure/data-api-builder/mcp/quickstart-visual-studio-code)
 - [DAB GitHub Repository](https://github.com/Azure/data-api-builder)
 
 ## Troubleshooting
@@ -207,6 +207,6 @@ Enable AI assistants to understand and query your database schema through the Mo
 
 For issues related to:
 
-- **SQL Project Power Tools**: [GitHub Issues](https://github.com/ErikEJ/SqlProjectPowerTools/issues)
+- **SQL Database Project Power Tools**: [GitHub Issues](https://github.com/ErikEJ/SqlProjectPowerTools/issues)
 - **Data API Builder**: [DAB GitHub Issues](https://github.com/Azure/data-api-builder/issues)
 - **Visual Studio MCP**: [Visual Studio Feedback](https://developercommunity.visualstudio.com/)
