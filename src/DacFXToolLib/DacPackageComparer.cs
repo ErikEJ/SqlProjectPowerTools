@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using DacFXToolLib.Common;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Dac.Compare;
 
@@ -7,6 +9,67 @@ namespace DacFXToolLib
 {
     public static class DacPackageComparer
     {
+        public static VisualCompareResult CompareVisual(string dacpacPath, string connectionString, bool databaseIsSource)
+        {
+            var dacpac = new SchemaCompareDacpacEndpoint(dacpacPath);
+            var database = new SchemaCompareDatabaseEndpoint(connectionString);
+
+            var comparison = databaseIsSource
+                ? new SchemaComparison(database, dacpac)
+                : new SchemaComparison(dacpac, database);
+            var compareResult = comparison.Compare();
+
+            if (!compareResult.IsValid)
+            {
+                throw new InvalidOperationException("Schema comparison failed to complete.");
+            }
+
+            var differences = new List<SchemaDifferenceModel>();
+
+            foreach (var diff in compareResult.Differences)
+            {
+                var name = diff.Name;
+                var objectType = diff.SourceObject?.ObjectType?.Name ?? diff.TargetObject?.ObjectType?.Name ?? "Unknown";
+                var differenceType = diff.DifferenceType.ToString();
+                var updateAction = diff.UpdateAction.ToString();
+
+                var sourceScript = compareResult.GetDiffEntrySourceScript(diff) ?? string.Empty;
+                var targetScript = compareResult.GetDiffEntryTargetScript(diff) ?? string.Empty;
+
+                differences.Add(new SchemaDifferenceModel
+                {
+                    Name = name,
+                    ObjectType = objectType,
+                    DifferenceType = differenceType,
+                    UpdateAction = updateAction,
+                    SourceScript = sourceScript,
+                    TargetScript = targetScript,
+                });
+            }
+
+            string deploymentScript;
+            if (compareResult.IsEqual)
+            {
+                deploymentScript = "-- No differences found";
+            }
+            else if (!databaseIsSource)
+            {
+                var databaseName = new SqlConnectionStringBuilder(connectionString).InitialCatalog;
+                var scriptResult = compareResult.GenerateScript(databaseName);
+                deploymentScript = scriptResult.Success ? scriptResult.Script : "-- Script generation failed: " + scriptResult.Message;
+            }
+            else
+            {
+                deploymentScript = "-- Deployment script not available when database is source";
+            }
+
+            return new VisualCompareResult
+            {
+                Differences = differences.ToArray(),
+                DeploymentScript = deploymentScript,
+            };
+        }
+
         public static string Compare(string dacpacPath, string connectionString, bool databaseIsSource)
         {
             var databaseName = new SqlConnectionStringBuilder(connectionString).InitialCatalog;

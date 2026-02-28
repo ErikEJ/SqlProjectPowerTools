@@ -8,6 +8,16 @@ namespace SqlProjectsPowerTools
 {
     public static class ResultDeserializer
     {
+        public static VisualCompareResult BuildVisualCompareResult(string jsonFilePath)
+        {
+            var json = File.ReadAllText(jsonFilePath, Encoding.UTF8);
+            var ms = new MemoryStream(Encoding.UTF8.GetBytes(json));
+            var ser = new DataContractJsonSerializer(typeof(VisualCompareResult));
+            var result = ser.ReadObject(ms) as VisualCompareResult;
+            ms.Close();
+            return result ?? new VisualCompareResult { Differences = [], DeploymentScript = string.Empty };
+        }
+
         public static List<TableModel> BuildTableResult(string output)
         {
             var resultParts = output.Split(new[] { "Result:" + Environment.NewLine }, StringSplitOptions.None);

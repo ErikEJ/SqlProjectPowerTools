@@ -49,6 +49,7 @@
     <Compile Include="Commands\AnalyzeCommand.cs" />
     <Compile Include="Commands\DabCommand.cs" />
     <Compile Include="Commands\CompareCommand.cs" />
+    <Compile Include="Commands\VisualCompareCommand.cs" />
     <Compile Include="Commands\SeedCommand.cs" />
     <Compile Include="Commands\ImportCommand.cs" />
     <Compile Include="Commands\MermaidCommand.cs" />
@@ -88,6 +89,9 @@
     <Compile Include="Dialogs\PickTablesDialog.xaml.cs">
       <DependentUpon>PickTablesDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\SchemaCompareDialog.xaml.cs">
+      <DependentUpon>SchemaCompareDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Extensions\FocusExtensions.cs" />
     <Compile Include="Extensions\MenuCommandExtensions.cs" />
     <Compile Include="Extensions\ProjectExtension.cs" />
@@ -97,6 +101,7 @@
     <Compile Include="Handlers\DabBuilderHandler.cs" />
     <Compile Include="Handlers\DacpacAnalyzerHandler.cs" />
     <Compile Include="Handlers\CompareHandler.cs" />
+    <Compile Include="Handlers\VisualCompareHandler.cs" />
     <Compile Include="Handlers\HandlerHelper.cs" />
     <Compile Include="Handlers\ImportHandler.cs" />
     <Compile Include="Handlers\ErDiagramHandler.cs" />
@@ -255,6 +260,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Dialogs\PickTablesDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\SchemaCompareDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
