@@ -65,7 +65,7 @@ namespace DacFXToolLib
 
             return new VisualCompareResult
             {
-                Differences = differences.ToArray(),
+                Differences = differences,
                 DeploymentScript = deploymentScript,
             };
         }

@@ -15,7 +15,7 @@ namespace SqlProjectsPowerTools
             var ser = new DataContractJsonSerializer(typeof(VisualCompareResult));
             var result = ser.ReadObject(ms) as VisualCompareResult;
             ms.Close();
-            return result ?? new VisualCompareResult { Differences = [], DeploymentScript = string.Empty };
+            return result ?? new VisualCompareResult { Differences = new List<SchemaDifferenceModel>(), DeploymentScript = string.Empty };
         }
 
         public static List<TableModel> BuildTableResult(string output)

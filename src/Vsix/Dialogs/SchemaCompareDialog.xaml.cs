@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using DacFXToolLib.Common;
@@ -17,12 +18,12 @@ namespace SqlProjectsPowerTools
             SourceLabel.Text = projectName;
             DeploymentScriptBox.Text = result.DeploymentScript ?? string.Empty;
 
-            var differences = result.Differences ?? [];
+            var differences = result.Differences ?? new List<SchemaDifferenceModel>();
             DifferencesGrid.ItemsSource = differences;
 
-            StatusLabel.Text = differences.Length == 0
+            StatusLabel.Text = differences.Count == 0
                 ? "No differences found."
-                : $"{differences.Length} difference(s) found.";
+                : $"{differences.Count} difference(s) found.";
         }
 
         private void DifferencesGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)

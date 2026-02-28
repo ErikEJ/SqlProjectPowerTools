@@ -1,5 +1,6 @@
 namespace DacFXToolLib.Common
 {
+    using System.Collections.Generic;
     using System.Runtime.Serialization;
 
     /// <summary>
@@ -12,7 +13,7 @@ namespace DacFXToolLib.Common
         /// Gets or sets all detected schema differences.
         /// </summary>
         [DataMember]
-        public SchemaDifferenceModel[] Differences { get; set; }
+        public IList<SchemaDifferenceModel> Differences { get; set; }
 
         /// <summary>
         /// Gets or sets the DacFx-generated deployment script.
