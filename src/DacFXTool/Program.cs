@@ -248,13 +248,12 @@ namespace DacFXTool
 
                         var path = Path.Join(Path.GetTempPath(), $"SqlProjVisualCompare_{Guid.NewGuid():N}.json");
 
-                        using (var ms = new MemoryStream())
-                        using (var writer = JsonReaderWriterFactory.CreateJsonWriter(ms, Encoding.UTF8, true, true, "  "))
+                        using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
+                        using (var writer = JsonReaderWriterFactory.CreateJsonWriter(fileStream, Encoding.UTF8, true, true, "  "))
                         {
                             var ser = new DataContractJsonSerializer(typeof(VisualCompareResult));
                             ser.WriteObject(writer, compareResult);
                             await writer.FlushAsync();
-                            await File.WriteAllBytesAsync(path, ms.ToArray());
                         }
 
                         await Console.Out.WriteLineAsync("Result:");

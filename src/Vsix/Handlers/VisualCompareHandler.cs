@@ -67,32 +67,39 @@ namespace SqlProjectsPowerTools
                 try
                 {
                     jsonResultPath = await RunVisualCompareAsync(connectionInfo.DatabaseIsSource, dacOptions.Dacpac, dbInfo.ConnectionString);
-                }
-                catch
-                {
-                    if (control?.DataContext is SchemaCompareViewModel vmErr)
+
+                    if (!string.IsNullOrEmpty(jsonResultPath))
                     {
-                        vmErr.IsBusy = false;
-                        vmErr.Status = "Schema comparison failed.";
+                        var result = await Task.Run(() => ResultDeserializer.BuildVisualCompareResult(jsonResultPath));
+
+                        var databaseName = GetDatabaseName(dbInfo.ConnectionString);
+                        var projectName = project.Name;
+
+                        string sourceName;
+                        string targetName;
+
+                        if (connectionInfo.DatabaseIsSource)
+                        {
+                            sourceName = databaseName;
+                            targetName = projectName;
+                        }
+                        else
+                        {
+                            sourceName = projectName;
+                            targetName = databaseName;
+                        }
+
+                        control?.SetResult(result, sourceName, targetName);
+
+                        TryDeleteFile(jsonResultPath);
                     }
-
-                    throw;
                 }
-
-                if (!string.IsNullOrEmpty(jsonResultPath))
+                finally
                 {
-                    var result = await Task.Run(() => ResultDeserializer.BuildVisualCompareResult(jsonResultPath));
-
-                    var targetName = GetDatabaseName(dbInfo.ConnectionString);
-
-                    control?.SetResult(result, project.Name, targetName);
-
-                    TryDeleteFile(jsonResultPath);
-                }
-
-                if (control?.DataContext is SchemaCompareViewModel vmDone)
-                {
-                    vmDone.IsBusy = false;
+                    if (control?.DataContext is SchemaCompareViewModel vmDone)
+                    {
+                        vmDone.IsBusy = false;
+                    }
                 }
             }
             catch (AggregateException ae)
