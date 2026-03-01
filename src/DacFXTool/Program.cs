@@ -246,7 +246,7 @@ namespace DacFXTool
 
                         var compareResult = DacPackageComparer.CompareVisual(args[1], args[2], visualDbIsSource);
 
-                        var path = Path.Join(Path.GetTempPath(), "SqlProjVisualCompare.json");
+                        var path = Path.Join(Path.GetTempPath(), $"SqlProjVisualCompare_{Guid.NewGuid():N}.json");
 
                         using (var ms = new MemoryStream())
                         using (var writer = JsonReaderWriterFactory.CreateJsonWriter(ms, Encoding.UTF8, true, true, "  "))

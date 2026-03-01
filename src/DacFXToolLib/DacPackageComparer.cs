@@ -56,7 +56,18 @@ namespace DacFXToolLib
             {
                 var databaseName = new SqlConnectionStringBuilder(connectionString).InitialCatalog;
                 var scriptResult = compareResult.GenerateScript(databaseName);
-                deploymentScript = scriptResult.Success ? scriptResult.Script : "-- Script generation failed: " + scriptResult.Message;
+
+                if (!scriptResult.Success)
+                {
+                    if (scriptResult.Exception != null)
+                    {
+                        throw scriptResult.Exception;
+                    }
+
+                    throw new InvalidOperationException($"Script generation encountered errors: {scriptResult.Message}");
+                }
+
+                deploymentScript = scriptResult.Script;
             }
             else
             {

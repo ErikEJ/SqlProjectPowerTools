@@ -1,9 +1,9 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DacFXToolLib.Common;
 using DacFXToolLib.Dab;
-using Microsoft.VisualStudio.Shell.Interop;
 
 namespace SqlProjectsPowerTools
 {
@@ -51,37 +51,47 @@ namespace SqlProjectsPowerTools
                     return;
                 }
 
+                var pane = await SchemaCompareToolWindow.ShowAsync();
+                var control = pane?.Content as SchemaCompareWindowControl;
+
+                if (control?.DataContext is SchemaCompareViewModel vm)
+                {
+                    vm.IsBusy = true;
+                    vm.Status = "Comparing database schemas...";
+                }
+
                 await VS.StatusBar.ShowMessageAsync("Comparing database schemas...");
 
                 string jsonResultPath = null;
-                IVsThreadedWaitDialog2 dialog = null;
 
                 try
                 {
-                    var dialogFactory = await VS.GetServiceAsync<SVsThreadedWaitDialogFactory, IVsThreadedWaitDialogFactory>();
-                    dialogFactory?.CreateInstance(out dialog);
-
-                    dialog?.StartWaitDialog(
-                        szWaitCaption: "SQL Database Project Power Tools",
-                        szWaitMessage: "Comparing database schemas...",
-                        szProgressText: null,
-                        varStatusBmpAnim: null,
-                        szStatusBarText: "Comparing database schemas...",
-                        iDelayToShowDialog: 0,
-                        fIsCancelable: false,
-                        fShowMarqueeProgress: true);
-
                     jsonResultPath = await RunVisualCompareAsync(connectionInfo.DatabaseIsSource, dacOptions.Dacpac, dbInfo.ConnectionString);
                 }
-                finally
+                catch
                 {
-                    dialog?.EndWaitDialog(out int _);
+                    if (control?.DataContext is SchemaCompareViewModel vmErr)
+                    {
+                        vmErr.IsBusy = false;
+                    }
+
+                    throw;
                 }
 
                 if (!string.IsNullOrEmpty(jsonResultPath))
                 {
-                    var result = ResultDeserializer.BuildVisualCompareResult(jsonResultPath);
-                    ShowResultDialog(result, project.Name);
+                    var result = await Task.Run(() => ResultDeserializer.BuildVisualCompareResult(jsonResultPath));
+
+                    var targetName = GetDatabaseName(dbInfo.ConnectionString);
+
+                    control?.SetResult(result, project.Name, targetName);
+
+                    TryDeleteFile(jsonResultPath);
+                }
+
+                if (control?.DataContext is SchemaCompareViewModel vmDone)
+                {
+                    vmDone.IsBusy = false;
                 }
             }
             catch (AggregateException ae)
@@ -101,10 +111,31 @@ namespace SqlProjectsPowerTools
             }
         }
 
-        private static void ShowResultDialog(VisualCompareResult result, string projectName)
+        private static string GetDatabaseName(string connectionString)
         {
-            var dlg = new SchemaCompareDialog(result, projectName);
-            dlg.ShowModal();
+            try
+            {
+                return SqlConnectionStringBuilderHelper.GetBuilder(connectionString).InitialCatalog;
+            }
+            catch
+            {
+                return connectionString;
+            }
+        }
+
+        private static void TryDeleteFile(string path)
+        {
+            try
+            {
+                if (File.Exists(path))
+                {
+                    File.Delete(path);
+                }
+            }
+            catch
+            {
+                // Best-effort cleanup
+            }
         }
 
         private static async Task<string> RunVisualCompareAsync(bool databaseIsSource, string dacpacPath, string connectionString)

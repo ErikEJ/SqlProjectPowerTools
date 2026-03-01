@@ -21,6 +21,7 @@ namespace SqlProjectsPowerTools
     [Guid(PackageGuids.VsixString)]
     [ProvideOptionPage(typeof(OptionsProvider.VsixOptions), "SQL Server Tools", "Database Projects Power Tools", 100, 101, true)]
     [ProvideProfile(typeof(OptionsProvider.VsixOptions), "SQL Server Tools", "Database Projects Power Tools", 100, 101, true)]
+    [ProvideToolWindow(typeof(SchemaCompareToolWindow.Pane), Style = VsDockStyle.Tabbed, DockedWidth = 900, DockedHeight = 600)]
     [ProvideAutoLoad(UIContextGuid, PackageAutoLoadFlags.BackgroundLoad)]
     [ProvideUIContextRule(
         UIContextGuid,
@@ -39,6 +40,8 @@ namespace SqlProjectsPowerTools
         protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
         {
             await this.RegisterCommandsAsync();
+
+            SchemaCompareToolWindow.Initialize(this);
 
             PackageManager.Package = this;
 

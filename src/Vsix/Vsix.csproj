@@ -89,8 +89,9 @@
     <Compile Include="Dialogs\PickTablesDialog.xaml.cs">
       <DependentUpon>PickTablesDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Dialogs\SchemaCompareDialog.xaml.cs">
-      <DependentUpon>SchemaCompareDialog.xaml</DependentUpon>
+    <Compile Include="ToolWindows\SchemaCompareToolWindow.cs" />
+    <Compile Include="ToolWindows\SchemaCompareWindowControl.xaml.cs">
+      <DependentUpon>SchemaCompareWindowControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Extensions\FocusExtensions.cs" />
     <Compile Include="Extensions\MenuCommandExtensions.cs" />
@@ -224,6 +225,9 @@
     <PackageReference Include="Community.VisualStudio.Toolkit.17" Version="17.0.545" ExcludeAssets="Runtime">
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="DiffPlex">
+      <Version>1.7.2</Version>
+    </PackageReference>
     <PackageReference Include="JetBrains.Annotations">
       <Version>2025.2.2</Version>
     </PackageReference>
@@ -263,7 +267,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Dialogs\SchemaCompareDialog.xaml">
+    <Page Include="ToolWindows\SchemaCompareWindowControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
