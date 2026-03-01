@@ -64,7 +64,7 @@ namespace DacFXToolLib
                         throw scriptResult.Exception;
                     }
 
-                    throw new InvalidOperationException($"Script generation encountered errors: {scriptResult.Message}");
+                    throw new InvalidOperationException($"Script generation failed: {scriptResult.Message}");
                 }
 
                 deploymentScript = scriptResult.Script;

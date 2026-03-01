@@ -73,6 +73,7 @@ namespace SqlProjectsPowerTools
                     if (control?.DataContext is SchemaCompareViewModel vmErr)
                     {
                         vmErr.IsBusy = false;
+                        vmErr.Status = "Schema comparison failed.";
                     }
 
                     throw;
@@ -119,7 +120,7 @@ namespace SqlProjectsPowerTools
             }
             catch
             {
-                return connectionString;
+                return "(Unknown database)";
             }
         }
 

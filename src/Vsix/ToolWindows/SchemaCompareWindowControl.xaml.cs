@@ -110,7 +110,7 @@ namespace SqlProjectsPowerTools
             TargetDiffLines.Clear();
             SelectedDifference = null;
 
-            var diffs = result?.Differences ?? (IList<SchemaDifferenceModel>)new List<SchemaDifferenceModel>();
+            var diffs = result?.Differences ?? new List<SchemaDifferenceModel>();
             foreach (var diff in diffs)
             {
                 Differences.Add(diff);
