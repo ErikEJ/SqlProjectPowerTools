@@ -1,8 +1,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Runtime.Serialization.Json;
 using System.Text;
+using System.Text.Json;
 using DacFXToolLib;
 using DacFXToolLib.Common;
 using DacFXToolLib.Dab;
@@ -248,13 +247,7 @@ namespace DacFXTool
 
                         var path = Path.Join(Path.GetTempPath(), $"SqlProjVisualCompare_{Guid.NewGuid():N}.json");
 
-                        using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None))
-                        using (var writer = JsonReaderWriterFactory.CreateJsonWriter(fileStream, Encoding.UTF8, true, true, "  "))
-                        {
-                            var ser = new DataContractJsonSerializer(typeof(VisualCompareResult));
-                            ser.WriteObject(writer, compareResult);
-                            await writer.FlushAsync();
-                        }
+                        await File.WriteAllTextAsync(path, JsonSerializer.Serialize(compareResult), Encoding.UTF8);
 
                         await Console.Out.WriteLineAsync("Result:");
                         await Console.Out.WriteLineAsync(path);

@@ -1,4 +1,3 @@
-using System;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +8,7 @@ namespace SqlProjectsPowerTools
 {
     public class SchemaCompareToolWindow : BaseToolWindow<SchemaCompareToolWindow>
     {
-        public override string GetTitle(int toolWindowId) => "Visual Schema Compare";
+        public override string GetTitle(int toolWindowId) => "Visual Schema Compare (preview)";
 
         public override Type PaneType => typeof(Pane);
 
