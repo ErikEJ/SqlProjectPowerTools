@@ -59,5 +59,11 @@
   </ItemGroup>
   <ItemGroup>
     <Build Include="Table1.sql" />
+    <Build Include="XMLSchemaCollection1.xsd">
+      <RelationalSchema>dbo</RelationalSchema>
+      <XMLSchemaCollectionName>XMLSchemaCollection1</XMLSchemaCollectionName>
+      <AnsiNulls>Off</AnsiNulls>
+    </Build>
+    <Build Include="XMLSchemaCollection2.sql" />
   </ItemGroup>
 </Project>

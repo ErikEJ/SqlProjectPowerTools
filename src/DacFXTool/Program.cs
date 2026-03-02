@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using System.Text.Json;
 using DacFXToolLib;
 using DacFXToolLib.Common;
 using DacFXToolLib.Dab;
@@ -223,6 +224,30 @@ namespace DacFXTool
                         }
 
                         await File.WriteAllTextAsync(path, script, Encoding.UTF8);
+
+                        await Console.Out.WriteLineAsync("Result:");
+                        await Console.Out.WriteLineAsync(path);
+
+                        return 0;
+                    }
+
+                    // visualcompare "<DACPAC_PATH>" "connectionString" <database_is_source>
+                    if (args.Length == 4
+                        && args[0] == "visualcompare"
+                        && bool.TryParse(args[3], out bool visualDbIsSource))
+                    {
+                        if (!new FileInfo(args[1]).Exists)
+                        {
+                            await Console.Out.WriteLineAsync("Error:");
+                            await Console.Out.WriteLineAsync($"DACPAC file '{args[1]}' not found");
+                            return 1;
+                        }
+
+                        var compareResult = DacPackageComparer.CompareVisual(args[1], args[2], visualDbIsSource);
+
+                        var path = Path.Join(Path.GetTempPath(), $"SqlProjVisualCompare_{Guid.NewGuid():N}.json");
+
+                        await File.WriteAllTextAsync(path, JsonSerializer.Serialize(compareResult), Encoding.UTF8);
 
                         await Console.Out.WriteLineAsync("Result:");
                         await Console.Out.WriteLineAsync(path);

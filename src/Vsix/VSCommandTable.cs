@@ -39,5 +39,6 @@ namespace SqlProjectsPowerTools
         public const int cmdidOptions = 0x0010;
         public const int cmdidDeployScript = 0x0008;
         public const int cmdidSeed = 0x0009;
+        public const int cmdidVisualCompare = 0x0013;
     }
 }
