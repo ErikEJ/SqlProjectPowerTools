@@ -90,9 +90,9 @@ jobs:
     - name: Upload to Open VSIX
       uses: timheuer/openvsixpublish@v1
       with:
-        vsix-file: ./Vsix.vsix
+        vsix-file: ./src/Vsix/bin/Release/Vsix.vsix
 
     - name: Upload to Open VSIX - Pack
       uses: timheuer/openvsixpublish@v1
       with:
-        vsix-file: ./ExtensionPack.vsix
+        vsix-file: ./src/ExtensionPack/bin/Release/ExtensionPack.vsix
