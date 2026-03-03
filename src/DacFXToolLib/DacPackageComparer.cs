@@ -27,7 +27,7 @@ namespace DacFXToolLib
 
             foreach (var diff in compareResult.Differences)
             {
-                var name = diff.Name;
+                var name = diff.SourceObject?.Name?.ToString() ?? diff.TargetObject?.Name?.ToString() ?? "Unknown";
                 var objectType = diff.SourceObject?.ObjectType?.Name ?? diff.TargetObject?.ObjectType?.Name ?? "Unknown";
                 var differenceType = diff.DifferenceType.ToString();
                 var updateAction = diff.UpdateAction.ToString();
