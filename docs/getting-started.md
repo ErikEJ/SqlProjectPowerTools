@@ -50,17 +50,19 @@ The tool will create all the necessary files in your project, organized by objec
 
 ## Comparing Schemas
 
-The schema compare feature helps you keep your database project in sync with your live databases. You can compare in both directions:
+The visual schema compare feature helps you keep your database project in sync with your live databases. You can compare in both directions:
 
 - Compare your project with a database to see what needs to be deployed
 - Compare a database with your project to update your project files
 
-To use schema compare:
+![Schema Compare](../img/SchemaCompare.png)
+
+To use visual schema compare:
 
 1. Right-click on your SQL database project in Solution Explorer
-2. Select **SQL Project Power Tools > Schema compare**
-3. Choose your comparison source database and target (project or database)
-4. Review the differences in the generated script
+2. Select **SQL Project Power Tools > Visual Schema Compare (preview)...**
+3. Choose your comparison source database and target direction
+4. Review the differences in the visual schema compare tool window
 5. Apply the changes as needed
 
 This is especially useful when working in teams or managing multiple environments.
