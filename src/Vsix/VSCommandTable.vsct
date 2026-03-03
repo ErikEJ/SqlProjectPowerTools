@@ -88,7 +88,7 @@
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
-          <ButtonText>Visual Schema Compare...</ButtonText>
+          <ButtonText>Visual Schema Compare (preview)...</ButtonText>
         </Strings>
       </Button>
 

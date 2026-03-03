@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Json;
 using System.Text;
@@ -10,12 +10,14 @@ namespace SqlProjectsPowerTools
     {
         public static VisualCompareResult BuildVisualCompareResult(string jsonFilePath)
         {
-            using (var fs = new FileStream(jsonFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            var result = File.ReadAllText(jsonFilePath, Encoding.UTF8);
+
+            if (TryRead(result, out VisualCompareResult deserialized))
             {
-                var ser = new DataContractJsonSerializer(typeof(VisualCompareResult));
-                var result = ser.ReadObject(fs) as VisualCompareResult;
-                return result ?? new VisualCompareResult { Differences = new List<SchemaDifferenceModel>(), DeploymentScript = string.Empty };
+                return deserialized;
             }
+
+            throw new InvalidOperationException($"Unable to deserialize visual compare result from file: {jsonFilePath}");
         }
 
         public static List<TableModel> BuildTableResult(string output)
