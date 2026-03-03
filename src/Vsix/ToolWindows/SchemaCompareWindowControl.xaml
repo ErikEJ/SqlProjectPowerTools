@@ -45,11 +45,11 @@
                               SelectedItem="{Binding SelectedDifference, Mode=TwoWay}" CanUserAddRows="False"
                               HeadersVisibility="Column" SelectionMode="Single" SelectionUnit="FullRow">
                         <DataGrid.Columns>
-                            <DataGridTextColumn Header="Type" Binding="{Binding ObjectType}" Width="80" />
-                            <DataGridTextColumn Header="Action" Binding="{Binding UpdateAction}" Width="*" MinWidth="80" />
+                            <DataGridTextColumn Header="Type" Binding="{Binding ObjectType}" Width="*" MinWidth="80" />
+                            <DataGridTextColumn Header="Action" Binding="{Binding UpdateAction}" Width="80" />
                             <DataGridTextColumn Header="Difference" Binding="{Binding DifferenceType}" Width="80" />
-                            <DataGridTextColumn Header="Source" Binding="{Binding SourceObjectName}" Width="80" />
-                            <DataGridTextColumn Header="Target" Binding="{Binding TargetObjectName}" Width="80" />
+                            <DataGridTextColumn Header="Source" Binding="{Binding SourceObjectName}" Width="100" />
+                            <DataGridTextColumn Header="Target" Binding="{Binding TargetObjectName}" Width="100" />
                         </DataGrid.Columns>
                     </DataGrid>
 
