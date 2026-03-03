@@ -87,11 +87,12 @@ jobs:
         path: |
           *.vsix
 
-    - name: Publish to Open VSIX Gallery
-      if: github.ref == 'refs/heads/main' && github.repository_owner == 'erikej' && (github.event_name == 'push' ||  github.event_name == 'workflow_dispatch')
-      run: |
-        $ErrorActionPreference='Stop'
-        (new-object Net.WebClient).DownloadString("https://raw.githubusercontent.com/madskristensen/ExtensionScripts/master/AppVeyor/vsix.ps1") | iex
-        Vsix-PublishToGallery 
-      shell: pwsh
-      continue-on-error: false
+    - name: Upload to Open VSIX
+      uses: timheuer/openvsixpublish@v1
+      with:
+        vsix-file: ./Vsix/bin/Release/Vsix.vsix
+
+    - name: Upload to Open VSIX - Pack
+      uses: timheuer/openvsixpublish@v1
+      with:
+        vsix-file: ./Vsix/bin/Release/ExtensionPack.vsix
