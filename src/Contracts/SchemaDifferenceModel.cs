@@ -33,6 +33,18 @@ namespace DacFXToolLib.Common
         public string UpdateAction { get; set; }
 
         /// <summary>
+        /// Gets or sets the source object name.
+        /// </summary>
+        [DataMember]
+        public string SourceObjectName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the target object name.
+        /// </summary>
+        [DataMember]
+        public string TargetObjectName { get; set; }
+
+        /// <summary>
         /// Gets or sets the T-SQL script for the source endpoint object.
         /// </summary>
         [DataMember]

@@ -27,10 +27,12 @@ namespace DacFXToolLib
 
             foreach (var diff in compareResult.Differences)
             {
-                var name = diff.SourceObject?.Name?.ToString() ?? diff.TargetObject?.Name?.ToString() ?? "Unknown";
+                var name = diff.Name;
                 var objectType = diff.SourceObject?.ObjectType?.Name ?? diff.TargetObject?.ObjectType?.Name ?? "Unknown";
                 var differenceType = diff.DifferenceType.ToString();
                 var updateAction = diff.UpdateAction.ToString();
+                var targetName = diff.TargetObject?.Name?.ToString() ?? string.Empty;
+                var sourceName = diff.SourceObject?.Name?.ToString() ?? string.Empty;
 
                 var sourceScript = compareResult.GetDiffEntrySourceScript(diff) ?? string.Empty;
                 var targetScript = compareResult.GetDiffEntryTargetScript(diff) ?? string.Empty;
@@ -43,6 +45,8 @@ namespace DacFXToolLib
                     UpdateAction = updateAction,
                     SourceScript = sourceScript,
                     TargetScript = targetScript,
+                    TargetObjectName = targetName,
+                    SourceObjectName = sourceName,
                 });
             }
 
