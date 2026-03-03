@@ -22,7 +22,7 @@ The tool contains the following features.
 
 - **Templates** - for use with `New Project` and for adding new items
 - **Import database** - import the schema and database settings from an existing database
-- **Schema compare** - compare your database project with a live database and get a script to update the database or your project
+- **Schema compare** - visually compare your database project with a live database and apply changes to the database or your project
 - **Analyze** - report with static code analysis result of your database project
 - **Create Mermaid E/R diagram** - create an Entity/Relationship diagram of selected tables from your database project
 - **.dacpac Solution explorer node** - view the contents of a dacpac file in Solution Explorer
