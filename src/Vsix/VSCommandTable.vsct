@@ -70,17 +70,6 @@
         </Strings>
       </Button>
 
-      <Button guid="Vsix" id="cmdidCompare" priority="0x0105" type="Button">
-        <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
-        <Icon guid="ImageCatalogGuid" id="CompareSchemas" />
-        <CommandFlag>IconIsMoniker</CommandFlag>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>TextChanges</CommandFlag>
-        <Strings>
-          <ButtonText>Schema compare script...</ButtonText>
-        </Strings>
-      </Button>
-
       <Button guid="Vsix" id="cmdidVisualCompare" priority="0x0106" type="Button">
         <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
         <Icon guid="ImageCatalogGuid" id="CompareSchemas" />
@@ -192,7 +181,6 @@
       <!-- Project Menu Entries -->
       <IDSymbol name="cmdidAnalyze" value="0x0001" />
       <IDSymbol name="cmdidImport" value="0x0002" />
-      <IDSymbol name="cmdidCompare" value="0x0005" />
       <IDSymbol name="cmdidErDiagram" value="0x0007" />
       <IDSymbol name="cmdidReverseEngineerDab" value="0x0012" />
       <IDSymbol name="cmdidAbout" value="0x0006" />
