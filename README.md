@@ -14,7 +14,7 @@ or get the [CI build][vsixgallery]
 
 Visual Studio Tools to enhance the SQL Database Project developer experience.
 
-[Getting Started Guide](docs/getting-started.md) | [Getting started with Data API Builder SQL MCP Server](docs/dab-mcp-readme.md) | [Overview blog post: SQL Project Power Tools for Visual Studio](https://erikej.github.io/dotnet/dacfx/sqlserver/visualstudio/2025/09/30/sqlproj-power-tools-visualstudio.html)
+[Getting Started Guide](docs/getting-started.md) | [Getting started with Data API Builder SQL MCP Server](docs/dab-mcp-readme.md) | [Overview blog post: SQL Project Power Tools for Visual Studio](https://erikej.github.io/dotnet/dacfx/sqlserver/visualstudio/2025/09/30/sqlproj-power-tools-visualstudio.html) | [Blog post: Visual Schema Compare](docs/visual-schema-compare.md)
 
 ## Features
 
