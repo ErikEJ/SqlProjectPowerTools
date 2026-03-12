@@ -42,47 +42,72 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
 
         public void Rebuild(string outputPath, string dacpacPath)
         {
-            Text = Path.GetFileName(outputPath) ?? ".dacpac content";
-            IsCut = false;
-            isLoaded = false;
-            var hadItems = HasItems;
+            string newText = Path.GetFileName(outputPath) ?? ".dacpac content";
+            bool newIsCut = false;
+            FileSystemInfo newInfo;
+            bool newHasItems;
+
+            lock (loadLock)
+            {
+                isLoaded = false;
+            }
 
             if (Directory.Exists(outputPath))
             {
-                Info = new DirectoryInfo(outputPath);
-                HasItems = CheckHasItemsQuick();
+                newInfo = new DirectoryInfo(outputPath);
+                newHasItems = CheckHasItemsQuick((DirectoryInfo)newInfo);
             }
             else if (File.Exists(outputPath))
             {
-                Info = new FileInfo(outputPath);
-                HasItems = false;
+                newInfo = new FileInfo(outputPath);
+                newHasItems = false;
             }
             else
             {
-                IsCut = true;
-                HasItems = false;
+                newInfo = null;
+                newIsCut = true;
+                newHasItems = false;
             }
 
-            // Batch property change notifications
-            RaisePropertyChanged(nameof(Text));
-            RaisePropertyChanged(nameof(IsCut));
+            string oldText = Text;
+            bool oldIsCut = IsCut;
+            bool oldHasItems = HasItems;
 
-            // Only notify HasItems changed if it actually changed
-            if (hadItems != HasItems)
+            Info = newInfo;
+            Text = newText;
+            IsCut = newIsCut;
+            HasItems = newHasItems;
+
+            if (!string.Equals(oldText, Text, StringComparison.Ordinal))
+            {
+                RaisePropertyChanged(nameof(Text));
+            }
+
+            if (oldIsCut != IsCut)
+            {
+                RaisePropertyChanged(nameof(IsCut));
+            }
+
+            if (oldHasItems != HasItems)
             {
                 RaisePropertyChanged(nameof(HasItems));
             }
 
             if (!string.IsNullOrEmpty(dacpacPath))
             {
+                object oldTooltip = ToolTipContent;
                 ToolTipContent = SetTooltip(dacpacPath);
-                RaisePropertyChanged(nameof(ToolTipContent));
+
+                if (!Equals(oldTooltip, ToolTipContent))
+                {
+                    RaisePropertyChanged(nameof(ToolTipContent));
+                }
             }
         }
 
-        private bool CheckHasItemsQuick()
+        private static bool CheckHasItemsQuick(DirectoryInfo directory)
         {
-            if (Info is DirectoryInfo directory)
+            if (directory != null)
             {
                 try
                 {
@@ -122,6 +147,8 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
 
         private async Task LoadChildrenAsync()
         {
+            CancellationToken cancellationToken;
+
             lock (loadLock)
             {
                 if (isLoading || isLoaded || IsDisposed)
@@ -132,9 +159,8 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
                 isLoading = true;
                 loadCancellationTokenSource?.Cancel();
                 loadCancellationTokenSource = new CancellationTokenSource();
+                cancellationToken = loadCancellationTokenSource.Token;
             }
-
-            CancellationToken cancellationToken = loadCancellationTokenSource.Token;
 
             try
             {
@@ -219,16 +245,32 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            // Dispose old children
-            if (children != null)
+            children ??= [];
+
+            if (AreChildrenEquivalent(children, newChildren))
             {
-                foreach (DacpacItemNode child in children)
+                foreach (DacpacItemNode item in newChildren)
                 {
-                    child.Dispose();
+                    item.Dispose();
                 }
+
+                isLoaded = true;
+
+                bool hadItems = HasItems;
+                HasItems = children.Any();
+                if (hadItems != HasItems)
+                {
+                    RaisePropertyChanged(nameof(HasItems));
+                }
+
+                return;
             }
 
-            children ??= [];
+            // Dispose old children
+            foreach (DacpacItemNode child in children)
+            {
+                child.Dispose();
+            }
 
             children.BeginBulkOperation();
             children.Clear();
@@ -240,6 +282,27 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
 
             RaisePropertyChanged(nameof(Items));
             RaisePropertyChanged(nameof(HasItems));
+        }
+
+        private static bool AreChildrenEquivalent(IList<DacpacItemNode> existingChildren, IList<DacpacItemNode> newChildren)
+        {
+            if (existingChildren.Count != newChildren.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < existingChildren.Count; i++)
+            {
+                string existingPath = existingChildren[i].Info?.FullName;
+                string newPath = newChildren[i].Info?.FullName;
+
+                if (!string.Equals(existingPath, newPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public string Text { get; set; }
@@ -324,7 +387,20 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
 
         public int CompareTo(object obj)
         {
-            return obj is ITreeDisplayItem item ? StringComparer.Compare(Text, item.Text) : 0;
+            if (obj is not DacpacItemNode node)
+            {
+                return obj is ITreeDisplayItem item ? StringComparer.Compare(Text, item.Text) : 0;
+            }
+
+            var thisIsDirectory = Info is DirectoryInfo;
+            var otherIsDirectory = node.Info is DirectoryInfo;
+
+            if (thisIsDirectory != otherIsDirectory)
+            {
+                return thisIsDirectory ? -1 : 1;
+            }
+
+            return StringComparer.Compare(Text, node.Text);
         }
 
         private string SetTooltip(string dacpacFile)
