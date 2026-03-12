@@ -210,6 +210,7 @@ PublishScripts/
 
 # NuGet Packages
 *.nupkg
+!src/Vsix/msbuild.sdk.sqlproj.templates.*.nupkg
 # NuGet Symbol Packages
 *.snupkg
 # The packages folder can be ignored because of Package Restore
