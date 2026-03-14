@@ -1,37 +1,24 @@
 using System.Text;
 using DacFXToolLib.Common;
 using DacFXToolLib.Dab;
-using Microsoft.EntityFrameworkCore.Scaffolding;
-using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using Microsoft.Extensions.DependencyInjection;
+using DacFXToolLib.Model;
 
 namespace DacFXToolLib
 {
     public class ErDiagramBuilder
     {
-        private readonly ServiceProvider serviceProvider;
         private readonly DataApiBuilderOptions dataApiBuilderOptions;
 
         public ErDiagramBuilder(DataApiBuilderOptions dataApiBuilderCommandOptions)
         {
             dataApiBuilderOptions = dataApiBuilderCommandOptions;
-
-            var options = new ReverseEngineerCommandOptions
-            {
-                DatabaseType = dataApiBuilderOptions.DatabaseType,
-                ConnectionString = dataApiBuilderOptions.ConnectionString,
-                Dacpac = dataApiBuilderOptions.Dacpac,
-                MergeDacpacs = dataApiBuilderOptions.MergeDacpacs,
-            };
-
-            serviceProvider = new ServiceCollection().AddEfpt(options, [], [], []).BuildServiceProvider();
         }
 
         public string GetErDiagramFileName(bool createMarkdown)
         {
-            var model = GetModelInternal();
+            var tables = GetTablesInternal();
 
-            var creator = new DatabaseModelToMermaid(model);
+            var creator = new DatabaseModelToMermaid(tables);
 
             var diagram = creator.CreateMermaid(createMarkdown);
 
@@ -43,15 +30,13 @@ namespace DacFXToolLib
             return fileName;
         }
 
-        private DatabaseModel GetModelInternal()
+        private List<SimpleTable> GetTablesInternal()
         {
-            var dbModelFactory = serviceProvider.GetService<IDatabaseModelFactory>();
+            var tableNames = dataApiBuilderOptions.Tables
+                ?.Where(t => t.ObjectType == ObjectType.Table)
+                .Select(m => m.Name);
 
-            var dbModelOptions = new DatabaseModelFactoryOptions(dataApiBuilderOptions.Tables.Where(t => t.ObjectType.HasColumns()).Select(m => m.Name), null);
-
-            var dbModel = dbModelFactory!.Create(dataApiBuilderOptions.Dacpac ?? dataApiBuilderOptions.ConnectionString, dbModelOptions);
-
-            return dbModel;
+            return DacpacModelFactory.GetTables(dataApiBuilderOptions.Dacpac, tableNames);
         }
     }
 }
