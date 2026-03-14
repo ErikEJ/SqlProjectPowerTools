@@ -81,6 +81,5 @@ namespace DacFXToolLib
                 DeploymentScript = deploymentScript,
             };
         }
-
     }
 }
