@@ -1,4 +1,4 @@
-﻿using RevEng.Core.Abstractions.Metadata;
+using RevEng.Core.Abstractions.Metadata;
 
 namespace DacFXToolLib.Routines.Extensions
 {

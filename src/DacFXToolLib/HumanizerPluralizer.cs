@@ -1,4 +1,4 @@
-﻿using Humanizer;
+using Humanizer;
 using Microsoft.EntityFrameworkCore.Design;
 
 namespace DacFXToolLib

@@ -1,4 +1,4 @@
-﻿using ErikEJ.EntityFrameworkCore.SqlServer.Scaffolding;
+using ErikEJ.EntityFrameworkCore.SqlServer.Scaffolding;
 using Microsoft.EntityFrameworkCore.Design.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;

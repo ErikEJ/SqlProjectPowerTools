@@ -63,9 +63,108 @@ namespace DacFXToolLib
         {
             var dbModel = databaseModel ?? GetDatabaseModel();
 
-            var generator = new DatabaseModelToMermaid(dbModel);
+            var simpleTables = ConvertToSimpleTables(dbModel);
+
+            var generator = new DatabaseModelToMermaid(simpleTables);
 
             return generator.CreateMermaid();
+        }
+
+        private static List<Model.SimpleTable> ConvertToSimpleTables(DatabaseModel dbModel)
+        {
+            var tables = new List<Model.SimpleTable>();
+
+            foreach (var dbTable in dbModel.Tables)
+            {
+                var simpleTable = new Model.SimpleTable
+                {
+                    Name = dbTable.Name,
+                    Schema = dbTable.Schema ?? "dbo",
+                };
+
+                foreach (var col in dbTable.Columns)
+                {
+                    simpleTable.Columns.Add(new Model.SimpleColumn
+                    {
+                        Name = col.Name,
+                        StoreType = col.StoreType,
+                        IsNullable = col.IsNullable,
+                    });
+                }
+
+                if (dbTable.PrimaryKey != null)
+                {
+                    var pk = new Model.SimplePrimaryKey { Name = dbTable.PrimaryKey.Name };
+                    foreach (var col in dbTable.PrimaryKey.Columns)
+                    {
+                        var simpleCol = simpleTable.Columns.FirstOrDefault(c =>
+                            string.Equals(c.Name, col.Name, StringComparison.OrdinalIgnoreCase));
+                        if (simpleCol != null)
+                        {
+                            pk.Columns.Add(simpleCol);
+                        }
+                    }
+
+                    simpleTable.PrimaryKey = pk;
+                }
+
+                tables.Add(simpleTable);
+            }
+
+            foreach (var dbTable in dbModel.Tables)
+            {
+                var simpleTable = tables.FirstOrDefault(t =>
+                    string.Equals(t.Name, dbTable.Name, StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(t.Schema, dbTable.Schema ?? "dbo", StringComparison.OrdinalIgnoreCase));
+                if (simpleTable == null)
+                {
+                    continue;
+                }
+
+                foreach (var fk in dbTable.ForeignKeys)
+                {
+                    var principalTable = tables.FirstOrDefault(t =>
+                        string.Equals(t.Name, fk.PrincipalTable.Name, StringComparison.OrdinalIgnoreCase)
+                        && string.Equals(t.Schema, fk.PrincipalTable.Schema ?? "dbo", StringComparison.OrdinalIgnoreCase));
+                    if (principalTable == null)
+                    {
+                        continue;
+                    }
+
+                    var simpleFk = new Model.SimpleForeignKey
+                    {
+                        Name = fk.Name,
+                        PrincipalTable = principalTable,
+                    };
+
+                    foreach (var col in fk.Columns)
+                    {
+                        var simpleCol = simpleTable.Columns.FirstOrDefault(c =>
+                            string.Equals(c.Name, col.Name, StringComparison.OrdinalIgnoreCase));
+                        if (simpleCol != null)
+                        {
+                            simpleFk.Columns.Add(simpleCol);
+                        }
+                    }
+
+                    foreach (var col in fk.PrincipalColumns)
+                    {
+                        var simpleCol = principalTable.Columns.FirstOrDefault(c =>
+                            string.Equals(c.Name, col.Name, StringComparison.OrdinalIgnoreCase));
+                        if (simpleCol != null)
+                        {
+                            simpleFk.PrincipalColumns.Add(simpleCol);
+                        }
+                    }
+
+                    if (simpleFk.PrincipalColumns.Count > 0)
+                    {
+                        simpleTable.ForeignKeys.Add(simpleFk);
+                    }
+                }
+            }
+
+            return tables;
         }
 
         public List<TableModel> GetProcedures()

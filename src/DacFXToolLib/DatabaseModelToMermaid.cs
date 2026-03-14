@@ -1,16 +1,16 @@
 using System.Globalization;
-using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
+using DacFXToolLib.Model;
 
 namespace DacFXToolLib
 {
     public class DatabaseModelToMermaid
     {
         private static readonly bool[] Lookup = new bool[65536];
-        private readonly DatabaseModel databaseModel;
+        private readonly IReadOnlyList<SimpleTable> tables;
 
-        public DatabaseModelToMermaid(DatabaseModel databaseModel)
+        public DatabaseModelToMermaid(IReadOnlyList<SimpleTable> tables)
         {
-            this.databaseModel = databaseModel;
+            this.tables = tables;
             for (char c = '0'; c <= '9'; c++)
             {
                 Lookup[c] = true;
@@ -42,7 +42,7 @@ namespace DacFXToolLib
 
             sb.AppendLine("erDiagram");
 
-            foreach (var table in databaseModel.Tables)
+            foreach (var table in tables)
             {
                 if (table.ForeignKeys.Count == 0 && table.PrimaryKey == null)
                 {
@@ -78,21 +78,13 @@ namespace DacFXToolLib
                 {
                     var relationship = "}o--|";
 
-                    var dependentIndexes = foreignKey.PrincipalTable.Indexes
-                        .Where(i => i.Columns.SequenceEqual(foreignKey.PrincipalColumns));
-
-                    if (dependentIndexes.Any(i => i.IsUnique))
-                    {
-                        relationship = "|o--|";
-                    }
-
                     if (foreignKey.PrincipalColumns.Any(c => c.IsNullable))
                     {
                         relationship = "}o--o";
                     }
 
                     var formattedPrincipalTableName = Sanitize(foreignKey.PrincipalTable.Name);
-                    var formattedForeignKeyName = Sanitize(foreignKey.Name!);
+                    var formattedForeignKeyName = Sanitize(foreignKey.Name ?? string.Empty);
 
                     sb.AppendLine(CultureInfo.InvariantCulture, $"  {formattedTableName} {relationship}| {formattedPrincipalTableName} : {formattedForeignKeyName}");
                 }

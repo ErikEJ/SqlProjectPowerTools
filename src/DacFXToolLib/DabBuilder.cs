@@ -2,18 +2,12 @@ using System.Globalization;
 using System.Text;
 using DacFXToolLib.Common;
 using DacFXToolLib.Dab;
-using Microsoft.EntityFrameworkCore.Scaffolding;
-using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
-using Microsoft.Extensions.DependencyInjection;
-using RevEng.Core.Abstractions;
-using RevEng.Core.Abstractions.Metadata;
-using RevEng.Core.Abstractions.Model;
+using DacFXToolLib.Model;
 
 namespace DacFXToolLib
 {
     public class DabBuilder
     {
-        private readonly ServiceProvider serviceProvider;
         private readonly DataApiBuilderOptions options;
 
         public DabBuilder(DataApiBuilderOptions dataApiBuilderCommandOptions)
@@ -21,15 +15,6 @@ namespace DacFXToolLib
             ArgumentNullException.ThrowIfNull(dataApiBuilderCommandOptions);
 
             options = dataApiBuilderCommandOptions;
-
-            var revEngOptions = new ReverseEngineerCommandOptions
-            {
-                DatabaseType = dataApiBuilderCommandOptions.DatabaseType,
-                ConnectionString = options.ConnectionString,
-                Dacpac = dataApiBuilderCommandOptions.Dacpac,
-            };
-
-            serviceProvider = new ServiceCollection().AddEfpt(revEngOptions, new List<string>(), new List<string>(), new List<string>()).BuildServiceProvider();
         }
 
         public string GetDabConfigCmdFile()
@@ -65,7 +50,7 @@ namespace DacFXToolLib
             var model = GetModelInternal();
 
             // Remove excluded columns once before processing tables
-            foreach (var dbObject in model.Tables)
+            foreach (var dbObject in model)
             {
                 RemoveExcludedColumns(dbObject);
             }
@@ -86,7 +71,7 @@ namespace DacFXToolLib
 
             sb.AppendLine(CultureInfo.InvariantCulture, $"@echo Adding tables");
 
-            foreach (var dbObject in model.Tables)
+            foreach (var dbObject in model)
             {
                 if (BreaksOn(dbObject))
                 {
@@ -117,9 +102,9 @@ namespace DacFXToolLib
                 }
             }
 
-            sb.AppendLine(CultureInfo.InvariantCulture, $"@echo Adding views and tables without primary key");
+            sb.AppendLine(CultureInfo.InvariantCulture, $"@echo Adding tables without primary key");
 
-            foreach (var dbObject in model.Tables)
+            foreach (var dbObject in model)
             {
                 if (BreaksOn(dbObject))
                 {
@@ -161,7 +146,7 @@ namespace DacFXToolLib
                         }
                     }
 
-                    sb.AppendLine(CultureInfo.InvariantCulture, $"@echo No primary key found for table/view '{dbObject.Name}', using {strategy} ({candidate.Name}) as key field");
+                    sb.AppendLine(CultureInfo.InvariantCulture, $"@echo No primary key found for table '{dbObject.Name}', using {strategy} ({candidate.Name}) as key field");
                     var descriptionParam = GetDescriptionParameter(dbObject.Comment);
                     sb.AppendLine(CultureInfo.InvariantCulture, $"dab add \"{type}\" --source \"[{dbObject.Schema}].[{dbObject.Name}]\" --fields.include \"{columnList}\" --source.type \"view\" --source.key-fields \"{candidate.Name}\" --permissions \"anonymous:*\" {descriptionParam}");
                 }
@@ -169,7 +154,7 @@ namespace DacFXToolLib
 
             sb.AppendLine(CultureInfo.InvariantCulture, $"@echo Adding column descriptions");
 
-            foreach (var dbObject in model.Tables)
+            foreach (var dbObject in model)
             {
                 if (BreaksOn(dbObject))
                 {
@@ -193,7 +178,7 @@ namespace DacFXToolLib
 
             sb.AppendLine(CultureInfo.InvariantCulture, $"@echo Adding relationships");
 
-            foreach (var dbObject in model.Tables)
+            foreach (var dbObject in model)
             {
                 if (BreaksOn(dbObject))
                 {
@@ -216,7 +201,7 @@ namespace DacFXToolLib
 
                 var procedures = GetStoredProcedures();
 
-                foreach (var procedure in procedures.Routines)
+                foreach (var procedure in procedures)
                 {
                     var type = GenerateEntityName(procedure.Name.Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase));
 
@@ -233,7 +218,7 @@ namespace DacFXToolLib
             return fileName;
         }
 
-        private static bool BreaksOn(DatabaseTable dbObject)
+        private static bool BreaksOn(SimpleTable dbObject)
         {
             return dbObject.Columns
                 .Any(c => c.StoreType == "hierarchyid" || c.StoreType == "geometry" || c.StoreType == "geography")
@@ -310,9 +295,9 @@ namespace DacFXToolLib
             return !string.IsNullOrWhiteSpace(comment) ? $"--description \"{EscapeDescription(comment)}\"" : string.Empty;
         }
 
-        private void RemoveExcludedColumns(DatabaseTable dbObject)
+        private void RemoveExcludedColumns(SimpleTable dbObject)
         {
-            var excludedColumns = options.Tables.Find(t => t.Name == $"[{dbObject.Schema}].[{dbObject.Name}]")?.ExcludedColumns;
+            var excludedColumns = options.Tables?.Find(t => t.Name == $"[{dbObject.Schema}].[{dbObject.Name}]")?.ExcludedColumns;
             if (excludedColumns != null)
             {
                 foreach (var column in excludedColumns)
@@ -326,36 +311,23 @@ namespace DacFXToolLib
             }
         }
 
-        private DatabaseModel GetModelInternal()
+        private List<SimpleTable> GetModelInternal()
         {
-            var dbModelFactory = serviceProvider.GetService<IDatabaseModelFactory>();
+            var tableNames = options.Tables
+                ?.Where(t => t.ObjectType.HasColumns())
+                .Select(m => m.Name);
 
-            var dbModelOptions = new DatabaseModelFactoryOptions(options.Tables.Where(t => t.ObjectType.HasColumns()).Select(m => m.Name), null);
-
-            var dbModel = dbModelFactory!.Create(options.Dacpac ?? options.ConnectionString, dbModelOptions);
-
-            return dbModel;
+            return DacpacModelFactory.GetTables(options.Dacpac, tableNames);
         }
 
-        private RoutineModel GetStoredProcedures()
+        private List<SimpleStoredProcedure> GetStoredProcedures()
         {
-            var procedureModelFactory = serviceProvider.GetService<IProcedureModelFactory>();
-
-            if (procedureModelFactory == null)
+            if (options.DatabaseType != DatabaseType.SQLServerDacpac || string.IsNullOrEmpty(options.Dacpac))
             {
-                return new RoutineModel();
+                return [];
             }
 
-            var modelFactoryOptions = new ModuleModelFactoryOptions
-            {
-                DiscoverMultipleResultSets = false,
-                UseLegacyResultSetDiscovery = true,
-                UseDateOnlyTimeOnly = true,
-                FullModel = false,
-                Modules = options.Tables.Where(t => t.ObjectType == ObjectType.Procedure).Select(m => m.Name),
-            };
-
-            return procedureModelFactory.Create(options.Dacpac ?? options.ConnectionString, modelFactoryOptions);
+            return DacpacModelFactory.GetStoredProcedures(options.Dacpac);
         }
     }
 }
