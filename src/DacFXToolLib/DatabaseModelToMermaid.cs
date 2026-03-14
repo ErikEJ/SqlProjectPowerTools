@@ -78,7 +78,7 @@ namespace DacFXToolLib
                 {
                     var relationship = "}o--|";
 
-                    if (foreignKey.PrincipalColumns.Any(c => c.IsNullable))
+                    if (foreignKey.Columns.Any(c => c.IsNullable))
                     {
                         relationship = "}o--o";
                     }
