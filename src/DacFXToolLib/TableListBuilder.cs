@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Scaffolding;
 using Microsoft.EntityFrameworkCore.Scaffolding.Metadata;
 using RevEng.Core.Abstractions;
 using RevEng.Core.Abstractions.Model;
+using System.Collections.Generic;
 
 namespace DacFXToolLib
 {
@@ -73,35 +74,46 @@ namespace DacFXToolLib
         private static List<Model.SimpleTable> ConvertToSimpleTables(DatabaseModel dbModel)
         {
             var tables = new List<Model.SimpleTable>();
+            var tableLookup = new Dictionary<string, Model.SimpleTable>(StringComparer.OrdinalIgnoreCase);
+            var columnLookup = new Dictionary<Model.SimpleTable, Dictionary<string, Model.SimpleColumn>>();
 
             foreach (var dbTable in dbModel.Tables)
             {
+                var schema = dbTable.Schema ?? "dbo";
+
                 var simpleTable = new Model.SimpleTable
                 {
                     Name = dbTable.Name,
-                    Schema = dbTable.Schema ?? "dbo",
+                    Schema = schema,
                 };
+
+                var simpleColumnsByName = new Dictionary<string, Model.SimpleColumn>(StringComparer.OrdinalIgnoreCase);
 
                 foreach (var col in dbTable.Columns)
                 {
-                    simpleTable.Columns.Add(new Model.SimpleColumn
+                    var simpleCol = new Model.SimpleColumn
                     {
                         Name = col.Name,
                         StoreType = col.StoreType,
                         IsNullable = col.IsNullable,
-                    });
+                    };
+
+                    simpleTable.Columns.Add(simpleCol);
+                    simpleColumnsByName[col.Name] = simpleCol;
                 }
 
                 if (dbTable.PrimaryKey != null)
                 {
                     var pk = new Model.SimplePrimaryKey { Name = dbTable.PrimaryKey.Name };
-                    foreach (var col in dbTable.PrimaryKey.Columns)
+
+                    if (simpleColumnsByName.Count > 0)
                     {
-                        var simpleCol = simpleTable.Columns.FirstOrDefault(c =>
-                            string.Equals(c.Name, col.Name, StringComparison.OrdinalIgnoreCase));
-                        if (simpleCol != null)
+                        foreach (var col in dbTable.PrimaryKey.Columns)
                         {
-                            pk.Columns.Add(simpleCol);
+                            if (simpleColumnsByName.TryGetValue(col.Name, out var simpleCol))
+                            {
+                                pk.Columns.Add(simpleCol);
+                            }
                         }
                     }
 
@@ -109,27 +121,35 @@ namespace DacFXToolLib
                 }
 
                 tables.Add(simpleTable);
+
+                var tableKey = schema + "." + dbTable.Name;
+                tableLookup[tableKey] = simpleTable;
+                columnLookup[simpleTable] = simpleColumnsByName;
             }
 
             foreach (var dbTable in dbModel.Tables)
             {
-                var simpleTable = tables.FirstOrDefault(t =>
-                    string.Equals(t.Name, dbTable.Name, StringComparison.OrdinalIgnoreCase)
-                    && string.Equals(t.Schema, dbTable.Schema ?? "dbo", StringComparison.OrdinalIgnoreCase));
-                if (simpleTable == null)
+                var schema = dbTable.Schema ?? "dbo";
+                var tableKey = schema + "." + dbTable.Name;
+
+                if (!tableLookup.TryGetValue(tableKey, out var simpleTable))
                 {
                     continue;
                 }
 
+                columnLookup.TryGetValue(simpleTable, out var simpleColumnsByName);
+
                 foreach (var fk in dbTable.ForeignKeys)
                 {
-                    var principalTable = tables.FirstOrDefault(t =>
-                        string.Equals(t.Name, fk.PrincipalTable.Name, StringComparison.OrdinalIgnoreCase)
-                        && string.Equals(t.Schema, fk.PrincipalTable.Schema ?? "dbo", StringComparison.OrdinalIgnoreCase));
-                    if (principalTable == null)
+                    var principalSchema = fk.PrincipalTable.Schema ?? "dbo";
+                    var principalKey = principalSchema + "." + fk.PrincipalTable.Name;
+
+                    if (!tableLookup.TryGetValue(principalKey, out var principalTable))
                     {
                         continue;
                     }
+
+                    columnLookup.TryGetValue(principalTable, out var principalColumnsByName);
 
                     var simpleFk = new Model.SimpleForeignKey
                     {
@@ -137,23 +157,25 @@ namespace DacFXToolLib
                         PrincipalTable = principalTable,
                     };
 
-                    foreach (var col in fk.Columns)
+                    if (simpleColumnsByName != null)
                     {
-                        var simpleCol = simpleTable.Columns.FirstOrDefault(c =>
-                            string.Equals(c.Name, col.Name, StringComparison.OrdinalIgnoreCase));
-                        if (simpleCol != null)
+                        foreach (var col in fk.Columns)
                         {
-                            simpleFk.Columns.Add(simpleCol);
+                            if (simpleColumnsByName.TryGetValue(col.Name, out var simpleCol))
+                            {
+                                simpleFk.Columns.Add(simpleCol);
+                            }
                         }
                     }
 
-                    foreach (var col in fk.PrincipalColumns)
+                    if (principalColumnsByName != null)
                     {
-                        var simpleCol = principalTable.Columns.FirstOrDefault(c =>
-                            string.Equals(c.Name, col.Name, StringComparison.OrdinalIgnoreCase));
-                        if (simpleCol != null)
+                        foreach (var col in fk.PrincipalColumns)
                         {
-                            simpleFk.PrincipalColumns.Add(simpleCol);
+                            if (principalColumnsByName.TryGetValue(col.Name, out var simpleCol))
+                            {
+                                simpleFk.PrincipalColumns.Add(simpleCol);
+                            }
                         }
                     }
 
