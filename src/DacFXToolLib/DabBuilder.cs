@@ -185,11 +185,20 @@ namespace DacFXToolLib
                     continue;
                 }
 
-                var type = GenerateEntityName(dbObject.Name.Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase));
+                var tableKey = $"[{dbObject.Schema}].[{dbObject.Name}]";
+                if (!tableToEntityMap.TryGetValue(tableKey, out var type))
+                {
+                    continue;
+                }
 
                 foreach (var fk in dbObject.ForeignKeys)
                 {
-                    var fkType = GenerateEntityName(fk.PrincipalTable.Name.Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase));
+                    var principalTableKey = $"[{fk.PrincipalTable.Schema}].[{fk.PrincipalTable.Name}]";
+                    if (!tableToEntityMap.TryGetValue(principalTableKey, out var fkType))
+                    {
+                        continue;
+                    }
+
                     sb.AppendLine(CultureInfo.InvariantCulture, $"dab update {type} --relationship {fkType} --target.entity {fkType} --cardinality one");
                     sb.AppendLine(CultureInfo.InvariantCulture, $"dab update {fkType} --relationship {type} --target.entity {type} --cardinality many");
                 }
