@@ -327,7 +327,27 @@ namespace DacFXToolLib
                 return [];
             }
 
-            return DacpacModelFactory.GetStoredProcedures(options.Dacpac);
+            var allProcedures = DacpacModelFactory.GetStoredProcedures(options.Dacpac);
+
+            // If no explicit procedure selection is provided, return all procedures.
+            var selectedProcedureNames = options.Tables
+                ?.Where(t => t.ObjectType == ObjectType.Procedure)
+                .Select(t => t.Name)
+                .ToList();
+
+            if (selectedProcedureNames == null || selectedProcedureNames.Count == 0)
+            {
+                return allProcedures;
+            }
+
+            // Names in options.Tables are expected to be fully qualified: [schema].[name]
+            var selectedNameSet = new HashSet<string>(selectedProcedureNames, StringComparer.OrdinalIgnoreCase);
+
+            var filteredProcedures = allProcedures
+                .Where(p => selectedNameSet.Contains($"[{p.Schema}].[{p.Name}]"))
+                .ToList();
+
+            return filteredProcedures;
         }
     }
 }
