@@ -3,12 +3,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
 using DacFXToolLib;
-using DacFXToolLib.Common;
 using DacFXToolLib.Dab;
-using Microsoft.EntityFrameworkCore.Scaffolding;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SqlServer.Dac;
-using RevEng.Core.Abstractions.Model;
 
 [assembly: CLSCompliant(true)]
 [assembly: SuppressMessage("Reliability", "CA2007:Consider calling ConfigureAwait on the awaited task", Justification = "Reviewed")]
@@ -27,41 +23,6 @@ namespace DacFXTool
 
                 if (args.Length > 0)
                 {
-                    if ((args.Length == 3 || args.Length == 4)
-                        && int.TryParse(args[1], out int dbTypeInt)
-                        && bool.TryParse(args[0], out bool mergeDacpacs))
-                    {
-                        SchemaInfo[]? schemas = null;
-                        if (args.Length == 4)
-                        {
-                            schemas = args[3].Split(',').Select(s => new SchemaInfo { Name = s }).ToArray();
-                        }
-
-                        var reverseEngineerCommandOptions = new ReverseEngineerCommandOptions
-                        {
-                            ConnectionString = args[2],
-                            DatabaseType = (DatabaseType)dbTypeInt,
-                            MergeDacpacs = mergeDacpacs,
-                        };
-
-                        var provider = new ServiceCollection().AddEfpt(reverseEngineerCommandOptions, new List<string>(), new List<string>(), new List<string>()).BuildServiceProvider();
-                        var procedureModelFactory = provider.GetService<IProcedureModelFactory>();
-                        var functionModelFactory = provider.GetService<IFunctionModelFactory>();
-                        var databaseModelFactory = provider.GetRequiredService<IDatabaseModelFactory>();
-                        var builder = new TableListBuilder(reverseEngineerCommandOptions, procedureModelFactory, functionModelFactory, databaseModelFactory, schemas ?? []);
-
-                        var buildResult = builder.GetTableModels();
-
-                        buildResult.AddRange(builder.GetProcedures());
-
-                        buildResult.AddRange(builder.GetFunctions());
-
-                        await Console.Out.WriteLineAsync("Result:");
-                        await Console.Out.WriteLineAsync(buildResult.Write());
-
-                        return 0;
-                    }
-
                     if (args.Length == 2
                         && args[0] == "dacpacreport"
                         && new FileInfo(args[1]).Exists)

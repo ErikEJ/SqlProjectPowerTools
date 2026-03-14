@@ -3,6 +3,7 @@ using System.Text;
 using DacFXToolLib.Common;
 using DacFXToolLib.Dab;
 using DacFXToolLib.Model;
+using Humanizer;
 
 namespace DacFXToolLib
 {
@@ -263,10 +264,9 @@ namespace DacFXToolLib
                 }
             }
 
-            var pluralizer = new HumanizerPluralizer();
             var candidate = candidateStringBuilder.ToString();
 
-            return pluralizer.Singularize(candidate);
+            return candidate.Singularize(inputIsKnownToBePlural: false);
         }
 
         private static string EscapeDescription(string description)
