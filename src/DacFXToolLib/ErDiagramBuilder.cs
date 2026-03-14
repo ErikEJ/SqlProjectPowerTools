@@ -33,7 +33,7 @@ namespace DacFXToolLib
         private List<SimpleTable> GetTablesInternal()
         {
             var tableNames = dataApiBuilderOptions.Tables
-                ?.Where(t => t.ObjectType.HasColumns())
+                ?.Where(t => t.ObjectType == ObjectType.Table)
                 .Select(m => m.Name);
 
             return DacpacModelFactory.GetTables(dataApiBuilderOptions.Dacpac, tableNames);
