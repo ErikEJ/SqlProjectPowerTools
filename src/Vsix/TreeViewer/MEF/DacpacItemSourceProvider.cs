@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
@@ -15,7 +16,7 @@ namespace SqlProjectsPowerTools.TreeViewer
     [AppliesToUIContext(VsixPackage.UIContextGuid)]
     internal class DacpacItemSourceProvider : IAttachedCollectionSourceProvider, IDisposable
     {
-        private readonly Dictionary<string, DacpacRootNode> rootNodes = new();
+        private readonly Dictionary<string, DacpacRootNode> rootNodes = new(StringComparer.OrdinalIgnoreCase);
         private bool isDisposed;
 
         public DacpacItemSourceProvider()
