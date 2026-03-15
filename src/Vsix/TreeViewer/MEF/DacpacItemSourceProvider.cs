@@ -7,15 +7,16 @@ using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Utilities;
 
-namespace SqlProjectsPowerTools.TreeViewer.MEF
+namespace SqlProjectsPowerTools.TreeViewer
 {
     [Export(typeof(IAttachedCollectionSourceProvider))]
     [Name(nameof(DacpacItemSourceProvider))]
     [Order(Before = HierarchyItemsProviderNames.Contains)]
     [AppliesToUIContext(VsixPackage.UIContextGuid)]
-    internal class DacpacItemSourceProvider : IAttachedCollectionSourceProvider
+    internal class DacpacItemSourceProvider : IAttachedCollectionSourceProvider, IDisposable
     {
         private readonly Dictionary<string, DacpacRootNode> rootNodes = new();
+        private bool isDisposed;
 
         public DacpacItemSourceProvider()
         {
@@ -48,7 +49,6 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
                             rootNode = new DacpacRootNode(hierarchyItem);
                             rootNodes[projectPath] = rootNode;
                         }
-
                         return rootNode;
                     }
                 }
@@ -110,6 +110,14 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
 
             try
             {
+                IVsHierarchy hierarchy = hierarchyItem.GetHierarchy();
+
+                if (hierarchy.TryGetItemProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_SaveName, out string projectPath)
+                    && !string.IsNullOrWhiteSpace(projectPath))
+                {
+                    return projectPath;
+                }
+
                 EnvDTE.Project project = HierarchyUtilities.GetProject(hierarchyItem);
                 return project?.FullName;
             }
@@ -118,6 +126,18 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
                 ex.Log();
                 return null;
             }
+        }
+
+        public void Dispose()
+        {
+            if (isDisposed)
+            {
+                return;
+            }
+
+            isDisposed = true;
+            VS.Events.SolutionEvents.OnBeforeCloseSolution -= OnBeforeCloseSolution;
+            OnBeforeCloseSolution();
         }
     }
 }

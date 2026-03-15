@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Windows.Forms;
+using System.Threading.Tasks;
 using Microsoft.Internal.VisualStudio.PlatformUI;
 
-namespace SqlProjectsPowerTools.TreeViewer.MEF
+namespace SqlProjectsPowerTools.TreeViewer
 {
     internal class DacpacItemInvocationController : IInvocationController
     {
@@ -23,23 +23,47 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
             {
                 if (item.Info is FileInfo)
                 {
-                    if (preview)
-                    {
-                        VS.Documents.OpenInPreviewTabAsync(item.Info.FullName).FireAndForget();
-                    }
-                    else
-                    {
-                        VS.Documents.OpenAsync(item.Info.FullName).FireAndForget();
-                    }
+                    ObserveTask(OpenItemAsync(item.Info.FullName, preview));
                 }
                 else
                 {
-                    SendKeys.Send("{RIGHT}");
+                    ObserveTask(item.RefreshAsync());
                 }
             }
 #pragma warning restore S3267 // Loops should be simplified with "LINQ" expressions
 
             return true;
+        }
+
+        private static async Task OpenItemAsync(string filePath, bool preview)
+        {
+            if (preview)
+            {
+                await VS.Documents.OpenInPreviewTabAsync(filePath);
+                return;
+            }
+
+            await VS.Documents.OpenAsync(filePath);
+        }
+
+        private static void ObserveTask(Task task)
+        {
+#pragma warning disable VSTHRD110 // Observe result of async calls
+#pragma warning disable VSTHRD105 // Avoid method overloads that assume TaskScheduler.Current
+            task.ContinueWith(
+                t =>
+            {
+                if (t.Exception?.InnerException != null)
+                {
+                    t.Exception.InnerException.Log();
+                    return;
+                }
+
+                t.Exception?.Log();
+            },
+                TaskContinuationOptions.OnlyOnFaulted);
+#pragma warning restore VSTHRD105 // Avoid method overloads that assume TaskScheduler.Current
+#pragma warning restore VSTHRD110 // Observe result of async calls
         }
     }
 }
