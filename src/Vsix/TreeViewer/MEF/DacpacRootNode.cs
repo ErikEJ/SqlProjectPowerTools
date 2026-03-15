@@ -466,7 +466,24 @@ namespace SqlProjectsPowerTools.TreeViewer
         private static bool IsExtractionCurrent(string extractionPath, string currentStamp)
         {
             string stampPath = GetStampPath(extractionPath);
-            return File.Exists(stampPath) && string.Equals(File.ReadAllText(stampPath), currentStamp, StringComparison.Ordinal);
+            if (!File.Exists(stampPath))
+            {
+                return false;
+            }
+
+            try
+            {
+                string existingStamp = File.ReadAllText(stampPath);
+                return string.Equals(existingStamp, currentStamp, StringComparison.Ordinal);
+            }
+            catch (IOException)
+            {
+                return false;
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return false;
+            }
         }
 
         private static void WriteExtractionStamp(string extractionPath, string currentStamp)
