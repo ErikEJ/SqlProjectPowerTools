@@ -99,10 +99,11 @@ namespace SqlProjectsPowerTools.TreeViewer
                 {
                     await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
                     string outputDirectory = GetOutputDirectory();
-                    string dacpacPath = GetDacpacPath(outputDirectory);
                     UpdateDacpacWatcher(outputDirectory);
 
                     await TaskScheduler.Default;
+
+                    string dacpacPath = GetDacpacPath(outputDirectory);
 
                     if (!string.IsNullOrEmpty(dacpacPath))
                     {
