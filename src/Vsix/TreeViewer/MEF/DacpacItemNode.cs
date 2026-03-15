@@ -7,82 +7,123 @@ using System.Linq;
 using System.Threading;
 using System.Windows;
 using Microsoft.Internal.VisualStudio.PlatformUI;
+using Microsoft.VisualStudio.Imaging;
 using Microsoft.VisualStudio.Imaging.Interop;
 using Microsoft.VisualStudio.Language.Intellisense;
 
-namespace SqlProjectsPowerTools.TreeViewer.MEF
+namespace SqlProjectsPowerTools.TreeViewer
 {
     [DebuggerDisplay("{Text}")]
-#pragma warning disable S3881 // "IDisposable" should be implemented correctly
     internal class DacpacItemNode :
-#pragma warning restore S3881 // "IDisposable" should be implemented correctly
         IAttachedCollectionSource,
         ITreeDisplayItemWithImages,
         IPrioritizedComparable,
         IBrowsablePattern,
         IInteractionPatternProvider,
+
+        // IContextMenuPattern,
         IInvocationPattern,
         ISupportDisposalNotification,
         IDisposable,
         IRefreshPattern
     {
         private static readonly StringComparer StringComparer = StringComparer.OrdinalIgnoreCase;
-
         private readonly object loadLock = new();
+
         private BulkObservableCollection<DacpacItemNode> children;
         private bool isLoaded;
         private bool isLoading;
+        private bool reloadRequested;
+        private int loadGeneration;
+        private bool showDacpacIcon;
         private CancellationTokenSource loadCancellationTokenSource;
 
-        public DacpacItemNode(IAttachedCollectionSource source, string outputPath, string dacpacPath)
+        public DacpacItemNode(IAttachedCollectionSource source, string outputPath, string dacpacPath, string tooltipContent = null)
         {
             SourceItem = source;
-            Rebuild(outputPath, dacpacPath);
+            Rebuild(outputPath, dacpacPath, tooltipContent);
         }
 
-        public void Rebuild(string outputPath, string dacpacPath)
+        public void Rebuild(string outputPath, string dacpacPath, string tooltipContent = null)
         {
-            Text = Path.GetFileName(outputPath) ?? ".dacpac content";
-            IsCut = false;
-            isLoaded = false;
-            var hadItems = HasItems;
+            string newText = !string.IsNullOrEmpty(dacpacPath) && File.Exists(dacpacPath)
+                ? Path.GetFileName(dacpacPath)
+                : Path.GetFileName(outputPath) ?? ".dacpac content";
+            bool newIsCut = false;
+            FileSystemInfo newInfo;
+            bool newHasItems;
+
+            lock (loadLock)
+            {
+                isLoaded = false;
+                loadGeneration++;
+
+                if (isLoading)
+                {
+                    reloadRequested = true;
+                    loadCancellationTokenSource?.Cancel();
+                }
+            }
 
             if (Directory.Exists(outputPath))
             {
-                Info = new DirectoryInfo(outputPath);
-                HasItems = CheckHasItemsQuick();
+                newInfo = new DirectoryInfo(outputPath);
+                newHasItems = CheckHasItemsQuick(newInfo as DirectoryInfo);
             }
             else if (File.Exists(outputPath))
             {
-                Info = new FileInfo(outputPath);
-                HasItems = false;
+                newInfo = new FileInfo(outputPath);
+                newHasItems = false;
             }
             else
             {
-                IsCut = true;
-                HasItems = false;
+                newInfo = null;
+                newIsCut = true;
+                newHasItems = false;
             }
 
-            // Batch property change notifications
-            RaisePropertyChanged(nameof(Text));
-            RaisePropertyChanged(nameof(IsCut));
+            string oldText = Text;
+            bool oldIsCut = IsCut;
+            bool oldHasItems = HasItems;
 
-            // Only notify HasItems changed if it actually changed
-            if (hadItems != HasItems)
+            Info = newInfo;
+            Text = newText;
+            IsCut = newIsCut;
+            HasItems = newHasItems;
+            showDacpacIcon = !string.IsNullOrEmpty(dacpacPath) &&
+                !string.Equals(dacpacPath, "root", StringComparison.OrdinalIgnoreCase) &&
+                dacpacPath.EndsWith(".dacpac", StringComparison.OrdinalIgnoreCase);
+
+            if (!string.Equals(oldText, Text, StringComparison.Ordinal))
+            {
+                RaisePropertyChanged(nameof(Text));
+            }
+
+            if (oldIsCut != IsCut)
+            {
+                RaisePropertyChanged(nameof(IsCut));
+            }
+
+            if (oldHasItems != HasItems)
             {
                 RaisePropertyChanged(nameof(HasItems));
             }
 
-            if (!string.IsNullOrEmpty(dacpacPath))
+            if (!string.IsNullOrEmpty(dacpacPath) || tooltipContent != null)
             {
-                ToolTipContent = SetTooltip(dacpacPath);
-                RaisePropertyChanged(nameof(ToolTipContent));
+                object oldTooltip = ToolTipContent;
+                ToolTipContent = tooltipContent ?? SetTooltip(dacpacPath);
+
+                if (!Equals(oldTooltip, ToolTipContent))
+                {
+                    RaisePropertyChanged(nameof(ToolTipContent));
+                }
             }
         }
 
-        private bool CheckHasItemsQuick()
+        private static bool CheckHasItemsQuick(DirectoryInfo directory)
         {
-            if (Info is DirectoryInfo directory)
+            if (directory != null)
             {
                 try
                 {
@@ -122,6 +163,10 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
 
         private async Task LoadChildrenAsync()
         {
+            CancellationToken cancellationToken;
+            int loadGen;
+            bool restartLoad = false;
+
             lock (loadLock)
             {
                 if (isLoading || isLoaded || IsDisposed)
@@ -130,27 +175,29 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
                 }
 
                 isLoading = true;
+                loadGen = this.loadGeneration;
                 loadCancellationTokenSource?.Cancel();
                 loadCancellationTokenSource = new CancellationTokenSource();
+                cancellationToken = loadCancellationTokenSource.Token;
             }
-
-            CancellationToken cancellationToken = loadCancellationTokenSource.Token;
 
             try
             {
                 // Do the heavy work off the UI thread
                 List<DacpacItemNode> childNodes = await Task.Run(() => LoadChildrenOffUIThread(cancellationToken), cancellationToken);
 
-                if (cancellationToken.IsCancellationRequested || IsDisposed)
+                if (cancellationToken.IsCancellationRequested || IsDisposed || !IsCurrentLoad(loadGen))
                 {
+                    DisposeChildren(newChildren: childNodes);
                     return;
                 }
 
                 // Switch back to UI thread to update the collection
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync(cancellationToken);
 
-                if (cancellationToken.IsCancellationRequested || IsDisposed)
+                if (cancellationToken.IsCancellationRequested || IsDisposed || !IsCurrentLoad(loadGen))
                 {
+                    DisposeChildren(newChildren: childNodes);
                     return;
                 }
 
@@ -170,7 +217,34 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
                 lock (loadLock)
                 {
                     isLoading = false;
+
+                    if (reloadRequested && !IsDisposed)
+                    {
+                        reloadRequested = false;
+                        restartLoad = true;
+                    }
                 }
+
+                if (restartLoad)
+                {
+                    _ = LoadChildrenAsync();
+                }
+            }
+        }
+
+        private bool IsCurrentLoad(int loadGeneration)
+        {
+            lock (loadLock)
+            {
+                return loadGeneration == this.loadGeneration;
+            }
+        }
+
+        private static void DisposeChildren(IEnumerable<DacpacItemNode> newChildren)
+        {
+            foreach (DacpacItemNode child in newChildren)
+            {
+                child.Dispose();
             }
         }
 
@@ -185,6 +259,11 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
                     foreach (FileSystemInfo item in directory.EnumerateFileSystemInfos())
                     {
                         cancellationToken.ThrowIfCancellationRequested();
+
+                        if (IsInternalMetadataFile(item))
+                        {
+                            continue;
+                        }
 
                         var child = new DacpacItemNode(this, item.FullName, null);
                         activeNodes.Add(child);
@@ -215,20 +294,41 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
             return activeNodes;
         }
 
+        private static bool IsInternalMetadataFile(FileSystemInfo item)
+        {
+            return item is FileInfo && string.Equals(item.Name, ".dacpacstamp", StringComparison.OrdinalIgnoreCase);
+        }
+
         private void UpdateChildrenOnUIThread(List<DacpacItemNode> newChildren)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            // Dispose old children
-            if (children != null)
+            children ??= [];
+
+            if (AreChildrenEquivalent(children, newChildren))
             {
-                foreach (DacpacItemNode child in children)
+                foreach (DacpacItemNode item in newChildren)
                 {
-                    child.Dispose();
+                    item.Dispose();
                 }
+
+                isLoaded = true;
+
+                bool hadItems = HasItems;
+                HasItems = children.Any();
+                if (hadItems != HasItems)
+                {
+                    RaisePropertyChanged(nameof(HasItems));
+                }
+
+                return;
             }
 
-            children ??= [];
+            // Dispose old children
+            foreach (DacpacItemNode child in children)
+            {
+                child.Dispose();
+            }
 
             children.BeginBulkOperation();
             children.Clear();
@@ -240,6 +340,27 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
 
             RaisePropertyChanged(nameof(Items));
             RaisePropertyChanged(nameof(HasItems));
+        }
+
+        private static bool AreChildrenEquivalent(IList<DacpacItemNode> existingChildren, IList<DacpacItemNode> newChildren)
+        {
+            if (existingChildren.Count != newChildren.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < existingChildren.Count; i++)
+            {
+                string existingPath = existingChildren[i].Info?.FullName;
+                string newPath = newChildren[i].Info?.FullName;
+
+                if (!string.Equals(existingPath, newPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         public string Text { get; set; }
@@ -254,9 +375,9 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
 
         public System.Windows.FontStyle FontStyle => FontStyles.Normal;
 
-        public ImageMoniker IconMoniker => Info.GetIcon(false);
+        public ImageMoniker IconMoniker => showDacpacIcon ? KnownMonikers.DatabaseApplication : Info.GetIcon(false);
 
-        public ImageMoniker ExpandedIconMoniker => Info.GetIcon(true);
+        public ImageMoniker ExpandedIconMoniker => showDacpacIcon ? KnownMonikers.DatabaseApplication : Info.GetIcon(true);
 
         public ImageMoniker OverlayIconMoniker => default;
 
@@ -297,6 +418,13 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
             lock (loadLock)
             {
                 isLoaded = false;
+                loadGeneration++;
+
+                if (isLoading)
+                {
+                    reloadRequested = true;
+                }
+
                 loadCancellationTokenSource?.Cancel();
             }
 
@@ -310,6 +438,13 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
             lock (loadLock)
             {
                 isLoaded = false;
+                loadGeneration++;
+
+                if (isLoading)
+                {
+                    reloadRequested = true;
+                }
+
                 loadCancellationTokenSource?.Cancel();
             }
 
@@ -319,12 +454,30 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
 
         public void CancelLoad()
         {
+            lock (loadLock)
+            {
+                loadGeneration++;
+            }
+
             loadCancellationTokenSource?.Cancel();
         }
 
         public int CompareTo(object obj)
         {
-            return obj is ITreeDisplayItem item ? StringComparer.Compare(Text, item.Text) : 0;
+            if (obj is not DacpacItemNode node)
+            {
+                return obj is ITreeDisplayItem item ? StringComparer.Compare(Text, item.Text) : 0;
+            }
+
+            var thisIsDirectory = Info is DirectoryInfo;
+            var otherIsDirectory = node.Info is DirectoryInfo;
+
+            if (thisIsDirectory != otherIsDirectory)
+            {
+                return thisIsDirectory ? -1 : 1;
+            }
+
+            return StringComparer.Compare(Text, node.Text);
         }
 
         private string SetTooltip(string dacpacFile)
@@ -337,7 +490,7 @@ namespace SqlProjectsPowerTools.TreeViewer.MEF
             {
                 // Avoid expensive file size lookup on UI thread - just show basic info
                 // File size could be computed async if needed for tooltip
-                return $"Last updated: {Info.LastWriteTime}";
+                return $"Last updated: {Info.LastWriteTime}\r\nDACPAC file: {Path.GetFileName(dacpacFile)}";
             }
 
             return $"Last updated: {Info.LastWriteTime}";
