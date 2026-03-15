@@ -6,6 +6,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using EnvDTE;
 using Microsoft.Internal.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Threading;
@@ -488,7 +489,25 @@ namespace SqlProjectsPowerTools.TreeViewer
 
         private static void WriteExtractionStamp(string extractionPath, string currentStamp)
         {
-            File.WriteAllText(GetStampPath(extractionPath), currentStamp);
+            try
+            {
+                File.WriteAllText(GetStampPath(extractionPath), currentStamp);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                // Writing the stamp is a best-effort optimization; failures should not break extraction.
+                Debug.WriteLine("Failed to write extraction stamp due to unauthorized access: " + ex);
+            }
+            catch (IOException ex)
+            {
+                // Writing the stamp is a best-effort optimization; failures should not break extraction.
+                Debug.WriteLine("Failed to write extraction stamp due to I/O error: " + ex);
+            }
+            catch (Exception ex)
+            {
+                // Swallow any unexpected errors to avoid failing otherwise successful extraction.
+                Debug.WriteLine("Failed to write extraction stamp due to unexpected error: " + ex);
+            }
         }
 
         private static string BuildMissingDacpacTooltip(string outputDirectory)
