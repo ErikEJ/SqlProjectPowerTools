@@ -199,9 +199,16 @@ namespace SqlProjectsPowerTools.TreeViewer
                 return;
             }
 
-            string fileName = value.EndsWith(".dacpac", StringComparison.OrdinalIgnoreCase)
-                ? value
-                : value + ".dacpac";
+            string candidate = Path.GetFileName(value);
+
+            if (string.IsNullOrEmpty(candidate))
+            {
+                return;
+            }
+
+            string fileName = candidate.EndsWith(".dacpac", StringComparison.OrdinalIgnoreCase)
+                ? candidate
+                : candidate + ".dacpac";
 
             fileNames.Add(fileName);
         }
