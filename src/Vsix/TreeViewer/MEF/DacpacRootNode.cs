@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using EnvDTE;
 using Microsoft.Internal.VisualStudio.PlatformUI;
@@ -15,36 +16,36 @@ namespace SqlProjectsPowerTools.TreeViewer
 {
     internal sealed class DacpacRootNode : IAttachedCollectionSource, INotifyPropertyChanged, IDisposable
     {
-        private readonly DacpacItemNode _item;
-        private readonly IEnumerable _items;
-        private readonly string _projectPath;
-        private readonly string _projectDirectory;
-        private readonly DTE _dte;
-        private readonly string _defaultName;
-        private readonly object _watcherLock = new();
-        private EnvDTE.Project _project;
-        private FileSystemWatcher _dacpacWatcher;
-        private string _watchedDirectory;
+        private readonly DacpacItemNode item;
+        private readonly IEnumerable items;
+        private readonly string projectPath;
+        private readonly string projectDirectory;
+        private readonly DTE dte;
+        private readonly string defaultName;
+        private readonly object watcherLock = new();
+        private EnvDTE.Project dteProject;
+        private FileSystemWatcher dacpacWatcher;
+        private string watchedDirectory;
 
         public DacpacRootNode(IVsHierarchyItem hierarchyItem)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
             EnvDTE.Project project = HierarchyUtilities.GetProject(hierarchyItem);
-            _defaultName = project.Name + ".dacpac";
-            _item = new(this, _defaultName, "root");
-            _items = new[] { _item };
-            _dte = project.DTE;
-            _projectPath = project.FullName;
-            _projectDirectory = Path.GetDirectoryName(_projectPath);
-            _project = project;
+            defaultName = project.Name + ".dacpac";
+            item = new(this, defaultName, "root");
+            items = new[] { item };
+            dte = project.DTE;
+            projectPath = project.FullName;
+            projectDirectory = Path.GetDirectoryName(projectPath);
+            dteProject = project;
 
             Rebuild(false);
-            _dte.Events.BuildEvents.OnBuildProjConfigDone += BuildEvents_OnBuildProjConfigDone;
+            dte.Events.BuildEvents.OnBuildProjConfigDone += BuildEvents_OnBuildProjConfigDone;
         }
 
-        private void BuildEvents_OnBuildProjConfigDone(string Project, string ProjectConfig, string Platform, string SolutionConfig, bool Success)
+        private void BuildEvents_OnBuildProjConfigDone(string project, string projectConfig, string platform, string solutionConfig, bool success)
         {
-            if (Success && IsMatchingProject(Project))
+            if (success && IsMatchingProject(project))
             {
                 ScheduleRebuild(force: true);
             }
@@ -52,7 +53,7 @@ namespace SqlProjectsPowerTools.TreeViewer
 
         private void ScheduleRebuild(bool force)
         {
-            Debouncer.Debounce(_projectPath, () => Rebuild(force), 500);
+            Debouncer.Debounce(projectPath, () => Rebuild(force), 500);
         }
 
         private bool IsMatchingProject(string projectFromEvent)
@@ -62,7 +63,7 @@ namespace SqlProjectsPowerTools.TreeViewer
                 return false;
             }
 
-            string trackedProject = NormalizePath(_projectPath);
+            string trackedProject = NormalizePath(projectPath);
             string eventProject = NormalizePath(projectFromEvent);
 
             if (!string.IsNullOrEmpty(trackedProject) && !string.IsNullOrEmpty(eventProject))
@@ -70,7 +71,7 @@ namespace SqlProjectsPowerTools.TreeViewer
                 return string.Equals(trackedProject, eventProject, StringComparison.OrdinalIgnoreCase);
             }
 
-            return string.Equals(Path.GetFileName(_projectPath), Path.GetFileName(projectFromEvent), StringComparison.OrdinalIgnoreCase);
+            return string.Equals(Path.GetFileName(projectPath), Path.GetFileName(projectFromEvent), StringComparison.OrdinalIgnoreCase);
         }
 
         private static string NormalizePath(string path)
@@ -115,17 +116,17 @@ namespace SqlProjectsPowerTools.TreeViewer
                         if (!string.IsNullOrEmpty(unpackedPath))
                         {
                             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                            _item.Rebuild(unpackedPath, dacpacPath, tooltip);
+                            item.Rebuild(unpackedPath, dacpacPath, tooltip);
                             return;
                         }
 
                         await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                        _item.Rebuild(_defaultName, "root", tooltip);
+                        item.Rebuild(defaultName, "root", tooltip);
                         return;
                     }
 
                     await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                    _item.Rebuild(_defaultName, "root", BuildMissingDacpacTooltip(outputDirectory));
+                    item.Rebuild(defaultName, "root", BuildMissingDacpacTooltip(outputDirectory));
                 }
                 catch (Exception ex)
                 {
@@ -140,12 +141,12 @@ namespace SqlProjectsPowerTools.TreeViewer
             ThreadHelper.ThrowIfNotOnUIThread();
 
             string outputPath = GetOutputPathFromProject();
-            if (string.IsNullOrWhiteSpace(outputPath) || string.IsNullOrWhiteSpace(_projectDirectory))
+            if (string.IsNullOrWhiteSpace(outputPath) || string.IsNullOrWhiteSpace(projectDirectory))
             {
                 return null;
             }
 
-            return Path.GetFullPath(Path.Combine(_projectDirectory, outputPath));
+            return Path.GetFullPath(Path.Combine(projectDirectory, outputPath));
         }
 
         private string GetDacpacPath(string outputDirectory)
@@ -178,11 +179,11 @@ namespace SqlProjectsPowerTools.TreeViewer
 
             var preferredNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                _defaultName,
-                Path.GetFileNameWithoutExtension(_projectPath) + ".dacpac",
+                defaultName,
+                Path.GetFileNameWithoutExtension(projectPath) + ".dacpac",
             };
 
-            EnvDTE.Project project = _project ?? FindProjectRecursive(_dte.Solution.Projects);
+            EnvDTE.Project project = dteProject ?? FindProjectRecursive(dte.Solution.Projects);
 
             AddDacpacFileName(preferredNames, GetProjectPropertyValue(project, "SqlTargetPath"));
             AddDacpacFileName(preferredNames, GetProjectPropertyValue(project, "TargetPath"));
@@ -235,7 +236,7 @@ namespace SqlProjectsPowerTools.TreeViewer
 
             string normalizedOutputDirectory = NormalizePath(outputDirectory);
             bool watcherMatches = !string.IsNullOrEmpty(normalizedOutputDirectory)
-                && string.Equals(_watchedDirectory, normalizedOutputDirectory, StringComparison.OrdinalIgnoreCase);
+                && string.Equals(watchedDirectory, normalizedOutputDirectory, StringComparison.OrdinalIgnoreCase);
 
             if (watcherMatches)
             {
@@ -261,10 +262,10 @@ namespace SqlProjectsPowerTools.TreeViewer
             watcher.Renamed += DacpacWatcher_Renamed;
             watcher.EnableRaisingEvents = true;
 
-            lock (_watcherLock)
+            lock (watcherLock)
             {
-                _dacpacWatcher = watcher;
-                _watchedDirectory = normalizedOutputDirectory;
+                dacpacWatcher = watcher;
+                watchedDirectory = normalizedOutputDirectory;
             }
         }
 
@@ -282,11 +283,11 @@ namespace SqlProjectsPowerTools.TreeViewer
         {
             FileSystemWatcher watcherToDispose;
 
-            lock (_watcherLock)
+            lock (watcherLock)
             {
-                watcherToDispose = _dacpacWatcher;
-                _dacpacWatcher = null;
-                _watchedDirectory = null;
+                watcherToDispose = dacpacWatcher;
+                dacpacWatcher = null;
+                watchedDirectory = null;
             }
 
             if (watcherToDispose == null)
@@ -308,12 +309,12 @@ namespace SqlProjectsPowerTools.TreeViewer
 
             try
             {
-                EnvDTE.Project project = _project;
+                EnvDTE.Project project = dteProject;
 
-                if (project == null || !string.Equals(project.FullName, _projectPath, StringComparison.OrdinalIgnoreCase))
+                if (project == null || !string.Equals(project.FullName, projectPath, StringComparison.OrdinalIgnoreCase))
                 {
-                    project = FindProjectRecursive(_dte.Solution.Projects);
-                    _project = project;
+                    project = FindProjectRecursive(dte.Solution.Projects);
+                    dteProject = project;
                 }
 
                 return project?.ConfigurationManager?.ActiveConfiguration?.Properties?.Item("OutputPath")?.Value?.ToString();
@@ -357,7 +358,7 @@ namespace SqlProjectsPowerTools.TreeViewer
             }
 
             // Check if this is our target project
-            if (string.Equals(project.FullName, _projectPath, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(project.FullName, projectPath, StringComparison.OrdinalIgnoreCase))
             {
                 return project;
             }
@@ -365,9 +366,9 @@ namespace SqlProjectsPowerTools.TreeViewer
             // If this is a solution folder, search its nested projects
             if (project.Kind == EnvDTE.Constants.vsProjectKindSolutionItems)
             {
-                foreach (ProjectItem item in project.ProjectItems)
+                foreach (ProjectItem projectItem in project.ProjectItems)
                 {
-                    EnvDTE.Project subProject = item.SubProject;
+                    EnvDTE.Project subProject = projectItem.SubProject;
                     if (subProject != null)
                     {
                         EnvDTE.Project found = FindProjectRecursive(subProject);
@@ -384,9 +385,9 @@ namespace SqlProjectsPowerTools.TreeViewer
 
         public object SourceItem => this;
 
-        public bool HasItems => _item != null;
+        public bool HasItems => item != null;
 
-        public IEnumerable Items => _items;
+        public IEnumerable Items => items;
 
         private static string UnpackDacpac(string dacpacPath, bool force)
         {
@@ -544,135 +545,65 @@ namespace SqlProjectsPowerTools.TreeViewer
             AppendTooltipLine(tooltip, "Size", fileInfo.Length.ToString("N0") + " bytes");
             AppendTooltipLine(tooltip, "Last updated", fileInfo.LastWriteTime.ToString());
 
-            // TODO Add data from model.xml perhaps?
-            ////AddManifestMetadata(tooltip, extractedPath);
+            AddOriginMetadata(tooltip, extractedPath);
 
             return tooltip.ToString().TrimEnd();
         }
 
-        ////private static void AddManifestMetadata(StringBuilder tooltip, string extractedPath)
-        ////{
-        ////    string manifestPath = GetManifestPath(extractedPath);
-        ////    if (string.IsNullOrWhiteSpace(manifestPath))
-        ////    {
-        ////        return;
-        ////    }
+        private static void AddOriginMetadata(StringBuilder tooltip, string extractedPath)
+        {
+            string originPath = GetOriginPath(extractedPath);
+            if (string.IsNullOrWhiteSpace(originPath))
+            {
+                return;
+            }
 
-        ////    try
-        ////    {
-        ////        string manifestContent = File.ReadAllText(manifestPath);
+            try
+            {
+                string manifestContent = File.ReadAllText(originPath);
 
-        ////        AppendTooltipLine(tooltip, "Display name", GetManifestElementValue(manifestContent, "DisplayName"));
-        ////        AppendTooltipLine(tooltip, "ID", GetManifestAttributeValue(manifestContent, "Identity", "Id"));
-        ////        AppendTooltipLine(tooltip, "Version", GetManifestAttributeValue(manifestContent, "Identity", "Version"));
-        ////        AppendTooltipLine(tooltip, "Publisher", GetManifestAttributeValue(manifestContent, "Identity", "Publisher"));
+                AppendTooltipLine(tooltip, "DacFX Version", GetManifestElementValue(manifestContent, "ProductVersion"));
+            }
+            catch (Exception ex)
+            {
+                ex.Log();
+            }
+        }
 
-        ////        List<string> installationTargets = GetInstallationTargets(manifestContent);
-        ////        if (installationTargets.Count > 0)
-        ////        {
-        ////            AppendTooltipLine(tooltip, "Targets", string.Join(", ", installationTargets));
-        ////        }
+        private static string GetOriginPath(string extractedPath)
+        {
+            if (string.IsNullOrWhiteSpace(extractedPath) || !Directory.Exists(extractedPath))
+            {
+                return null;
+            }
 
-        ////        int assetCount = CountManifestElements(manifestContent, "Asset");
-        ////        if (assetCount > 0)
-        ////        {
-        ////            AppendTooltipLine(tooltip, "Assets", assetCount.ToString());
-        ////        }
-        ////    }
-        ////    catch (Exception ex)
-        ////    {
-        ////        ex.Log();
-        ////    }
-        ////}
+            return Directory.GetFiles(extractedPath, "origin.xml", SearchOption.TopDirectoryOnly).FirstOrDefault();
+        }
 
-        ////private static string GetManifestPath(string extractedPath)
-        ////{
-        ////    if (string.IsNullOrWhiteSpace(extractedPath) || !Directory.Exists(extractedPath))
-        ////    {
-        ////        return null;
-        ////    }
+        private static string GetManifestElementValue(string manifestContent, string elementName)
+        {
+            Match match = Regex.Match(
+                manifestContent,
+                $@"<(?:(?:\w+):)?{Regex.Escape(elementName)}\b[^>]*>(?<value>.*?)</(?:(?:\w+):)?{Regex.Escape(elementName)}>",
+                RegexOptions.IgnoreCase | RegexOptions.Singleline,
+                TimeSpan.FromSeconds(1));
 
-        ////    return Directory.GetFiles(extractedPath, "*.vsixmanifest", SearchOption.TopDirectoryOnly).FirstOrDefault();
-        ////}
+            return match.Success ? CleanManifestValue(match.Groups["value"].Value) : null;
+        }
 
-        ////private static string GetManifestElementValue(string manifestContent, string elementName)
-        ////{
-        ////    Match match = Regex.Match(
-        ////        manifestContent,
-        ////        $@"<(?:(?:\w+):)?{Regex.Escape(elementName)}\b[^>]*>(?<value>.*?)</(?:(?:\w+):)?{Regex.Escape(elementName)}>",
-        ////        RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        private static string CleanManifestValue(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return null;
+            }
 
-        ////    return match.Success ? CleanManifestValue(match.Groups["value"].Value) : null;
-        ////}
-
-        ////private static string GetManifestAttributeValue(string manifestContent, string elementName, string attributeName)
-        ////{
-        ////    Match match = Regex.Match(
-        ////        manifestContent,
-        ////        $@"<(?:(?:\w+):)?{Regex.Escape(elementName)}\b[^>]*\b{Regex.Escape(attributeName)}\s*=\s*""(?<value>[^""]*)""[^>]*/?>",
-        ////        RegexOptions.IgnoreCase | RegexOptions.Singleline);
-
-        ////    return match.Success ? CleanManifestValue(match.Groups["value"].Value) : null;
-        ////}
-
-        ////private static List<string> GetInstallationTargets(string manifestContent)
-        ////{
-        ////    MatchCollection matches = Regex.Matches(
-        ////        manifestContent,
-        ////        @"<(?:(?:\w+):)?InstallationTarget\b(?<attributes>[^>]*)>(?<content>.*?)</(?:(?:\w+):)?InstallationTarget>",
-        ////        RegexOptions.IgnoreCase | RegexOptions.Singleline);
-
-        ////    var targets = new List<string>();
-
-        ////    foreach (Match match in matches)
-        ////    {
-        ////        string attributes = match.Groups["attributes"].Value;
-        ////        string content = match.Groups["content"].Value;
-        ////        string targetId = GetAttributeValue(attributes, "Id");
-        ////        string version = GetAttributeValue(attributes, "Version");
-        ////        string architecture = GetManifestElementValue(content, "ProductArchitecture");
-
-        ////        string target = string.Join(" ", new[] { targetId, version, architecture }.Where(part => !string.IsNullOrWhiteSpace(part)));
-        ////        if (!string.IsNullOrWhiteSpace(target))
-        ////        {
-        ////            targets.Add(target);
-        ////        }
-        ////    }
-
-        ////    return targets;
-        ////}
-
-        ////private static string GetAttributeValue(string attributes, string attributeName)
-        ////{
-        ////    Match match = Regex.Match(
-        ////        attributes ?? string.Empty,
-        ////        $@"\b{Regex.Escape(attributeName)}\s*=\s*""(?<value>[^""]*)""",
-        ////        RegexOptions.IgnoreCase | RegexOptions.Singleline);
-
-        ////    return match.Success ? CleanManifestValue(match.Groups["value"].Value) : null;
-        ////}
-
-        ////private static int CountManifestElements(string manifestContent, string elementName)
-        ////{
-        ////    return Regex.Matches(
-        ////        manifestContent,
-        ////        $@"<(?:(?:\w+):)?{Regex.Escape(elementName)}\b",
-        ////        RegexOptions.IgnoreCase | RegexOptions.Singleline).Count;
-        ////}
-
-        ////private static string CleanManifestValue(string value)
-        ////{
-        ////    if (string.IsNullOrWhiteSpace(value))
-        ////    {
-        ////        return null;
-        ////    }
-
-        ////    return value
-        ////        .Replace("\r", string.Empty)
-        ////        .Replace("\n", " ")
-        ////        .Replace("\t", " ")
-        ////        .Trim();
-        ////}
+            return value
+                .Replace("\r", string.Empty)
+                .Replace("\n", " ")
+                .Replace("\t", " ")
+                .Trim();
+        }
 
         private static void AppendTooltipLine(StringBuilder tooltip, string label, string value)
         {
@@ -697,9 +628,9 @@ namespace SqlProjectsPowerTools.TreeViewer
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
-            _dte.Events.BuildEvents.OnBuildProjConfigDone -= BuildEvents_OnBuildProjConfigDone;
+            dte.Events.BuildEvents.OnBuildProjConfigDone -= BuildEvents_OnBuildProjConfigDone;
             DisposeWatcher();
-            _item?.Dispose();
+            item?.Dispose();
         }
     }
 }

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.IO;
@@ -14,7 +13,7 @@ namespace SqlProjectsPowerTools.TreeViewer
     [Name(nameof(DacpacItemSourceProvider))]
     [Order(Before = HierarchyItemsProviderNames.Contains)]
     [AppliesToUIContext(VsixPackage.UIContextGuid)]
-    internal class DacpacItemSourceProvider : IAttachedCollectionSourceProvider, IDisposable
+    internal sealed class DacpacItemSourceProvider : IAttachedCollectionSourceProvider, IDisposable
     {
         private readonly Dictionary<string, DacpacRootNode> rootNodes = new(StringComparer.OrdinalIgnoreCase);
         private bool isDisposed;
@@ -50,6 +49,7 @@ namespace SqlProjectsPowerTools.TreeViewer
                             rootNode = new DacpacRootNode(hierarchyItem);
                             rootNodes[projectPath] = rootNode;
                         }
+
                         return rootNode;
                     }
                 }

@@ -14,7 +14,7 @@ using Microsoft.VisualStudio.Language.Intellisense;
 namespace SqlProjectsPowerTools.TreeViewer
 {
     [DebuggerDisplay("{Text}")]
-    internal class DacpacItemNode :
+    internal sealed class DacpacItemNode :
         IAttachedCollectionSource,
         ITreeDisplayItemWithImages,
         IPrioritizedComparable,
