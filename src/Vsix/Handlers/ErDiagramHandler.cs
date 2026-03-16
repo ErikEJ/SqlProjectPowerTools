@@ -96,7 +96,7 @@ namespace SqlProjectsPowerTools
 
         private static async Task<List<TableModel>> GetDacpacTablesAsync(string dacpacPath)
         {
-            var builder = new TableListBuilder(dacpacPath, DatabaseType.SQLServerDacpac, null);
+            var builder = new TableListBuilder(dacpacPath, DatabaseType.SQLServerDacpac);
 
             return await builder.GetTableDefinitionsAsync();
         }

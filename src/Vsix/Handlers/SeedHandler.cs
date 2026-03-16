@@ -120,7 +120,7 @@ namespace SqlProjectsPowerTools
 
         private static async Task<List<TableModel>> GetTablesAsync(string connectionString)
         {
-            var builder = new TableListBuilder(connectionString, DatabaseType.SQLServer, null);
+            var builder = new TableListBuilder(connectionString, DatabaseType.SQLServer);
 
             return await builder.GetTableDefinitionsAsync();
         }

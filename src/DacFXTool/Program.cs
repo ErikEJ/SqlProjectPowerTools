@@ -145,6 +145,20 @@ namespace DacFXTool
                         return 0;
                     }
 
+                    // gettables "connection string"
+                    if (args.Length == 2
+                        && args[0] == "gettables")
+                    {
+                        var extractor = new SchemaExtractor(args[1]);
+
+                        var tables = extractor.GetTables();
+
+                        await Console.Out.WriteLineAsync("Result:");
+                        await Console.Out.WriteLineAsync(tables.Write());
+
+                        return 0;
+                    }
+
                     // unpack "dacpac path" "output path"
                     if (args.Length == 3
                         && args[0] == "unpack")
