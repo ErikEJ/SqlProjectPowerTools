@@ -37,12 +37,7 @@ namespace SqlProjectsPowerTools
             }
             else
             {
-                arguments = mergeDacpacs.ToString() + " " + ((int)databaseType).ToString() + " \"" + connectionString.Replace("\"", "\\\"") + "\"";
-
-                if (schemas != null)
-                {
-                    arguments += $" \"{string.Join(",", schemas.Select(s => s.Name.Replace("\"", "\\\"")))}\"";
-                }
+                arguments = "gettables \"" + connectionString.Replace("\"", "\\\"") + "\"";
             }
 
             return await GetTablesInternalAsync(arguments);

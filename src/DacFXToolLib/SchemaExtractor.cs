@@ -1,9 +1,11 @@
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using DacFXToolLib.Common;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Model;
+using ObjectType = DacFXToolLib.Common.ObjectType;
 
 namespace DacFXToolLib
 {
@@ -70,6 +72,27 @@ namespace DacFXToolLib
             File.WriteAllText(tempFile, optionsJson, Encoding.UTF8);
 
             return tempFile;
+        }
+
+        public List<TableModel> GetTables()
+        {
+            var tables = new List<TableModel>();
+
+            using var connection = new SqlConnection(builder.ConnectionString);
+            connection.Open();
+
+            using var command = connection.CreateCommand();
+            command.CommandText = "SELECT TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' ORDER BY TABLE_SCHEMA, TABLE_NAME;";
+
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                var schema = reader.GetString(0);
+                var name = reader.GetString(1);
+                tables.Add(new TableModel(name, schema, DatabaseType.SQLServer, ObjectType.Table, null));
+            }
+
+            return tables;
         }
     }
 }
