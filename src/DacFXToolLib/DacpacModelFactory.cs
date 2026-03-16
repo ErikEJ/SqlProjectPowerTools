@@ -88,30 +88,20 @@ namespace DacFXToolLib
 
             // Include views as objects with columns so that VSIX consumers
             // (e.g., ER diagrams, DAB builder) can select them for DACPAC-based flows.
-            foreach (var view in model.GetObjects(DacQueryScope.UserDefined, ModelSchema.View))
+            foreach (var viewObj in model.GetObjects(DacQueryScopes.UserDefined, View.TypeClass))
             {
-                var nameParts = view.Name.Parts;
-                var viewName = nameParts.Count > 0 ? nameParts[nameParts.Count - 1] : string.Empty;
-                var schemaName = nameParts.Count > 1 ? nameParts[nameParts.Count - 2] : "dbo";
+                var schema = viewObj.Name.Parts[0];
+                var name = viewObj.Name.Parts[1];
 
-                var columns = view
-                    .GetChildren(DacQueryScope.Self, ModelSchema.Column)
-                    .Select(col =>
-                        {
-                            var columnNameParts = col.Name.Parts;
-                            var columnName = columnNameParts.Count > 0
-                                ? columnNameParts[columnNameParts.Count - 1]
-                                : string.Empty;
-
-                            return new ColumnModel(
-                                columnName,
-                                string.Empty,
-                                false,
-                                false);
-                        })
+                var columns = viewObj.GetReferenced(View.Columns, DacQueryScopes.UserDefined)
+                    .Select(col => new ColumnModel(
+                        col.Name.Parts[2],
+                        string.Empty,
+                        false,
+                        false))
                     .ToList();
 
-                result.Add(new TableModel(viewName, schemaName, DatabaseType.SQLServerDacpac, ObjectType.View, columns));
+                result.Add(new TableModel(name, schema, DatabaseType.SQLServerDacpac, ObjectType.View, columns));
             }
 
             foreach (var proc in GetStoredProceduresFromModel(model))
