@@ -27,7 +27,7 @@ namespace SqlProjectsPowerTools
             toolFolder += versionSuffix;
         }
 
-        public async Task<List<TableModel>> GetTablesAsync(string connectionString, DatabaseType databaseType, SchemaInfo[] schemas, bool mergeDacpacs)
+        public async Task<List<TableModel>> GetTablesAsync(string connectionString, DatabaseType databaseType)
         {
             string arguments;
 

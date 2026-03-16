@@ -8,9 +8,8 @@ namespace SqlProjectsPowerTools
     {
         private readonly string connectionString;
         private readonly DatabaseType databaseType;
-        private readonly SchemaInfo[] schemas;
 
-        public TableListBuilder(string connectionString, DatabaseType databaseType, SchemaInfo[] schemas)
+        public TableListBuilder(string connectionString, DatabaseType databaseType)
         {
             if (string.IsNullOrEmpty(connectionString))
             {
@@ -19,14 +18,13 @@ namespace SqlProjectsPowerTools
 
             this.connectionString = connectionString;
             this.databaseType = databaseType;
-            this.schemas = schemas;
         }
 
         public async Task<List<TableModel>> GetTableDefinitionsAsync()
         {
             var launcher = new ProcessLauncher();
 
-            return await launcher.GetTablesAsync(connectionString, databaseType, schemas, ToolOptions.Instance.MergeDacpacs);
+            return await launcher.GetTablesAsync(connectionString, databaseType);
         }
     }
 }
