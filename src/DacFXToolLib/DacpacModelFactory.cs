@@ -86,6 +86,34 @@ namespace DacFXToolLib
                 result.Add(new TableModel(table.Name, table.Schema, DatabaseType.SQLServerDacpac, ObjectType.Table, columns));
             }
 
+            // Include views as objects with columns so that VSIX consumers
+            // (e.g., ER diagrams, DAB builder) can select them for DACPAC-based flows.
+            foreach (var view in model.GetObjects(DacQueryScope.UserDefined, ModelSchema.View))
+            {
+                var nameParts = view.Name.Parts;
+                var viewName = nameParts.Count > 0 ? nameParts[nameParts.Count - 1] : string.Empty;
+                var schemaName = nameParts.Count > 1 ? nameParts[nameParts.Count - 2] : "dbo";
+
+                var columns = view
+                    .GetChildren(DacQueryScope.Self, ModelSchema.Column)
+                    .Select(col =>
+                        {
+                            var columnNameParts = col.Name.Parts;
+                            var columnName = columnNameParts.Count > 0
+                                ? columnNameParts[columnNameParts.Count - 1]
+                                : string.Empty;
+
+                            return new ColumnModel(
+                                columnName,
+                                string.Empty,
+                                false,
+                                false);
+                        })
+                    .ToList();
+
+                result.Add(new TableModel(viewName, schemaName, DatabaseType.SQLServerDacpac, ObjectType.View, columns));
+            }
+
             foreach (var proc in GetStoredProceduresFromModel(model))
             {
                 result.Add(new TableModel(proc.Name, proc.Schema, DatabaseType.SQLServerDacpac, ObjectType.Procedure, Array.Empty<ColumnModel>()));
