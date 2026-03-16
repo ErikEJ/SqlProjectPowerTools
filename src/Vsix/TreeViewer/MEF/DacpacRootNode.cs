@@ -1,19 +1,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using System.Diagnostics;
 using EnvDTE;
 using Microsoft.Internal.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Threading;
 
 namespace SqlProjectsPowerTools.TreeViewer
 {
-    internal class DacpacRootNode : IAttachedCollectionSource, INotifyPropertyChanged, IDisposable
+    internal sealed class DacpacRootNode : IAttachedCollectionSource, INotifyPropertyChanged, IDisposable
     {
         private readonly DacpacItemNode _item;
         private readonly IEnumerable _items;
@@ -102,6 +102,8 @@ namespace SqlProjectsPowerTools.TreeViewer
                     UpdateDacpacWatcher(outputDirectory);
 
                     await TaskScheduler.Default;
+
+                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
                     string dacpacPath = GetDacpacPath(outputDirectory);
 

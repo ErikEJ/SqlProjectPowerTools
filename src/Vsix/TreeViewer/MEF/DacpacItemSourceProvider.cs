@@ -136,6 +136,8 @@ namespace SqlProjectsPowerTools.TreeViewer
                 return;
             }
 
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             isDisposed = true;
             VS.Events.SolutionEvents.OnBeforeCloseSolution -= OnBeforeCloseSolution;
             OnBeforeCloseSolution();
