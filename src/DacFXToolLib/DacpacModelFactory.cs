@@ -1,4 +1,5 @@
 using System.Globalization;
+using DacFXToolLib.Common;
 using DacFXToolLib.Model;
 using Microsoft.SqlServer.Dac.Model;
 
@@ -46,6 +47,51 @@ namespace DacFXToolLib
             using var model = TSqlModel.LoadFromDacpac(dacpacPath, new ModelLoadOptions());
 
             return GetStoredProceduresFromModel(model);
+        }
+
+        public static List<TableModel> GetObjects(string dacpacPath)
+        {
+            if (string.IsNullOrEmpty(dacpacPath))
+            {
+                throw new ArgumentException("Dacpac path is required.", nameof(dacpacPath));
+            }
+
+            if (!File.Exists(dacpacPath))
+            {
+                throw new ArgumentException($"Dacpac file not found: {dacpacPath}", nameof(dacpacPath));
+            }
+
+            using var model = TSqlModel.LoadFromDacpac(dacpacPath, new ModelLoadOptions());
+
+            var result = new List<TableModel>();
+
+            foreach (var table in GetTablesFromModel(model, null))
+            {
+                var pkColumnNames = table.PrimaryKey?.Columns
+                    .Select(c => c.Name)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase)
+                    ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+                var fkColumnNames = table.ForeignKeys
+                    .SelectMany(fk => fk.Columns)
+                    .Select(c => c.Name)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                var columns = table.Columns.Select(c => new ColumnModel(
+                    c.Name,
+                    c.StoreType ?? string.Empty,
+                    pkColumnNames.Contains(c.Name),
+                    fkColumnNames.Contains(c.Name))).ToList();
+
+                result.Add(new TableModel(table.Name, table.Schema, DatabaseType.SQLServerDacpac, ObjectType.Table, columns));
+            }
+
+            foreach (var proc in GetStoredProceduresFromModel(model))
+            {
+                result.Add(new TableModel(proc.Name, proc.Schema, DatabaseType.SQLServerDacpac, ObjectType.Procedure, Array.Empty<ColumnModel>()));
+            }
+
+            return result;
         }
 
         private static List<SimpleTable> GetTablesFromModel(TSqlModel model, IEnumerable<string>? tableNames)

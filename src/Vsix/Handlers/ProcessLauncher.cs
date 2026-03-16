@@ -29,11 +29,20 @@ namespace SqlProjectsPowerTools
 
         public async Task<List<TableModel>> GetTablesAsync(string connectionString, DatabaseType databaseType, SchemaInfo[] schemas, bool mergeDacpacs)
         {
-            var arguments = mergeDacpacs.ToString() + " " + ((int)databaseType).ToString() + " \"" + connectionString.Replace("\"", "\\\"") + "\"";
+            string arguments;
 
-            if (schemas != null)
+            if (databaseType == DatabaseType.SQLServerDacpac)
             {
-                arguments += $" \"{string.Join(",", schemas.Select(s => s.Name.Replace("\"", "\\\"")))}\"";
+                arguments = "getobjects \"" + connectionString.Replace("\"", "\\\"") + "\"";
+            }
+            else
+            {
+                arguments = mergeDacpacs.ToString() + " " + ((int)databaseType).ToString() + " \"" + connectionString.Replace("\"", "\\\"") + "\"";
+
+                if (schemas != null)
+                {
+                    arguments += $" \"{string.Join(",", schemas.Select(s => s.Name.Replace("\"", "\\\"")))}\"";
+                }
             }
 
             return await GetTablesInternalAsync(arguments);
