@@ -560,9 +560,9 @@ namespace SqlProjectsPowerTools.TreeViewer
 
             try
             {
-                string manifestContent = File.ReadAllText(originPath);
+                string originContent = File.ReadAllText(originPath);
 
-                AppendTooltipLine(tooltip, "DacFX Version", GetManifestElementValue(manifestContent, "ProductVersion"));
+                AppendTooltipLine(tooltip, "DacFX Version", GetOriginElementValue(originContent, "ProductVersion"));
             }
             catch (Exception ex)
             {
@@ -580,18 +580,18 @@ namespace SqlProjectsPowerTools.TreeViewer
             return Directory.GetFiles(extractedPath, "origin.xml", SearchOption.TopDirectoryOnly).FirstOrDefault();
         }
 
-        private static string GetManifestElementValue(string manifestContent, string elementName)
+        private static string GetOriginElementValue(string originContent, string elementName)
         {
             Match match = Regex.Match(
-                manifestContent,
+                originContent,
                 $@"<(?:(?:\w+):)?{Regex.Escape(elementName)}\b[^>]*>(?<value>.*?)</(?:(?:\w+):)?{Regex.Escape(elementName)}>",
                 RegexOptions.IgnoreCase | RegexOptions.Singleline,
                 TimeSpan.FromSeconds(1));
 
-            return match.Success ? CleanManifestValue(match.Groups["value"].Value) : null;
+            return match.Success ? CleanOriginValue(match.Groups["value"].Value) : null;
         }
 
-        private static string CleanManifestValue(string value)
+        private static string CleanOriginValue(string value)
         {
             if (string.IsNullOrWhiteSpace(value))
             {
