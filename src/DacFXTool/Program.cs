@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json;
 using DacFXToolLib;
+using DacFXToolLib.Common;
 using DacFXToolLib.Dab;
 using Microsoft.SqlServer.Dac;
 
@@ -33,6 +34,25 @@ namespace DacFXTool
 
                         await Console.Out.WriteLineAsync("Result:");
                         await Console.Out.WriteLineAsync(buildResult);
+
+                        return 0;
+                    }
+
+                    // getobjects "<dacpac path>"
+                    if (args.Length == 2
+                        && args[0] == "getobjects")
+                    {
+                        if (!new FileInfo(args[1]).Exists)
+                        {
+                            await Console.Out.WriteLineAsync("Error:");
+                            await Console.Out.WriteLineAsync($"DACPAC file '{args[1]}' not found");
+                            return 1;
+                        }
+
+                        var objects = DacpacModelFactory.GetObjects(args[1]);
+
+                        await Console.Out.WriteLineAsync("Result:");
+                        await Console.Out.WriteLineAsync(objects.Write());
 
                         return 0;
                     }
