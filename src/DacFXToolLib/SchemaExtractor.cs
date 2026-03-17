@@ -89,7 +89,7 @@ namespace DacFXToolLib
             {
                 var schema = reader.GetString(0);
                 var name = reader.GetString(1);
-                tables.Add(new TableModel(name, schema, DatabaseType.SQLServer, ObjectType.Table, null));
+                tables.Add(new TableModel(name, schema, DatabaseType.SQLServer, ObjectType.Table, []));
             }
 
             return tables;
