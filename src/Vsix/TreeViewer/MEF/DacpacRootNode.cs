@@ -442,7 +442,7 @@ namespace SqlProjectsPowerTools.TreeViewer
 
         private static string GetExtractionPath(string dacpacPath)
         {
-            return Path.Combine(Path.GetTempPath(), "SQL Database Project Power Tools", GetPathKey(dacpacPath));
+            return Path.Combine(Path.GetTempPath(), Vsix.Name, GetPathKey(dacpacPath));
         }
 
         private static string GetPathKey(string path)
