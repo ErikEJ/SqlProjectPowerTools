@@ -46,42 +46,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Commands\AnalyzeCommand.cs" />
-    <Compile Include="Commands\DabCommand.cs" />
-    <Compile Include="Commands\VisualCompareCommand.cs" />
-    <Compile Include="Commands\SeedCommand.cs" />
-    <Compile Include="Commands\ImportCommand.cs" />
-    <Compile Include="Commands\MermaidCommand.cs" />
-    <Compile Include="Commands\OptionsCommand.cs" />
-    <Compile Include="Commands\DeployScriptCommand.cs" />
-    <Compile Include="Contracts\EventArgs\CloseRequestedEventArgs.cs" />
-    <Compile Include="Contracts\ViewModels\CodeGenerationItem.cs" />
-    <Compile Include="Contracts\ViewModels\IColumnChildrenViewModel.cs" />
-    <Compile Include="Contracts\ViewModels\IColumnInformationViewModel.cs" />
-    <Compile Include="Contracts\ViewModels\IObjectTreeEditableViewModel.cs" />
-    <Compile Include="Contracts\ViewModels\IObjectTreeRootItemViewModel.cs" />
-    <Compile Include="Contracts\ViewModels\IObjectTreeSelectableViewModel.cs" />
-    <Compile Include="Contracts\ViewModels\IObjectTreeViewModel.cs" />
-    <Compile Include="Contracts\ViewModels\IPickServerDatabaseViewModel.cs" />
-    <Compile Include="Contracts\ViewModels\IPickTablesViewModel.cs" />
-    <Compile Include="Contracts\ViewModels\ISchemaInformationViewModel.cs" />
-    <Compile Include="Contracts\ViewModels\ITableInformationViewModel.cs" />
-    <Compile Include="Contracts\ViewModels\IViewModel.cs" />
-    <Compile Include="Contracts\ViewModels\ObjectTypeIcon.cs" />
-    <Compile Include="Contracts\ViewModels\SearchMode.cs" />
-    <Compile Include="Contracts\Views\IPickServerDatabaseDialog.cs" />
-    <Compile Include="Converter\BoolInvertConverter.cs" />
-    <Compile Include="Converter\BoolNullConverter.cs" />
-    <Compile Include="Converter\BoolToVisibilityConverter.cs" />
-    <Compile Include="Converter\CollectionCountToEnabledConverter.cs" />
-    <Compile Include="Converter\CollectionCountToVisibilityConverter.cs" />
-    <Compile Include="Converter\ColumnEnabledConverter.cs" />
-    <Compile Include="Converter\EnumToBoolConverter.cs" />
-    <Compile Include="Converter\EnumToLabelConverter.cs" />
-    <Compile Include="Converter\LevelToWidthConverter.cs" />
-    <Compile Include="Converter\ObjectTypeIconToImageStyleConverter.cs" />
-    <Compile Include="DAL\IVisualStudioAccess.cs" />
-    <Compile Include="DAL\VisualStudioAccess.cs" />
     <Compile Include="Dialogs\PickServerDatabaseDialog.xaml.cs">
       <DependentUpon>PickServerDatabaseDialog.xaml</DependentUpon>
     </Compile>
@@ -94,58 +58,12 @@
     <Compile Include="ToolWindows\SchemaCompareWindowControl.xaml.cs">
       <DependentUpon>SchemaCompareWindowControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Extensions\FocusExtensions.cs" />
-    <Compile Include="Extensions\MenuCommandExtensions.cs" />
-    <Compile Include="Extensions\ProjectExtension.cs" />
-    <Compile Include="Extensions\ZipArchiveExtensions.cs" />
-    <Compile Include="Handlers\DeployScriptHandler.cs" />
-    <Compile Include="Handlers\SeedHandler.cs" />
-    <Compile Include="Handlers\DabBuilderHandler.cs" />
-    <Compile Include="Handlers\DacpacAnalyzerHandler.cs" />
-    <Compile Include="Handlers\VisualCompareHandler.cs" />
-    <Compile Include="Handlers\HandlerHelper.cs" />
-    <Compile Include="Handlers\ImportHandler.cs" />
-    <Compile Include="Handlers\ErDiagramHandler.cs" />
-    <Compile Include="Handlers\PackageManager.cs" />
-    <Compile Include="Handlers\ProcessLauncher.cs" />
-    <Compile Include="Handlers\ResultDeserializer.cs" />
-    <Compile Include="Handlers\TableListBuilder.cs" />
-    <Compile Include="Handlers\UnpackHandler.cs" />
-    <Compile Include="Helpers\SqlConnectionStringBuilderHelper.cs" />
-    <Compile Include="Helpers\SqlProjHelper.cs" />
-    <Compile Include="Handlers\ExternalProcessLauncher.cs" />
-    <Compile Include="Helpers\VsDataHelper.cs" />
-    <Compile Include="Helpers\VSHelper.cs" />
-    <Compile Include="Messages\ShowMessageBoxMessage.cs" />
-    <Compile Include="Options\ToolOptions.cs" />
-    <Compile Include="Options\OptionsProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Commands\AboutCommand.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
-    <Compile Include="TreeViewer\Debouncer.cs" />
-    <Compile Include="TreeViewer\IconMapper.cs" />
-    <Compile Include="TreeViewer\MEF\DacpacItemInvocationController.cs" />
-    <Compile Include="TreeViewer\MEF\DacpacItemNode.cs" />
-    <Compile Include="TreeViewer\MEF\DacpacItemSourceProvider.cs" />
-    <Compile Include="TreeViewer\MEF\DacpacRootNode.cs" />
-    <Compile Include="TreeViewer\Relationships.cs" />
-    <Compile Include="ViewModels\ColumnChildrenViewModel.cs" />
-    <Compile Include="ViewModels\ColumnInformationViewModel.cs" />
-    <Compile Include="ViewModels\DatabaseConnectionModel.cs" />
-    <Compile Include="Contracts\Views\IDialog.cs" />
-    <Compile Include="Contracts\Views\IPickTablesDialog.cs" />
-    <Compile Include="Contracts\Views\IView.cs" />
-    <Compile Include="Contracts\Views\PickTablesDialogResult.cs" />
-    <Compile Include="ViewModels\ObjectTreeRootItemViewModel.cs" />
-    <Compile Include="ViewModels\ObjectTreeViewModel.cs" />
-    <Compile Include="ViewModels\PickServerDatabaseViewModel.cs" />
-    <Compile Include="ViewModels\PickTablesViewModel.cs" />
-    <Compile Include="ViewModels\SchemaInformationViewModel.cs" />
-    <Compile Include="ViewModels\TableInformationViewModel.cs" />
     <Compile Include="VsixPackage.cs" />
     <Compile Include="source.extension.cs">
       <AutoGen>True</AutoGen>
@@ -248,12 +166,7 @@
       <Version>5.4.1.1</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Contracts\Contracts.csproj">
-      <Project>{a49644ed-6186-49f6-bd9c-6f5ff99c1292}</Project>
-      <Name>Contracts</Name>
-    </ProjectReference>
-  </ItemGroup>
+  <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <ItemGroup>
     <Page Include="Dialogs\Converter.xaml">
       <Generator>MSBuild:Compile</Generator>
