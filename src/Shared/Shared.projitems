@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>49C788F1-194A-464B-BE2A-752DB9B44CB3</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>SqlProjectsPowerTools</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\AboutCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\AnalyzeCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\DabCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\DeployScriptCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\ImportCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\MermaidCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\OptionsCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\SeedCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\VisualCompareCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\EventArgs\CloseRequestedEventArgs.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\CodeGenerationItem.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IColumnChildrenViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IColumnInformationViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IObjectTreeEditableViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IObjectTreeRootItemViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IObjectTreeSelectableViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IObjectTreeViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IPickServerDatabaseViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IPickTablesViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\ISchemaInformationViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\ITableInformationViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\IViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\ObjectTypeIcon.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\ViewModels\SearchMode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Views\IDialog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Views\IPickServerDatabaseDialog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Views\IPickTablesDialog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Views\IView.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Contracts\Views\PickTablesDialogResult.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converter\BoolInvertConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converter\BoolNullConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converter\BoolToVisibilityConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converter\CollectionCountToEnabledConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converter\CollectionCountToVisibilityConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converter\ColumnEnabledConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converter\EnumToBoolConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converter\EnumToLabelConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converter\LevelToWidthConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Converter\ObjectTypeIconToImageStyleConverter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAL\IVisualStudioAccess.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)DAL\VisualStudioAccess.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\FocusExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\MenuCommandExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\ProjectExtension.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Extensions\ZipArchiveExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\DabBuilderHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\DacpacAnalyzerHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\DeployScriptHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\ErDiagramHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\ExternalProcessLauncher.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\HandlerHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\ImportHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\PackageManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\ProcessLauncher.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\ResultDeserializer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\SeedHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\TableListBuilder.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\UnpackHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\VisualCompareHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\SqlConnectionStringBuilderHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\SqlProjHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\VSHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\VsDataHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Messages\ShowMessageBoxMessage.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Options\OptionsProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Options\ToolOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TreeViewer\Debouncer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TreeViewer\IconMapper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TreeViewer\MEF\DacpacItemInvocationController.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TreeViewer\MEF\DacpacItemNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TreeViewer\MEF\DacpacItemSourceProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TreeViewer\MEF\DacpacRootNode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)TreeViewer\Relationships.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ColumnChildrenViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ColumnInformationViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DatabaseConnectionModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ObjectTreeRootItemViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ObjectTreeViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\PickServerDatabaseViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\PickTablesViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\SchemaInformationViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\TableInformationViewModel.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="$(MSBuildThisFileDirectory)..\Contracts\Contracts.csproj">
+      <Project>{A49644ED-6186-49F6-BD9C-6F5FF99C1292}</Project>
+      <Name>Contracts</Name>
+    </ProjectReference>
+  </ItemGroup>
+</Project>
