@@ -52,9 +52,7 @@
     <Compile Include="Dialogs\PickTablesDialog.xaml.cs">
       <DependentUpon>PickTablesDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ToolWindows\DiffLineViewModel.cs" />
     <Compile Include="ToolWindows\SchemaCompareToolWindow.cs" />
-    <Compile Include="ToolWindows\SchemaCompareViewModel.cs" />
     <Compile Include="ToolWindows\SchemaCompareWindowControl.xaml.cs">
       <DependentUpon>SchemaCompareWindowControl.xaml</DependentUpon>
     </Compile>
