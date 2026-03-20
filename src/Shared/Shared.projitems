@@ -85,10 +85,12 @@
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ColumnChildrenViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ColumnInformationViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DatabaseConnectionModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DiffLineViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ObjectTreeRootItemViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ObjectTreeViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\PickServerDatabaseViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\PickTablesViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\SchemaCompareViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\SchemaInformationViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\TableInformationViewModel.cs" />
   </ItemGroup>

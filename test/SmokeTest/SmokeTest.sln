@@ -9,7 +9,7 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "Classic", "Classic\Classic.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ClassLib", "ClassLib\ClassLib.csproj", "{7CB1F1DE-794A-4F40-B959-881E7263A7F8}"
 EndProject
-Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "MsSdkStyle", "MsSdkStyle\MsSdkStyle.sqlproj", "{A7A20D54-E18C-49A9-82CE-3468D8D4923D}"
+Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "MsSdkStyle", "MsSdkStyle\MsSdkStyle.sqlproj", "{27F964A7-8C44-43D1-999F-0EB28B6D2980}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,10 +31,10 @@ Global
 		{7CB1F1DE-794A-4F40-B959-881E7263A7F8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7CB1F1DE-794A-4F40-B959-881E7263A7F8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7CB1F1DE-794A-4F40-B959-881E7263A7F8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A7A20D54-E18C-49A9-82CE-3468D8D4923D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A7A20D54-E18C-49A9-82CE-3468D8D4923D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A7A20D54-E18C-49A9-82CE-3468D8D4923D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A7A20D54-E18C-49A9-82CE-3468D8D4923D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27F964A7-8C44-43D1-999F-0EB28B6D2980}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27F964A7-8C44-43D1-999F-0EB28B6D2980}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27F964A7-8C44-43D1-999F-0EB28B6D2980}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27F964A7-8C44-43D1-999F-0EB28B6D2980}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
