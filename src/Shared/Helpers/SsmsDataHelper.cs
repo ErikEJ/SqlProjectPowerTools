@@ -54,9 +54,9 @@ namespace SqlProjectsPowerTools
                 {
                     await AddDatabasesFromServerAsync(databaseList, serverConnectionString);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    // Ignore per-server failures and continue with remaining servers
+                    ex.Log();
                 }
             }
 
