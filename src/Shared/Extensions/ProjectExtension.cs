@@ -52,8 +52,11 @@ namespace SqlProjectsPowerTools
             {
                 return false;
             }
-
+#if SSMS
+            return false;
+#else
             return project.IsCapabilityMatch(VsixPackage.SdkProjCapability);
+#endif
         }
 
         private static bool IsMicrosoftSdkSqlDatabaseProject(this Project project)

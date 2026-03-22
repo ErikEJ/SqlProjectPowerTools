@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
@@ -10,7 +10,9 @@ namespace SqlProjectsPowerTools
 {
     public class PickServerDatabaseViewModel : ViewModelBase, IPickServerDatabaseViewModel
     {
+#if !SSMS
         private readonly IVisualStudioAccess visualStudioAccess;
+#endif
 
         private DatabaseConnectionModel selectedDatabaseConnection;
         private bool filterSchemas = false;
@@ -20,11 +22,11 @@ namespace SqlProjectsPowerTools
         public PickServerDatabaseViewModel(
             IVisualStudioAccess visualStudioAccess)
         {
+#if !SSMS
             this.visualStudioAccess = visualStudioAccess ?? throw new ArgumentNullException(nameof(visualStudioAccess));
-
-            LoadedCommand = new RelayCommand(Loaded_Executed);
             AddDatabaseConnectionCommand = new RelayCommand(AddDatabaseConnection_Executed);
-            RemoveDatabaseConnectionCommand = new RelayCommand(RemoveDatabaseConnection_Executed, RemoveDatabaseConnection_CanExecute);
+#endif
+            LoadedCommand = new RelayCommand(Loaded_Executed);
             OkCommand = new RelayCommand(Ok_Executed, Ok_CanExecute);
             CancelCommand = new RelayCommand(Cancel_Executed);
 
@@ -44,8 +46,6 @@ namespace SqlProjectsPowerTools
         public ICommand AddAdhocDatabaseConnectionCommand { get; }
 
         public ICommand AddDatabaseDefinitionCommand { get; }
-
-        public ICommand RemoveDatabaseConnectionCommand { get; }
 
         public ICommand OkCommand { get; }
 
@@ -169,6 +169,8 @@ namespace SqlProjectsPowerTools
             }
         }
 
+#if !SSMS
+
         private void AddDatabaseConnection_Executed()
         {
             DatabaseConnectionModel newDatabaseConnection;
@@ -190,31 +192,7 @@ namespace SqlProjectsPowerTools
             DatabaseConnections.Add(newDatabaseConnection);
             SelectedDatabaseConnection = newDatabaseConnection;
         }
-
-        private void RemoveDatabaseConnection_Executed()
-        {
-            if (SelectedDatabaseConnection == null)
-            {
-                return;
-            }
-
-            try
-            {
-                ThreadHelper.JoinableTaskFactory.Run(async () =>
-                {
-                    await visualStudioAccess.RemoveDatabaseConnectionAsync(SelectedDatabaseConnection.DataConnection);
-                });
-
-                DatabaseConnections.Remove(SelectedDatabaseConnection);
-            }
-            catch (Exception e)
-            {
-                visualStudioAccess.ShowMessage($"Unable to remove connection: {e.Message}");
-                return;
-            }
-
-            SelectedDatabaseConnection = null;
-        }
+#endif
 
         private void Ok_Executed()
         {
@@ -223,7 +201,6 @@ namespace SqlProjectsPowerTools
 
         private bool Ok_CanExecute() => SelectedDatabaseConnection != null;
 
-        private bool RemoveDatabaseConnection_CanExecute() => SelectedDatabaseConnection != null && SelectedDatabaseConnection.FilePath == null;
 
         private void Cancel_Executed()
         {

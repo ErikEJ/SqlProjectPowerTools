@@ -1,5 +1,3 @@
-using System.Linq;
-
 namespace SqlProjectsPowerTools
 {
     [Command(PackageIds.cmdidImport)]

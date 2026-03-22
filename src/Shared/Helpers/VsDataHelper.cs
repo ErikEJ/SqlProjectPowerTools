@@ -1,3 +1,4 @@
+#if !SSMS
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Data.SqlClient;
@@ -80,7 +81,7 @@ namespace SqlProjectsPowerTools
 
             var savedName = await SaveDataConnectionAsync(dialog.EncryptedConnectionString, info.DatabaseType, new Guid(info.ConnectionName));
             info.ConnectionName = savedName;
-            info.DataConnection = dialogResult;
+            info.IsFromServerExplorer = true;
             return info;
         }
 
@@ -147,7 +148,7 @@ namespace SqlProjectsPowerTools
                                 ConnectionName = connection.DisplayName,
                                 DatabaseType = DatabaseType.Undefined,
                                 ConnectionString = sConnectionString,
-                                DataConnection = connection.Connection,
+                                IsFromServerExplorer = true,
                             };
 
                             var objProviderGuid = connection.Provider;
@@ -268,3 +269,4 @@ namespace SqlProjectsPowerTools
         }
     }
 }
+#endif
