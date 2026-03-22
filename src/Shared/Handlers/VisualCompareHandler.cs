@@ -179,8 +179,7 @@ namespace SqlProjectsPowerTools
             var vsDataHelper = new VsDataHelper();
             var databaseList = await vsDataHelper.GetDataConnectionsAsync();
 #else
-            var ssmsDataHelper = new SsmsDataHelper();
-            var databaseList = await ssmsDataHelper.GetDataConnectionsAsync();
+            var databaseList = await SsmsDataHelper.GetDataConnectionsAsync();
 #endif
 
             var psd = PackageManager.Package.GetView<IPickServerDatabaseDialog>();
