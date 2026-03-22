@@ -16,37 +16,48 @@ namespace SqlProjectsPowerTools
         private const string NodeInformationTypeName =
             "Microsoft.SqlServer.Management.UI.VSIntegration.ObjectExplorer.INodeInformation";
 
+        private static readonly Dictionary<string, Type> TypeCache = new Dictionary<string, Type>();
+
         internal async Task<Dictionary<string, DatabaseConnectionModel>> GetDataConnectionsAsync()
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
             var databaseList = new Dictionary<string, DatabaseConnectionModel>();
+
+            List<string> serverConnectionStrings;
 
             try
             {
+                // Object Explorer APIs must be accessed on the main thread
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
                 var objectExplorer = GetObjectExplorerService();
                 if (objectExplorer == null)
                 {
                     return databaseList;
                 }
 
-                foreach (var serverConnectionString in GetServerConnectionStrings(objectExplorer))
-                {
-                    try
-                    {
-                        AddDatabasesFromServer(databaseList, serverConnectionString);
-                    }
-                    catch (Exception)
-                    {
-                        // Ignore per-server failures and continue with remaining servers
-                    }
-                }
+                serverConnectionStrings = new List<string>(GetServerConnectionStrings(objectExplorer));
             }
             catch (Exception ex)
             {
                 await VS.MessageBox.ShowErrorAsync(
                     $"Could not read connections from Object Explorer: {ex.Message}",
                     "SQL Database Project Power Tools");
+                return databaseList;
+            }
+
+            // Switch to a background thread for network I/O so the SSMS UI is not blocked
+            await TaskScheduler.Default;
+
+            foreach (var serverConnectionString in serverConnectionStrings)
+            {
+                try
+                {
+                    await AddDatabasesFromServerAsync(databaseList, serverConnectionString);
+                }
+                catch (Exception)
+                {
+                    // Ignore per-server failures and continue with remaining servers
+                }
             }
 
             return databaseList;
@@ -149,12 +160,12 @@ namespace SqlProjectsPowerTools
             }
         }
 
-        private static void AddDatabasesFromServer(
+        private static async Task AddDatabasesFromServerAsync(
             Dictionary<string, DatabaseConnectionModel> databaseList,
             string serverConnectionString)
         {
             var builder = new SqlConnectionStringBuilder(serverConnectionString);
-            var databaseNames = GetUserDatabaseNames(builder);
+            var databaseNames = await GetUserDatabaseNamesAsync(builder);
 
             foreach (var databaseName in databaseNames)
             {
@@ -174,7 +185,7 @@ namespace SqlProjectsPowerTools
             }
         }
 
-        private static List<string> GetUserDatabaseNames(SqlConnectionStringBuilder builder)
+        private static async Task<List<string>> GetUserDatabaseNamesAsync(SqlConnectionStringBuilder builder)
         {
             var sql = @"SELECT name FROM sys.databases
                 WHERE state = 0 AND name NOT IN ('master', 'model', 'tempdb', 'msdb', 'Resource');";
@@ -185,12 +196,12 @@ namespace SqlProjectsPowerTools
             {
                 using (var command = new SqlCommand(sql, conn))
                 {
-                    conn.Open();
+                    await conn.OpenAsync();
                     command.CommandTimeout = 30;
 
-                    using (var reader = command.ExecuteReader())
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        while (reader.Read())
+                        while (await reader.ReadAsync())
                         {
                             result.Add(reader[0].ToString());
                         }
@@ -203,16 +214,24 @@ namespace SqlProjectsPowerTools
 
         private static Type FindType(string typeName)
         {
+            if (TypeCache.TryGetValue(typeName, out var cached))
+            {
+                return cached;
+            }
+
+            Type found = null;
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 var type = assembly.GetType(typeName);
                 if (type != null)
                 {
-                    return type;
+                    found = type;
+                    break;
                 }
             }
 
-            return null;
+            TypeCache[typeName] = found;
+            return found;
         }
     }
 }
