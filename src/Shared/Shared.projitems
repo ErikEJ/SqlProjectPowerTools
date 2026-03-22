@@ -70,6 +70,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\VisualCompareHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\SqlConnectionStringBuilderHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\SqlProjHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Helpers\SsmsDataHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\VSHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\VsDataHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Messages\ShowMessageBoxMessage.cs" />

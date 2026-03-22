@@ -1,9 +1,8 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using DacFXToolLib.Common;
 using JetBrains.Annotations;
-using Microsoft.VisualStudio.Data.Services;
 
 namespace SqlProjectsPowerTools
 {
@@ -16,7 +15,7 @@ namespace SqlProjectsPowerTools
         private string connectionString;
         private string filePath;
         private DatabaseType databaseType;
-        private IVsDataConnection dataConnection;
+        private bool isFromServerExplorer;
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -57,7 +56,7 @@ namespace SqlProjectsPowerTools
         {
             get
             {
-                if (DataConnection == null)
+                if (!IsFromServerExplorer)
                 {
                     if (DatabaseType == DatabaseType.SQLServerDacpac)
                     {
@@ -89,7 +88,7 @@ namespace SqlProjectsPowerTools
         {
             get
             {
-                if (DataConnection == null)
+                if (!isFromServerExplorer)
                 {
                     if (DatabaseType == DatabaseType.SQLServerDacpac)
                     {
@@ -140,17 +139,18 @@ namespace SqlProjectsPowerTools
             }
         }
 
-        public IVsDataConnection DataConnection
+        public bool IsFromServerExplorer
         {
-            get => dataConnection;
+            get => isFromServerExplorer;
             set
             {
-                if (value == dataConnection)
+                if (value == isFromServerExplorer)
                 {
                     return;
                 }
 
-                dataConnection = value;
+                isFromServerExplorer = value;
+
                 OnPropertyChanged();
             }
         }

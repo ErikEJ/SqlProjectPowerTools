@@ -1,0 +1,96 @@
+global using System;
+global using Community.VisualStudio.Toolkit;
+#pragma warning disable SA1210 // Using directives should be ordered alphabetically by namespace
+global using Microsoft.VisualStudio.Shell;
+#pragma warning disable SA1209 // Using alias directives should be placed after other using directives
+global using Task = System.Threading.Tasks.Task;
+#pragma warning restore SA1209 // Using alias directives should be placed after other using directives
+
+using System.Runtime.InteropServices;
+using System.Threading;
+using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Extensions.DependencyInjection;
+
+#pragma warning restore SA1210 // Using directives should be ordered alphabetically by namespace
+
+namespace SqlProjectsPowerTools
+{
+    [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
+    [InstalledProductRegistration(Vsix.Name, Vsix.Description, Vsix.Version)]
+    [ProvideMenuResource("Menus.ctmenu", 1)]
+    [Guid(PackageGuids.VsixString)]
+    [ProvideOptionPage(typeof(OptionsProvider.VsixOptions), "SQL Server Tools", "Database Projects Power Tools", 100, 101, true)]
+    [ProvideProfile(typeof(OptionsProvider.VsixOptions), "SQL Server Tools", "Database Projects Power Tools", 100, 101, true)]
+    [ProvideToolWindow(typeof(SchemaCompareToolWindow.Pane), Style = VsDockStyle.Tabbed, DockedWidth = 900, DockedHeight = 600)]
+    [ProvideAutoLoad(UIContextGuid, PackageAutoLoadFlags.BackgroundLoad)]
+    [ProvideUIContextRule(
+        UIContextGuid,
+        name: "Auto load based on rules",
+        expression: "MicrosoftSdkProject",
+        termNames: ["MicrosoftSdkProject"],
+        termValues: [$"ActiveProjectCapability:{MicrosoftSdkCapability}"])]
+    public sealed class VsixPackage : ToolkitPackage
+    {
+        public const string UIContextGuid = "31B9B7BC-D24A-4F07-B455-BF06259D6EB3";
+        public const string MicrosoftSdkCapability = "SQLProject";
+
+        private IServiceProvider extensionServices;
+
+        protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
+        {
+            await this.RegisterCommandsAsync();
+
+            SchemaCompareToolWindow.Initialize(this);
+
+            PackageManager.Package = this;
+
+            extensionServices = CreateServiceProvider();
+
+            typeof(Microsoft.Xaml.Behaviors.Behavior).ToString();
+            typeof(DropDownButtonLib.Controls.DropDownButton).ToString();
+        }
+
+        internal TView GetView<TView>()
+            where TView : IView
+        {
+            return extensionServices.GetService<TView>();
+        }
+
+        private IServiceProvider CreateServiceProvider()
+        {
+            var services = new ServiceCollection();
+
+            // Register views
+            services.AddTransient<IPickTablesDialog, PickTablesDialog>()
+                .AddTransient<IPickServerDatabaseDialog, PickServerDatabaseDialog>();
+
+            // Register view models
+            services.AddTransient<IPickServerDatabaseViewModel, PickServerDatabaseViewModel>()
+                    .AddTransient<IPickTablesViewModel, PickTablesViewModel>()
+                    .AddSingleton<Func<ISchemaInformationViewModel>>(() => new SchemaInformationViewModel())
+                    .AddSingleton<Func<ITableInformationViewModel>>(provider => () => new TableInformationViewModel(provider.GetService<IMessenger>()))
+                    .AddSingleton<Func<IColumnInformationViewModel>>(provider => () => new ColumnInformationViewModel(provider.GetService<IMessenger>()))
+                    .AddSingleton<Func<IColumnChildrenViewModel>>(provider => () => new ColumnChildrenViewModel(provider.GetService<IMessenger>()))
+                    .AddTransient<IObjectTreeViewModel, ObjectTreeViewModel>();
+
+            // Register BLL
+            var messenger = new Messenger();
+            messenger.Register<ShowMessageBoxMessage>(this, HandleShowMessageBoxMessage);
+
+            services.AddSingleton<IMessenger>(messenger);
+
+            //// Register DAL
+            services.AddTransient<IVisualStudioAccess, VisualStudioAccess>();
+
+            var provider = services.BuildServiceProvider();
+            return provider;
+        }
+
+        private static void HandleShowMessageBoxMessage(ShowMessageBoxMessage msg)
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            VSHelper.ShowMessage(msg.Content);
+        }
+    }
+}

@@ -12,7 +12,9 @@ namespace SqlProjectsPowerTools.TreeViewer
     [Export(typeof(IAttachedCollectionSourceProvider))]
     [Name(nameof(DacpacItemSourceProvider))]
     [Order(Before = HierarchyItemsProviderNames.Contains)]
+#if !SSMS
     [AppliesToUIContext(VsixPackage.UIContextGuid)]
+#endif
     internal sealed class DacpacItemSourceProvider : IAttachedCollectionSourceProvider, IDisposable
     {
         private readonly Dictionary<string, DacpacRootNode> rootNodes = new(StringComparer.OrdinalIgnoreCase);

@@ -1,9 +1,12 @@
-﻿using Microsoft.VisualStudio.Data.Services;
+#if !SSMS
+using Microsoft.VisualStudio.Data.Services;
+#endif
 
 namespace SqlProjectsPowerTools
 {
     public class VisualStudioAccess : IVisualStudioAccess
     {
+#if !SSMS
         DatabaseConnectionModel IVisualStudioAccess.PromptForNewDatabaseConnection()
         {
             DatabaseConnectionModel info = null;
@@ -27,7 +30,7 @@ namespace SqlProjectsPowerTools
                 ConnectionName = info.ConnectionName,
                 ConnectionString = info.ConnectionString,
                 DatabaseType = info.DatabaseType,
-                DataConnection = info.DataConnection,
+                IsFromServerExplorer = info.IsFromServerExplorer,
             };
         }
 
@@ -35,34 +38,13 @@ namespace SqlProjectsPowerTools
         {
             await VsDataHelper.RemoveDataConnectionAsync(dataConnection);
         }
+#endif
 
         void IVisualStudioAccess.ShowMessage(string message)
         {
             ThreadHelper.ThrowIfNotOnUIThread();
 
             VSHelper.ShowMessage(message);
-        }
-
-        async System.Threading.Tasks.Task IVisualStudioAccess.StartStatusBarAnimationAsync()
-        {
-            await VS.StatusBar.StartAnimationAsync(StatusAnimation.Build);
-        }
-
-        async System.Threading.Tasks.Task IVisualStudioAccess.StopStatusBarAnimationAsync()
-        {
-            await VS.StatusBar.EndAnimationAsync(StatusAnimation.Build);
-        }
-
-        async System.Threading.Tasks.Task IVisualStudioAccess.SetStatusBarTextAsync(string text)
-        {
-            await VS.StatusBar.ShowMessageAsync(text);
-        }
-
-        void IVisualStudioAccess.ShowError(string error)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            VSHelper.ShowError(error);
         }
     }
 }
