@@ -8,9 +8,9 @@ namespace SqlProjectsPowerTools
 {
     internal sealed partial class Vsix
     {
-        public const string Id = "SqlProjectsPowerTools.0e226f35-6d47-4156-88df-f9d40db5e2d1";
-        public const string Name = "SQL Database Project Power Tools";
-        public const string Description = @"Tools to enhance the SQL Database Projects developer experience, including Project and Item templates, Import existing databases, create E/R diagrams and much more.";
+        public const string Id = "SqlProjectsPowerTools.SSMS.D7DABDC8-FE46-4DA4-BED8-2EAF1A2A578D";
+        public const string Name = "SQL Database Project Power Tools for SSMS";
+        public const string Description = @"Tools to enhance the SQL Database Projects developer experience in SSMS, including import of existing databases, compare schemas, create E-R diagrams and much more.";
         public const string Language = "en-US";
         public const string Version = "1.0.0";
         public const string Author = "ErikEJ";

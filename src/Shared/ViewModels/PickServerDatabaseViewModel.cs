@@ -47,8 +47,6 @@ namespace SqlProjectsPowerTools
 
         public ICommand AddDatabaseDefinitionCommand { get; }
 
-        public ICommand RemoveDatabaseConnectionCommand { get; }
-
         public ICommand OkCommand { get; }
 
         public ICommand CancelCommand { get; }

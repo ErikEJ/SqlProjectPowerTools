@@ -13,7 +13,7 @@ namespace SqlProjectsPowerTools
     /// </summary>
     internal sealed partial class PackageGuids
     {
-        public const string VsixString = "df7cd9f5-a5c6-4564-ae14-233965c617fb";
+        public const string VsixString = "E59BE47F-7949-4692-A07F-FBB92ADBCE76";
         public static Guid Vsix = new Guid(VsixString);
     }
 
