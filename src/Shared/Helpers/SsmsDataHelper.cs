@@ -165,7 +165,7 @@ namespace SqlProjectsPowerTools
             Dictionary<string, DatabaseConnectionModel> databaseList,
             string serverConnectionString)
         {
-            var builder = new SqlConnectionStringBuilder(serverConnectionString);
+            var builder = SqlConnectionStringBuilderHelper.GetBuilder(serverConnectionString);
             var databaseNames = await GetUserDatabaseNamesAsync(builder);
 
             foreach (var databaseName in databaseNames)
