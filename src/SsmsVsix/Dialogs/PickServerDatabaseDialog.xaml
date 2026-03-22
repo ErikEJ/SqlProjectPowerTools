@@ -111,7 +111,7 @@
                             ToolTip="Add a new database connection"
                             >
                             <MenuItem.Icon>
-                                <Image Source="pack://application:,,,/Visx;component/Resources/ConnectToDatabase.png" />
+                                <Image Source="pack://application:,,,/Vsix;component/Resources/ConnectToDatabase.png" />
                             </MenuItem.Icon>
                         </MenuItem>
                         
