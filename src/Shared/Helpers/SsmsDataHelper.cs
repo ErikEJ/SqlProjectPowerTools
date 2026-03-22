@@ -46,19 +46,20 @@ namespace SqlProjectsPowerTools
             }
 
             // Switch to a background thread for network I/O so the SSMS UI is not blocked
-            await TaskScheduler.Default;
-
-            foreach (var serverConnectionString in serverConnectionStrings)
+            await Task.Run(async () =>
             {
-                try
+                foreach (var serverConnectionString in serverConnectionStrings)
                 {
-                    await AddDatabasesFromServerAsync(databaseList, serverConnectionString);
+                    try
+                    {
+                        await AddDatabasesFromServerAsync(databaseList, serverConnectionString);
+                    }
+                    catch (Exception ex)
+                    {
+                        ex.Log();
+                    }
                 }
-                catch (Exception ex)
-                {
-                    ex.Log();
-                }
-            }
+            });
 
             return databaseList;
         }
