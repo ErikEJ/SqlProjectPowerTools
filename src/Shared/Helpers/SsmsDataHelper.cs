@@ -230,7 +230,10 @@ namespace SqlProjectsPowerTools
                 }
             }
 
-            TypeCache[typeName] = found;
+            if (found != null)
+            {
+                TypeCache[typeName] = found;
+            }
             return found;
         }
     }
