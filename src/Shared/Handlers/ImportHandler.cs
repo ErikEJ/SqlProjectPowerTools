@@ -156,14 +156,11 @@ namespace SqlProjectsPowerTools
 
         private async Task<(DatabaseConnectionModel DatabaseModel, int FileGenerationMode, bool ImportSettings)> ChooseDataBaseConnectionAsync(DataApiBuilderOptions options)
         {
-
-            var databaseList = new Dictionary<string, DatabaseConnectionModel>();
-
 #if !SSMS
             var vsDataHelper = new VsDataHelper();
-            databaseList = await vsDataHelper.GetDataConnectionsAsync();
+            var databaseList = await vsDataHelper.GetDataConnectionsAsync();
 #else
-            databaseList = await SsmsDataHelper.GetDataConnectionsAsync();
+            var databaseList = await SsmsDataHelper.GetDataConnectionsAsync();
 #endif
             var psd = PackageManager.Package.GetView<IPickServerDatabaseDialog>();
 

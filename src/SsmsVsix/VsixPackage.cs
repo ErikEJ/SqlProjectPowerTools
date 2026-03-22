@@ -31,7 +31,7 @@ namespace SqlProjectsPowerTools
         termValues: [$"ActiveProjectCapability:{MicrosoftSdkCapability}"])]
     public sealed class VsixPackage : ToolkitPackage
     {
-        public const string UIContextGuid = "31B9B7BC-D24A-4F07-B455-BF06259D6EB3";
+        public const string UIContextGuid = "31b9b7bc-d24a-4f07-b455-bf06259d6eb3";
         public const string MicrosoftSdkCapability = "SQLProject";
 
         private IServiceProvider extensionServices;
