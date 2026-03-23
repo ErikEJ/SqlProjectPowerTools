@@ -8,7 +8,7 @@ using DacFXToolLib.Common;
 
 namespace SqlProjectsPowerTools
 {
-    internal class SsmsDataHelper
+    internal static class SsmsDataHelper
     {
         private const string ObjectExplorerServiceTypeName =
             "Microsoft.SqlServer.Management.UI.VSIntegration.ObjectExplorer.IObjectExplorerService";
@@ -18,7 +18,7 @@ namespace SqlProjectsPowerTools
 
         private static readonly Dictionary<string, Type> TypeCache = new Dictionary<string, Type>();
 
-        internal async Task<Dictionary<string, DatabaseConnectionModel>> GetDataConnectionsAsync()
+        internal static async Task<Dictionary<string, DatabaseConnectionModel>> GetDataConnectionsAsync()
         {
             var databaseList = new Dictionary<string, DatabaseConnectionModel>();
 
@@ -56,7 +56,7 @@ namespace SqlProjectsPowerTools
                     }
                     catch (Exception ex)
                     {
-                        ex.Log();
+                        await ex.LogAsync();
                     }
                 }
             });
@@ -235,6 +235,7 @@ namespace SqlProjectsPowerTools
             {
                 TypeCache[typeName] = found;
             }
+
             return found;
         }
     }
