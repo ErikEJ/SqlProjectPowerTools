@@ -164,7 +164,7 @@
   <Symbols>
 
     <!-- This is the guid used to group the menu commands together -->
-    <GuidSymbol name="Vsix" value="{e59be47f-7949-4692-a07f-fbb92adbce76}">
+    <GuidSymbol name="Vsix" value="{E59BE47F-7949-4692-A07F-FBB92ADBCE76}">
 
       <!-- Project Item Menu Entries -->
 
