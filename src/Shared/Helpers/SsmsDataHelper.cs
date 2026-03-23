@@ -109,7 +109,8 @@ namespace SqlProjectsPowerTools
                     continue;
                 }
 
-                var connectionProp = nodeInfoType.GetProperty("Connection");
+                var connectionProp = nodeInfo.GetType().GetProperty("Connection");
+
                 var connection = connectionProp?.GetValue(nodeInfo, null);
                 if (connection == null)
                 {
