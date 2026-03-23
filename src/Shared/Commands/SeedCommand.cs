@@ -7,9 +7,7 @@ namespace SqlProjectsPowerTools
         {
             ThreadHelper.JoinableTaskFactory.Run(async () =>
             {
-                var isSdkSqlProject = await Command.IsEnabledForMsBuildSdkSqlProjectAsync();
-
-                Command.Enabled = isSdkSqlProject;
+                Command.Enabled = await Command.IsEnabledForModernSqlProjectAsync();
             });
         }
 

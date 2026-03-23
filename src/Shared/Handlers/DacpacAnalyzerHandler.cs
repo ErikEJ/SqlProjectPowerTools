@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.Shell.Interop;
@@ -52,6 +52,9 @@ namespace SqlProjectsPowerTools
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
+#if SSMS
+            OpenWebBrowser(path);
+#else
             var service = await VS.GetServiceAsync<SVsWebBrowsingService, IVsWebBrowsingService>();
 
             if (service == null)
@@ -62,6 +65,7 @@ namespace SqlProjectsPowerTools
 
             service.Navigate(path, (uint)__VSWBNAVIGATEFLAGS.VSNWB_ForceNew, out var frame);
             frame.Show();
+#endif
         }
     }
 }

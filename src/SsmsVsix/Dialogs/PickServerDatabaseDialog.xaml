@@ -90,35 +90,6 @@
                 </ComboBox.ItemTemplate>
             </ComboBox>
 
-            <Button Grid.Column="1"
-                    Margin="8,12,0,12"
-                    ToolTip="Remove selected connection"
-                    Command="{Binding RemoveDatabaseConnectionCommand}">
-                <Image Source="pack://application:,,,/Vsix;component/Resources/Remove.png" />
-            </Button>
-
-            <xctk:DropDownButton Grid.Column="2"
-                              Width="72"
-                              Margin="12,12,0,12"
-                              Content="Add"
-                              TabIndex="2"
-                              >
-                <xctk:DropDownButton.DropDownContent>
-                    <StackPanel>
-                        <MenuItem 
-                            Header="Add Database Connection"
-                            Command="{Binding AddDatabaseConnectionCommand}"
-                            ToolTip="Add a new database connection"
-                            >
-                            <MenuItem.Icon>
-                                <Image Source="pack://application:,,,/Vsix;component/Resources/ConnectToDatabase.png" />
-                            </MenuItem.Icon>
-                        </MenuItem>
-                        
-                    </StackPanel>
-                </xctk:DropDownButton.DropDownContent>
-            </xctk:DropDownButton>
-
         </Grid>
 
         <TextBlock Grid.Row="1" 
