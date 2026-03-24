@@ -12,7 +12,9 @@ namespace SqlProjectsPowerTools
 
             try
             {
-                var rulesExpression = await project.GetAttributeAsync("CodeAnalysisRules") ?? string.Empty;
+                var rulesExpression = await project.GetAttributeAsync("SqlCodeAnalysisRules")
+                    ?? await project.GetAttributeAsync("CodeAnalysisRules")
+                    ?? string.Empty;
                 var runCodeAnalysisValue = await project.GetAttributeAsync("RunSqlCodeAnalysis") ?? string.Empty;
                 var runCodeAnalysis = string.Equals(runCodeAnalysisValue, "True", StringComparison.OrdinalIgnoreCase);
 
@@ -58,7 +60,7 @@ namespace SqlProjectsPowerTools
                 var (newRunCodeAnalysis, newRulesExpression) = viewModel.GetResult();
 
                 await project.TrySetAttributeAsync("RunSqlCodeAnalysis", newRunCodeAnalysis ? "True" : "False");
-                await project.TrySetAttributeAsync("CodeAnalysisRules", newRulesExpression);
+                await project.SetPropertyDirectAsync("SqlCodeAnalysisRules", newRulesExpression);
 
                 await VS.StatusBar.ShowMessageAsync("Code analysis rules updated.");
             }
