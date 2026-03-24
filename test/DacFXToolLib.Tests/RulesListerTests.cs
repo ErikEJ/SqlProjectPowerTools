@@ -1,8 +1,3 @@
-using System;
-using System.Linq;
-using DacFXToolLib;
-using Xunit;
-
 namespace DacFXToolLib.Tests
 {
     /// <summary>
@@ -53,7 +48,7 @@ namespace DacFXToolLib.Tests
         {
             var lister = new RulesLister(SqlVersion);
             var allRules = lister.GetRules();
-            var firstRule = allRules.First();
+            var firstRule = allRules[0];
 
             // RuleId = namespace + "." + shortId, where namespace = all but last segment of Category
             var categoryParts = firstRule.Category.Split('.');
@@ -76,7 +71,7 @@ namespace DacFXToolLib.Tests
             var allRules = lister.GetRules();
 
             // Pick the namespace prefix of the first rule's category (e.g. "SqlServer.Rules")
-            var categoryParts = allRules.First().Category.Split('.');
+            var categoryParts = allRules[0].Category.Split('.');
             var prefix = string.Join(".", categoryParts.Take(categoryParts.Length - 1));
 
             var expression = $"-{prefix}.*";
@@ -99,7 +94,7 @@ namespace DacFXToolLib.Tests
             var allRules = lister.GetRules();
 
             // Find a prefix that only covers some rules (not all)
-            var categoryParts = allRules.First().Category.Split('.');
+            var categoryParts = allRules[0].Category.Split('.');
             var prefix = string.Join(".", categoryParts.Take(categoryParts.Length - 1));
 
             var expression = $"-{prefix}.*";
@@ -123,7 +118,7 @@ namespace DacFXToolLib.Tests
             var lister = new RulesLister(SqlVersion);
             var allRules = lister.GetRules();
 
-            var categoryParts = allRules.First().Category.Split('.');
+            var categoryParts = allRules[0].Category.Split('.');
             var prefix = string.Join(".", categoryParts.Take(categoryParts.Length - 1));
 
             var expression = $"+!{prefix}.*";
@@ -144,7 +139,7 @@ namespace DacFXToolLib.Tests
             var lister = new RulesLister(SqlVersion);
             var allRules = lister.GetRules();
 
-            var categoryParts = allRules.First().Category.Split('.');
+            var categoryParts = allRules[0].Category.Split('.');
             var prefix = string.Join(".", categoryParts.Take(categoryParts.Length - 1));
 
             var expression = $"+!{prefix}.*";
@@ -176,7 +171,7 @@ namespace DacFXToolLib.Tests
             var lister = new RulesLister(SqlVersion);
             var allRules = lister.GetRules();
 
-            var firstRule = allRules.First();
+            var firstRule = allRules[0];
             var categoryParts = firstRule.Category.Split('.');
             var ruleNamespace = string.Join(".", categoryParts.Take(categoryParts.Length - 1));
             var prefix = ruleNamespace;
@@ -208,7 +203,7 @@ namespace DacFXToolLib.Tests
         {
             var lister = new RulesLister(SqlVersion);
             var allRules = lister.GetRules();
-            var firstRule = allRules.First();
+            var firstRule = allRules[0];
             var categoryParts = firstRule.Category.Split('.');
             var ruleNamespace = string.Join(".", categoryParts.Take(categoryParts.Length - 1));
             var firstRuleId = $"{ruleNamespace}.{firstRule.Id}";

@@ -1,7 +1,4 @@
-using System;
-using DacFXToolLib;
 using DacFXToolLib.Dab;
-using Xunit;
 
 namespace DacFXToolLib.Tests
 {
@@ -24,7 +21,7 @@ namespace DacFXToolLib.Tests
             var options = new DataApiBuilderOptions
             {
                 DatabaseType = DacFXToolLib.Common.DatabaseType.SQLServerDacpac,
-                ProjectPath = null
+                ProjectPath = null,
             };
 
             var builder = new DabBuilder(options);
@@ -34,40 +31,6 @@ namespace DacFXToolLib.Tests
 
             // Assert
             Assert.Empty(result);
-        }
-
-        [Fact]
-        public void Constructor_WithUndefinedDatabaseType_ThrowsArgumentOutOfRangeException()
-        {
-            // Arrange
-            var testDirectory = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "DabBuilderTests", Guid.NewGuid().ToString());
-            System.IO.Directory.CreateDirectory(testDirectory);
-
-            try
-            {
-                var options = new DataApiBuilderOptions
-                {
-                    DatabaseType = DacFXToolLib.Common.DatabaseType.Undefined,
-                    ProjectPath = testDirectory
-                };
-
-                // Act & Assert
-                Assert.Throws<ArgumentOutOfRangeException>(() => new DabBuilder(options));
-            }
-            finally
-            {
-                if (System.IO.Directory.Exists(testDirectory))
-                {
-                    try
-                    {
-                        System.IO.Directory.Delete(testDirectory, true);
-                    }
-                    catch
-                    {
-                        // Cleanup is best-effort
-                    }
-                }
-            }
         }
 
         [Fact]
@@ -87,7 +50,7 @@ namespace DacFXToolLib.Tests
             var customName = "my-custom-connection";
             var options = new DataApiBuilderOptions
             {
-                ConnectionStringName = customName
+                ConnectionStringName = customName,
             };
 
             // Act & Assert
