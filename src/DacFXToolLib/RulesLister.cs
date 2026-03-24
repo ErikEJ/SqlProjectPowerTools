@@ -96,11 +96,11 @@ namespace DacFXToolLib
         private IEnumerable<IssueTypeModel> GetIssueTypes(IList<RuleDescriptor> rules)
         {
             return rules
-                .GroupBy(r => r.ShortRuleId)
+                .GroupBy(r => r.RuleId)
                 .Select(g => g.First())
                 .Select(r => new IssueTypeModel
                 {
-                    Id = r.ShortRuleId,
+                    Id = r.RuleId,
                     Severity = errorRuleSets.Any(s => r.RuleId.StartsWith(s, StringComparison.OrdinalIgnoreCase))
                         ? "Error"
                         : r.Severity.ToString(),

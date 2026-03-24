@@ -50,11 +50,8 @@ namespace DacFXToolLib.Tests
             var allRules = lister.GetRules();
             var firstRule = allRules[0];
 
-            // RuleId = namespace + "." + shortId, where namespace = all but last segment of Category
-            var categoryParts = firstRule.Category.Split('.');
-            var ruleNamespace = string.Join(".", categoryParts.Take(categoryParts.Length - 1));
-            var ruleId = $"{ruleNamespace}.{firstRule.Id}";
-            var expression = $"-{ruleId}";
+            // Id is already the fully qualified rule identifier (e.g. "Microsoft.Rules.Data.SR0001")
+            var expression = $"-{firstRule.Id}";
 
             var lister2 = new RulesLister(SqlVersion);
             var rules = lister2.GetRules(expression);
@@ -173,12 +170,11 @@ namespace DacFXToolLib.Tests
 
             var firstRule = allRules[0];
             var categoryParts = firstRule.Category.Split('.');
-            var ruleNamespace = string.Join(".", categoryParts.Take(categoryParts.Length - 1));
-            var prefix = ruleNamespace;
+            var prefix = string.Join(".", categoryParts.Take(categoryParts.Length - 1));
 
             // Suppress by individual ID and elevate rest of namespace to error
-            var ruleId = $"{ruleNamespace}.{firstRule.Id}";
-            var expression = $"-{ruleId};+!{prefix}.*";
+            // Id is already the fully qualified rule identifier (e.g. "Microsoft.Rules.Data.SR0001")
+            var expression = $"-{firstRule.Id};+!{prefix}.*";
 
             var lister2 = new RulesLister(SqlVersion);
             var rules = lister2.GetRules(expression);
@@ -204,12 +200,10 @@ namespace DacFXToolLib.Tests
             var lister = new RulesLister(SqlVersion);
             var allRules = lister.GetRules();
             var firstRule = allRules[0];
-            var categoryParts = firstRule.Category.Split('.');
-            var ruleNamespace = string.Join(".", categoryParts.Take(categoryParts.Length - 1));
-            var firstRuleId = $"{ruleNamespace}.{firstRule.Id}";
 
+            // Id is already the fully qualified rule identifier (e.g. "Microsoft.Rules.Data.SR0001")
             // First call: suppress a rule
-            var filtered = lister.GetRules($"-{firstRuleId}");
+            var filtered = lister.GetRules($"-{firstRule.Id}");
             var suppressedRule = filtered.SingleOrDefault(r => r.Id == firstRule.Id);
             Assert.NotNull(suppressedRule);
             Assert.False(suppressedRule!.Enabled);

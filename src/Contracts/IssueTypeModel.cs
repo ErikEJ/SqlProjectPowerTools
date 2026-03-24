@@ -9,7 +9,7 @@ namespace DacFXToolLib.Common
     public class IssueTypeModel
     {
         /// <summary>
-        /// Gets or sets the short rule identifier (e.g. "SR0001").
+        /// Gets or sets the fully qualified rule identifier (e.g. "Microsoft.Rules.Data.SR0001").
         /// </summary>
         [DataMember]
         public string Id { get; set; }
