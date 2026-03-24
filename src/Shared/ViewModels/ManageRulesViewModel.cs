@@ -118,7 +118,8 @@ namespace SqlProjectsPowerTools
                         NormalizeSeverity(r.Severity)))
                     .ToList();
 
-                Groups.Add(new RuleGroupViewModel(GetGroupName(group.Key), new ObservableCollection<RuleViewModel>(ruleVms)));
+                var groupName = ruleVms.Count > 0 ? ruleVms[0].GroupName : group.Key;
+                Groups.Add(new RuleGroupViewModel(groupName, new ObservableCollection<RuleViewModel>(ruleVms)));
             }
         }
 
@@ -133,7 +134,7 @@ namespace SqlProjectsPowerTools
                     {
                         parts.Add($"-{rule.Id}");
                     }
-                    else if (rule.Severity == "Error")
+                    else if (string.Equals(rule.Severity, "Error", StringComparison.OrdinalIgnoreCase))
                     {
                         parts.Add($"+!{rule.Id}");
                     }
@@ -146,17 +147,6 @@ namespace SqlProjectsPowerTools
         private static string NormalizeSeverity(string severity)
         {
             return string.Equals(severity, "Error", StringComparison.OrdinalIgnoreCase) ? "Error" : "Warning";
-        }
-
-        private static string GetGroupName(string category)
-        {
-            if (string.IsNullOrEmpty(category))
-            {
-                return string.Empty;
-            }
-
-            var lastDot = category.LastIndexOf('.');
-            return lastDot >= 0 ? category[(lastDot + 1)..] : category;
         }
 
         private void ApplyFilter()

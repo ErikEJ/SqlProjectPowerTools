@@ -26,7 +26,7 @@ namespace SqlProjectsPowerTools
 
                 if (string.IsNullOrEmpty(rulesJsonPath) || !File.Exists(rulesJsonPath))
                 {
-                    VSHelper.ShowError("Failed to load code analysis rules. Make sure .NET 8.0 runtime is installed.");
+                    VSHelper.ShowError("Failed to load code analysis rules. Please check that the CLI tool is available and .NET 8.0 runtime is installed.");
                     return;
                 }
 
