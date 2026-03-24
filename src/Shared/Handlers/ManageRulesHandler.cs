@@ -69,8 +69,15 @@ namespace SqlProjectsPowerTools
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            var dsp = await project.GetAttributeAsync("DSP") ?? string.Empty;
+            // MsBuild.Sdk.SqlProj uses SqlServerVersion directly (e.g. "Sql160")
+            var sqlServerVersion = await project.GetAttributeAsync("SqlServerVersion") ?? string.Empty;
+            if (!string.IsNullOrEmpty(sqlServerVersion))
+            {
+                return sqlServerVersion;
+            }
 
+            // Classic .sqlproj / Microsoft.Build.Sql uses DSP property
+            var dsp = await project.GetAttributeAsync("DSP") ?? string.Empty;
             var version = ParseVersionFromDsp(dsp);
             return version ?? "Sql160";
         }
