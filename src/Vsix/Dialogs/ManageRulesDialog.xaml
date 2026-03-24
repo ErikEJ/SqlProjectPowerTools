@@ -70,12 +70,12 @@
 
         <!-- Wildcard warning message -->
         <Border Grid.Row="2"
-                Background="{DynamicResource {x:Static dw:EnvironmentColors.WarningBackgroundBrushKey}}"
+                Background="#FFF5C600"
                 Padding="8,4"
                 Margin="0,0,0,8"
                 Visibility="{Binding HasWildcards, Converter={StaticResource BoolToVisibility}}">
             <TextBlock TextWrapping="Wrap"
-                       Foreground="{DynamicResource {x:Static dw:EnvironmentColors.WarningTextBrushKey}}"
+                       Foreground="#FF000000"
                        Text="The CodeAnalysisRules property contains wildcards (*). The rules editor cannot be used when wildcards are present. Please edit the property manually." />
         </Border>
 
