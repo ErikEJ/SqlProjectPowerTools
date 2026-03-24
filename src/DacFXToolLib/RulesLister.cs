@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
 using DacFXToolLib.Common;
 using Microsoft.SqlServer.Dac.CodeAnalysis;
 using Microsoft.SqlServer.Dac.Model;
@@ -29,9 +27,6 @@ namespace DacFXToolLib
             this.sqlServerVersion = parsedVersion;
         }
 
-        /// <summary>
-        /// Returns all available analyzer rules as a list of <see cref="IssueTypeModel"/>.
-        /// </summary>
         public IList<IssueTypeModel> GetRules()
         {
             var factory = new CodeAnalysisServiceFactory();
