@@ -52,6 +52,9 @@
     <Compile Include="Dialogs\PickTablesDialog.xaml.cs">
       <DependentUpon>PickTablesDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\ManageRulesDialog.xaml.cs">
+      <DependentUpon>ManageRulesDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ToolWindows\SchemaCompareToolWindow.cs" />
     <Compile Include="ToolWindows\SchemaCompareWindowControl.xaml.cs">
       <DependentUpon>SchemaCompareWindowControl.xaml</DependentUpon>
@@ -167,6 +170,10 @@
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
   <ItemGroup>
     <Page Include="Dialogs\Converter.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Dialogs\ManageRulesDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

@@ -20,6 +20,18 @@ namespace SqlProjectsPowerTools
             throw new InvalidOperationException($"Unable to deserialize visual compare result from file: {jsonFilePath}");
         }
 
+        public static List<IssueTypeModel> BuildRulesResult(string jsonFilePath)
+        {
+            var json = File.ReadAllText(jsonFilePath, Encoding.UTF8);
+
+            if (TryRead(json, out List<IssueTypeModel> deserialized))
+            {
+                return deserialized;
+            }
+
+            throw new InvalidOperationException($"Unable to deserialize rules result from file: {jsonFilePath}");
+        }
+
         public static List<TableModel> BuildTableResult(string output)
         {
             var resultParts = output.Split(new[] { "Result:" + Environment.NewLine }, StringSplitOptions.None);
