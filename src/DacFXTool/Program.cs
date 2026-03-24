@@ -225,17 +225,26 @@ namespace DacFXTool
                     if (args.Length == 2
                         && args[0] == "getrules")
                     {
-                        var lister = new RulesLister(args[1]);
-                        var rules = lister.GetRules();
+                        try
+                        {
+                            var lister = new RulesLister(args[1]);
+                            var rules = lister.GetRules();
 
-                        var path = Path.Join(Path.GetTempPath(), $"SqlProjRules_{Guid.NewGuid():N}.json");
+                            var path = Path.Join(Path.GetTempPath(), $"SqlProjRules_{Guid.NewGuid():N}.json");
 
-                        await File.WriteAllTextAsync(path, JsonSerializer.Serialize(rules), Encoding.UTF8);
+                            await File.WriteAllTextAsync(path, JsonSerializer.Serialize(rules), Encoding.UTF8);
 
-                        await Console.Out.WriteLineAsync("Result:");
-                        await Console.Out.WriteLineAsync(path);
+                            await Console.Out.WriteLineAsync("Result:");
+                            await Console.Out.WriteLineAsync(path);
 
-                        return 0;
+                            return 0;
+                        }
+                        catch (ArgumentException ex)
+                        {
+                            await Console.Out.WriteLineAsync("Error:");
+                            await Console.Out.WriteLineAsync(ex.Message);
+                            return 1;
+                        }
                     }
 
                     // merge "projectpath" "connectionString" "tableName" "schema"
