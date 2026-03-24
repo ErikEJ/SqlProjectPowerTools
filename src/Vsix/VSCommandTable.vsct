@@ -94,7 +94,7 @@
 
       <Button guid="Vsix" id="cmdidManageRules" priority="0x0115" type="Button">
         <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
-        <Icon guid="ImageCatalogGuid" id="CodeAnalysisRuleSet" />
+        <Icon guid="ImageCatalogGuid" id="RuleSet" />
         <CommandFlag>IconIsMoniker</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>TextChanges</CommandFlag>
