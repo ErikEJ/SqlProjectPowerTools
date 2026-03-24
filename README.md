@@ -40,7 +40,7 @@ I have also published [SQL Project Power Pack](https://marketplace.visualstudio.
 
 ### SSMS Extension
 
-I have also published [SQL Database Project Power Tools for SSMS][ssmsgallery] which brings similar features to SQL Server Management Studio (SSMS 22+).
+An SSMS extension build is available from [VSIX Gallery][ssmsgallery], bringing similar features to SQL Server Management Studio (SSMS 22+).
 
 - **Import database** - import the schema and database settings from an existing database
 - **Schema compare** - visually compare your database project with a live database and apply changes to the database or your project
