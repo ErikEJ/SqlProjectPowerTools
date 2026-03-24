@@ -31,6 +31,16 @@ namespace SqlProjectsPowerTools
                 }
 
                 var rules = ResultDeserializer.BuildRulesResult(rulesJsonPath);
+                try
+                {
+                    File.Delete(rulesJsonPath);
+                }
+                catch (IOException)
+                {
+                }
+                catch (UnauthorizedAccessException)
+                {
+                }
 
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
