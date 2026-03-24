@@ -42,14 +42,16 @@ namespace DacFXToolLib
 
         private static IEnumerable<IssueTypeModel> GetIssueTypes(IList<RuleDescriptor> rules)
         {
-            return from r in rules
-                   select new IssueTypeModel
-                   {
-                       Id = r.ShortRuleId,
-                       Severity = r.Severity.ToString(),
-                       Description = r.DisplayDescription,
-                       Category = $"{r.Namespace}.{r.Metadata.Category}",
-                   };
+            return rules
+                .GroupBy(r => r.ShortRuleId)
+                .Select(g => g.First())
+                .Select(r => new IssueTypeModel
+                {
+                    Id = r.ShortRuleId,
+                    Severity = r.Severity.ToString(),
+                    Description = r.DisplayDescription,
+                    Category = $"{r.Namespace}.{r.Metadata.Category}",
+                });
         }
     }
 }
