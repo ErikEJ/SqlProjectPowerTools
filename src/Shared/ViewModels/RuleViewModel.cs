@@ -15,7 +15,7 @@ namespace SqlProjectsPowerTools
             Id = id;
             Description = description;
             Category = category;
-            GroupName = GetGroupName(category);
+            GroupName = GetGroupName(id, category);
             isEnabled = enabled;
             this.severity = severity;
         }
@@ -80,15 +80,28 @@ namespace SqlProjectsPowerTools
             }
         }
 
-        private static string GetGroupName(string category)
+        private static string GetGroupName(string id, string category)
         {
-            if (string.IsNullOrEmpty(category))
+            var lastDot = category?.LastIndexOf('.') ?? -1;
+            var baseName = string.IsNullOrEmpty(category)
+                ? string.Empty
+                : (lastDot >= 0 ? category.Substring(lastDot + 1) : category);
+
+            if (string.IsNullOrEmpty(id))
             {
-                return string.Empty;
+                return baseName;
             }
 
-            var lastDot = category.LastIndexOf('.');
-            return lastDot >= 0 ? category.Substring(lastDot + 1) : category;
+            var parts = id.Split('.');
+            var suffix = parts.Length >= 4
+                ? $"({parts[0]})"
+                : parts.Length == 3
+                    ? $"({parts[0]}.{parts[1]})"
+                    : parts.Length == 2
+                        ? $"({parts[0]})"
+                        : string.Empty;
+
+            return string.IsNullOrEmpty(suffix) ? baseName : $"{baseName} {suffix}";
         }
     }
 }
