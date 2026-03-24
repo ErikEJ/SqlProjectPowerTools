@@ -14,6 +14,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Commands\DabCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\DeployScriptCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\ImportCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\ManageRulesCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\MermaidCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\OptionsCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\SeedCommand.cs" />
@@ -61,6 +62,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\ExternalProcessLauncher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\HandlerHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\ImportHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\ManageRulesHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\PackageManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\ProcessLauncher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\ResultDeserializer.cs" />
@@ -87,10 +89,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ColumnInformationViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DatabaseConnectionModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DiffLineViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ManageRulesViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ObjectTreeRootItemViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ObjectTreeViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\PickServerDatabaseViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\PickTablesViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\RuleGroupViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\RuleViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\SchemaCompareViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\SchemaInformationViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\TableInformationViewModel.cs" />

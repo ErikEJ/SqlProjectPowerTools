@@ -92,6 +92,17 @@
         </Strings>
       </Button>
 
+      <Button guid="Vsix" id="cmdidManageRules" priority="0x0115" type="Button">
+        <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
+        <Icon guid="ImageCatalogGuid" id="CodeAnalysisRuleSet" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <ButtonText>Manage Code Analysis Rules...</ButtonText>
+        </Strings>
+      </Button>
+
       <Button guid="Vsix" id="cmdidErDiagram" priority="0x0120" type="Button">
         <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
         <Icon guid="ImageCatalogGuid" id="ApplicationConnectionDiagram" />
@@ -188,6 +199,7 @@
       <IDSymbol name="cmdidDeployScript" value="0x0008" />
       <IDSymbol name="cmdidSeed" value="0x0009" />
       <IDSymbol name="cmdidVisualCompare" value="0x0013" />
+      <IDSymbol name="cmdidManageRules" value="0x0014" />
     </GuidSymbol>
 
   </Symbols>

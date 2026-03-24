@@ -130,6 +130,15 @@ namespace SqlProjectsPowerTools
             return filePath;
         }
 
+        public async Task<string> GetRulesPathAsync(string sqlServerVersion, string rulesExpression)
+        {
+            var arguments = string.IsNullOrEmpty(rulesExpression)
+                ? "getrules \"" + sqlServerVersion + "\""
+                : "getrules \"" + sqlServerVersion + "\" \"" + rulesExpression.Replace("\"", "\\\"") + "\"";
+
+            return await GetDiagramInternalAsync(arguments);
+        }
+
         // merge "projectpath" "connectionString" "tableName" "schema"
         public async Task<string> CreateMergeScriptAsync(string projectPath, string connectionString, string tablename, string schema)
         {
