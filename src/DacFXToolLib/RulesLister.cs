@@ -76,7 +76,14 @@ namespace DacFXToolLib
                 foreach (var rule in rules.Where(rule =>
                     rule.StartsWith("+!", StringComparison.OrdinalIgnoreCase) && rule.Length > 2))
                 {
-                    errorRuleSets.Add(rule[2..]);
+                    if (rule.Length > 3 && rule.EndsWith('*'))
+                    {
+                        errorRuleSets.Add(rule[2..^1]);
+                    }
+                    else
+                    {
+                        errorRuleSets.Add(rule[2..]);
+                    }
                 }
             }
         }
