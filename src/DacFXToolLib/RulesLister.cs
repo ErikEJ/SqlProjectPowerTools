@@ -12,9 +12,9 @@ namespace DacFXToolLib
         private static readonly char[] Separator = [';'];
 
         private readonly SqlServerVersion sqlServerVersion;
-        private readonly HashSet<string> ignoredRules = new();
-        private readonly HashSet<string> ignoredRuleSets = new();
-        private readonly HashSet<string> errorRuleSets = new();
+        private readonly HashSet<string> ignoredRules = new(StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> ignoredRuleSets = new(StringComparer.OrdinalIgnoreCase);
+        private readonly HashSet<string> errorRuleSets = new(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RulesLister"/> class.
