@@ -221,6 +221,30 @@ namespace DacFXTool
                         return 0;
                     }
 
+                    // getrules "<dacpac path>"
+                    if (args.Length == 2
+                        && args[0] == "getrules")
+                    {
+                        if (!new FileInfo(args[1]).Exists)
+                        {
+                            await Console.Out.WriteLineAsync("Error:");
+                            await Console.Out.WriteLineAsync($"DACPAC file '{args[1]}' not found");
+                            return 1;
+                        }
+
+                        var lister = new RulesLister(args[1]);
+                        var rules = lister.GetRules();
+
+                        var path = Path.Join(Path.GetTempPath(), $"SqlProjRules_{Guid.NewGuid():N}.json");
+
+                        await File.WriteAllTextAsync(path, JsonSerializer.Serialize(rules), Encoding.UTF8);
+
+                        await Console.Out.WriteLineAsync("Result:");
+                        await Console.Out.WriteLineAsync(path);
+
+                        return 0;
+                    }
+
                     // merge "projectpath" "connectionString" "tableName" "schema"
                     if (args.Length == 5
                         && (args[0] == "merge"))
