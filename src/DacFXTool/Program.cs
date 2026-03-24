@@ -221,17 +221,10 @@ namespace DacFXTool
                         return 0;
                     }
 
-                    // getrules "<dacpac path>"
+                    // getrules "<SqlServerVersion>"
                     if (args.Length == 2
                         && args[0] == "getrules")
                     {
-                        if (!new FileInfo(args[1]).Exists)
-                        {
-                            await Console.Out.WriteLineAsync("Error:");
-                            await Console.Out.WriteLineAsync($"DACPAC file '{args[1]}' not found");
-                            return 1;
-                        }
-
                         var lister = new RulesLister(args[1]);
                         var rules = lister.GetRules();
 

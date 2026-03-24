@@ -7,37 +7,29 @@ using Microsoft.SqlServer.Dac.Model;
 namespace DacFXToolLib
 {
     /// <summary>
-    /// Lists all available static analysis rules for a given DACPAC file.
+    /// Lists all available static analysis rules for a given SQL Server version.
     /// </summary>
     public class RulesLister
     {
-        private readonly string dacpacPath;
+        private readonly SqlServerVersion sqlServerVersion;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RulesLister"/> class.
         /// </summary>
-        /// <param name="dacpacPath">Path to the DACPAC file to load rules for.</param>
-        public RulesLister(string dacpacPath)
+        /// <param name="sqlServerVersion">The SQL Server version to load rules for.</param>
+        public RulesLister(string sqlServerVersion)
         {
-            ArgumentNullException.ThrowIfNull(dacpacPath);
-            this.dacpacPath = dacpacPath;
+            ArgumentNullException.ThrowIfNull(sqlServerVersion);
+            this.sqlServerVersion = Enum.Parse<SqlServerVersion>(sqlServerVersion, ignoreCase: true);
         }
 
         /// <summary>
-        /// Returns all available analyzer rules for the DACPAC model as a list of <see cref="IssueTypeModel"/>.
+        /// Returns all available analyzer rules as a list of <see cref="IssueTypeModel"/>.
         /// </summary>
         public IList<IssueTypeModel> GetRules()
         {
-            using var model = TSqlModel.LoadFromDacpac(
-                dacpacPath,
-                new ModelLoadOptions()
-                {
-                    LoadAsScriptBackedModel = true,
-                    ModelStorageType = Microsoft.SqlServer.Dac.DacSchemaModelStorageType.Memory,
-                });
-
             var factory = new CodeAnalysisServiceFactory();
-            var service = factory.CreateAnalysisService(model);
+            var service = factory.CreateAnalysisService(sqlServerVersion);
 
             return GetIssueTypes(service.GetRules()).ToList();
         }
