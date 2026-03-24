@@ -97,14 +97,14 @@ namespace SqlProjectsPowerTools
                 return null;
             }
 
-            var beforeMarker = dsp[..markerIndex];
+            var beforeMarker = dsp.Substring(0, markerIndex);
             var lastDot = beforeMarker.LastIndexOf('.');
             if (lastDot < 0 || lastDot >= beforeMarker.Length - 1)
             {
                 return null;
             }
 
-            return beforeMarker[(lastDot + 1)..];
+            return beforeMarker.Substring(lastDot + 1);
         }
     }
 }

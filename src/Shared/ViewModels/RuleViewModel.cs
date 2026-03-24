@@ -88,7 +88,7 @@ namespace SqlProjectsPowerTools
             }
 
             var lastDot = category.LastIndexOf('.');
-            return lastDot >= 0 ? category[(lastDot + 1)..] : category;
+            return lastDot >= 0 ? category.Substring(lastDot + 1) : category;
         }
     }
 }
