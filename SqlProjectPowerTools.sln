@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36811.4 d17.14
+# Visual Studio Version 18
+VisualStudioVersion = 18.5.11605.296 insiders
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Vsix", "src\Vsix\Vsix.csproj", "{FE839662-04DE-4261-90EA-45145D53B912}"
 EndProject
@@ -28,6 +28,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtensionPack", "src\ExtensionPack\ExtensionPack.csproj", "{5F2D0F07-F822-4C9D-88CF-DBF0C0199B4F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SsmsVsix", "src\SsmsVsix\SsmsVsix.csproj", "{C87F759D-D9D2-4BD7-8650-4C931C20F565}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DacFXToolLib.Tests", "test\DacFXToolLib.Tests\DacFXToolLib.Tests.csproj", "{E0D7DC5B-FEC2-ABAF-7A6F-9F11FD0E651B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -123,6 +125,18 @@ Global
 		{C87F759D-D9D2-4BD7-8650-4C931C20F565}.Release|arm64.Build.0 = Release|arm64
 		{C87F759D-D9D2-4BD7-8650-4C931C20F565}.Release|x86.ActiveCfg = Release|x86
 		{C87F759D-D9D2-4BD7-8650-4C931C20F565}.Release|x86.Build.0 = Release|x86
+		{E0D7DC5B-FEC2-ABAF-7A6F-9F11FD0E651B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0D7DC5B-FEC2-ABAF-7A6F-9F11FD0E651B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0D7DC5B-FEC2-ABAF-7A6F-9F11FD0E651B}.Debug|arm64.ActiveCfg = Debug|Any CPU
+		{E0D7DC5B-FEC2-ABAF-7A6F-9F11FD0E651B}.Debug|arm64.Build.0 = Debug|Any CPU
+		{E0D7DC5B-FEC2-ABAF-7A6F-9F11FD0E651B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E0D7DC5B-FEC2-ABAF-7A6F-9F11FD0E651B}.Debug|x86.Build.0 = Debug|Any CPU
+		{E0D7DC5B-FEC2-ABAF-7A6F-9F11FD0E651B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0D7DC5B-FEC2-ABAF-7A6F-9F11FD0E651B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0D7DC5B-FEC2-ABAF-7A6F-9F11FD0E651B}.Release|arm64.ActiveCfg = Release|Any CPU
+		{E0D7DC5B-FEC2-ABAF-7A6F-9F11FD0E651B}.Release|arm64.Build.0 = Release|Any CPU
+		{E0D7DC5B-FEC2-ABAF-7A6F-9F11FD0E651B}.Release|x86.ActiveCfg = Release|Any CPU
+		{E0D7DC5B-FEC2-ABAF-7A6F-9F11FD0E651B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -62,7 +62,8 @@ namespace DacFXToolLib
 
             if (!string.IsNullOrWhiteSpace(rulesExpression))
             {
-                var rules = rulesExpression.Split(Separator,
+                var rules = rulesExpression.Split(
+                    Separator,
                     StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
                 foreach (var rule in rules.Where(rule => rule.StartsWith('-') && rule.Length > 1))
