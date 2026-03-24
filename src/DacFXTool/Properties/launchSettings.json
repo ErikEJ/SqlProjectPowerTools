@@ -2,7 +2,7 @@
   "profiles": {
     "DacFXTool": {
       "commandName": "Project",
-      "commandLineArgs": "visualcompare \"C:\\dev\\GitHub\\SqlProjectPowerTools\\test\\SmokeTest\\SdkStyle\\bin\\Debug\\net8.0\\SdkStyle.dacpac\"  \"Data Source=.\\SQLEXPRESS2025;Initial Catalog=Chinook;Integrated Security=True;Encrypt=False\" True"
+      "commandLineArgs": "getrules \"Sql160\" \"-Microsoft.Rules.Data.SR0006;-Microsoft.Rules.Data.SR0009;-Microsoft.Rules.Data.SR0012\""
     }
   }
 }
