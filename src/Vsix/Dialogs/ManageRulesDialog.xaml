@@ -82,12 +82,7 @@
         <!-- Column headers -->
         <Grid Grid.Row="3"
               Margin="0,0,0,2">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="160" />
-            </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="Rules" FontWeight="Bold" Margin="20,0,0,0" />
-            <TextBlock Grid.Column="1" Text="Severity" FontWeight="Bold" />
+            <TextBlock Text="Rules" FontWeight="Bold" Margin="20,0,0,0" />
         </Grid>
 
         <!-- Rules TreeView -->
@@ -140,24 +135,22 @@
                 <!-- Rule row template -->
                 <DataTemplate DataType="{x:Type viewModels:RuleViewModel}">
                     <DockPanel LastChildFill="True">
-                        <ComboBox DockPanel.Dock="Right"
-                                  Width="150"
+                        <CheckBox DockPanel.Dock="Left"
+                                  IsChecked="{Binding IsEnabled, Mode=TwoWay}"
+                                  VerticalAlignment="Center"
+                                  Margin="0,0,6,0" />
+                        <ComboBox DockPanel.Dock="Left"
+                                  Width="90"
                                   ItemsSource="{Binding AvailableSeverities}"
                                   SelectedItem="{Binding Severity, Mode=TwoWay}"
                                   IsEnabled="{Binding IsEnabled}"
                                   Height="22"
                                   VerticalAlignment="Center"
-                                  Margin="4,0,0,0" />
-                        <StackPanel Orientation="Horizontal"
-                                    VerticalAlignment="Center">
-                            <CheckBox IsChecked="{Binding IsEnabled, Mode=TwoWay}"
-                                      VerticalAlignment="Center"
-                                      Margin="0,0,6,0" />
-                            <TextBlock Text="{Binding DisplayText}"
-                                       VerticalAlignment="Center"
-                                       TextTrimming="CharacterEllipsis"
-                                       ToolTip="{Binding DisplayText}" />
-                        </StackPanel>
+                                  Margin="0,0,6,0" />
+                        <TextBlock Text="{Binding DisplayText}"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding DisplayText}" />
                     </DockPanel>
                 </DataTemplate>
 
