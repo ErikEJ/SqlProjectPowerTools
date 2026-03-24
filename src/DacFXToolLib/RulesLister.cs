@@ -20,7 +20,13 @@ namespace DacFXToolLib
         public RulesLister(string sqlServerVersion)
         {
             ArgumentNullException.ThrowIfNull(sqlServerVersion);
-            this.sqlServerVersion = Enum.Parse<SqlServerVersion>(sqlServerVersion, ignoreCase: true);
+
+            if (!Enum.TryParse(sqlServerVersion, ignoreCase: true, out SqlServerVersion parsedVersion))
+            {
+                throw new ArgumentException("Invalid SQL Server version.", nameof(sqlServerVersion));
+            }
+
+            this.sqlServerVersion = parsedVersion;
         }
 
         /// <summary>
