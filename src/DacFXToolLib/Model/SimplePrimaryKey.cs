@@ -4,6 +4,6 @@ namespace DacFXToolLib.Model
     {
         public string? Name { get; set; }
 
-        public List<SimpleColumn> Columns { get; set; } = [];
+        public List<SimpleColumn> Columns { get; init; } = [];
     }
 }

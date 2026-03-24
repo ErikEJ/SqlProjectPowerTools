@@ -6,8 +6,8 @@ namespace DacFXToolLib.Model
 
         public SimpleTable PrincipalTable { get; set; } = null!;
 
-        public List<SimpleColumn> Columns { get; set; } = [];
+        public List<SimpleColumn> Columns { get; init; } = [];
 
-        public List<SimpleColumn> PrincipalColumns { get; set; } = [];
+        public List<SimpleColumn> PrincipalColumns { get; init; } = [];
     }
 }

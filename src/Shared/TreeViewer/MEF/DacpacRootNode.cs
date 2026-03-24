@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -311,7 +312,23 @@ namespace SqlProjectsPowerTools.TreeViewer
             {
                 EnvDTE.Project project = dteProject;
 
-                if (project == null || !string.Equals(project.FullName, projectPath, StringComparison.OrdinalIgnoreCase))
+                // Check if we need to re-find the project
+                bool needsRefresh = project == null;
+                if (!needsRefresh)
+                {
+                    try
+                    {
+                        // Access to FullName can throw COMException if the project is stale/unloaded
+                        needsRefresh = !string.Equals(project.FullName, projectPath, StringComparison.OrdinalIgnoreCase);
+                    }
+                    catch (COMException)
+                    {
+                        // Cached project reference is stale, need to re-find
+                        needsRefresh = true;
+                    }
+                }
+
+                if (needsRefresh)
                 {
                     project = FindProjectRecursive(dte.Solution.Projects);
                     dteProject = project;
@@ -357,27 +374,35 @@ namespace SqlProjectsPowerTools.TreeViewer
                 return null;
             }
 
-            // Check if this is our target project
-            if (string.Equals(project.FullName, projectPath, StringComparison.OrdinalIgnoreCase))
+            try
             {
-                return project;
-            }
-
-            // If this is a solution folder, search its nested projects
-            if (project.Kind == EnvDTE.Constants.vsProjectKindSolutionItems)
-            {
-                foreach (ProjectItem projectItem in project.ProjectItems)
+                // Check if this is our target project
+                // Access to FullName/Kind can throw COMException if the project is stale/unloaded
+                if (string.Equals(project.FullName, projectPath, StringComparison.OrdinalIgnoreCase))
                 {
-                    EnvDTE.Project subProject = projectItem.SubProject;
-                    if (subProject != null)
+                    return project;
+                }
+
+                // If this is a solution folder, search its nested projects
+                if (project.Kind == EnvDTE.Constants.vsProjectKindSolutionItems)
+                {
+                    foreach (ProjectItem projectItem in project.ProjectItems)
                     {
-                        EnvDTE.Project found = FindProjectRecursive(subProject);
-                        if (found != null)
+                        EnvDTE.Project subProject = projectItem.SubProject;
+                        if (subProject != null)
                         {
-                            return found;
+                            EnvDTE.Project found = FindProjectRecursive(subProject);
+                            if (found != null)
+                            {
+                                return found;
+                            }
                         }
                     }
                 }
+            }
+            catch (COMException)
+            {
+                // Project is unavailable/stale, skip it
             }
 
             return null;

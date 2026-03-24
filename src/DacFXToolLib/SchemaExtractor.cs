@@ -77,6 +77,7 @@ namespace DacFXToolLib
         public List<TableModel> GetTables()
         {
             var tables = new List<TableModel>();
+            var primaryKeyColumns = GetPrimaryKeyColumns();
 
             using var connection = new SqlConnection(builder.ConnectionString);
             connection.Open();
@@ -89,10 +90,60 @@ namespace DacFXToolLib
             {
                 var schema = reader.GetString(0);
                 var name = reader.GetString(1);
-                tables.Add(new TableModel(name, schema, DatabaseType.SQLServer, ObjectType.Table, []));
+                var tableKey = $"{schema}.{name}";
+
+                var columns = primaryKeyColumns.TryGetValue(tableKey, out var pkColumns)
+                    ? pkColumns
+                    : [];
+
+                tables.Add(new TableModel(name, schema, DatabaseType.SQLServer, ObjectType.Table, columns));
             }
 
             return tables;
+        }
+
+        private Dictionary<string, List<ColumnModel>> GetPrimaryKeyColumns()
+        {
+            var result = new Dictionary<string, List<ColumnModel>>(StringComparer.OrdinalIgnoreCase);
+
+            using var connection = new SqlConnection(builder.ConnectionString);
+            connection.Open();
+
+            using var command = connection.CreateCommand();
+            command.CommandText = @"
+                SELECT 
+                    s.name AS SchemaName,
+                    t.name AS TableName,
+                    c.name AS ColumnName,
+                    ty.name AS DataType
+                FROM sys.indexes i
+                INNER JOIN sys.index_columns ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
+                INNER JOIN sys.columns c ON ic.object_id = c.object_id AND ic.column_id = c.column_id
+                INNER JOIN sys.tables t ON i.object_id = t.object_id
+                INNER JOIN sys.schemas s ON t.schema_id = s.schema_id
+                INNER JOIN sys.types ty ON c.user_type_id = ty.user_type_id
+                WHERE i.is_primary_key = 1
+                ORDER BY s.name, t.name, ic.key_ordinal;";
+
+            using var reader = command.ExecuteReader();
+            while (reader.Read())
+            {
+                var schema = reader.GetString(0);
+                var tableName = reader.GetString(1);
+                var columnName = reader.GetString(2);
+                var dataType = reader.GetString(3);
+                var tableKey = $"{schema}.{tableName}";
+
+                if (!result.TryGetValue(tableKey, out var columns))
+                {
+                    columns = [];
+                    result[tableKey] = columns;
+                }
+
+                columns.Add(new ColumnModel(columnName, dataType, isPrimaryKey: true, isForeignKey: false));
+            }
+
+            return result;
         }
     }
 }

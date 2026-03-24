@@ -8,10 +8,10 @@ namespace DacFXToolLib.Model
 
         public string? Comment { get; set; }
 
-        public List<SimpleColumn> Columns { get; set; } = [];
+        public List<SimpleColumn> Columns { get; init; } = [];
 
         public SimplePrimaryKey? PrimaryKey { get; set; }
 
-        public List<SimpleForeignKey> ForeignKeys { get; set; } = [];
+        public List<SimpleForeignKey> ForeignKeys { get; init; } = [];
     }
 }
