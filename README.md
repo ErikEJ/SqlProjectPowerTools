@@ -1,5 +1,6 @@
 [marketplace]: <https://marketplace.visualstudio.com/items?itemName=ErikEJ.SQLProjectPowerTools>
 [vsixgallery]: <https://www.vsixgallery.com/extension/SqlProjectsPowerTools.0e226f35-6d47-4156-88df-f9d40db5e2d1>
+[ssmsgallery]: <https://www.vsixgallery.com/extension/SqlProjectsPowerTools.SSMS.D7DABDC8-FE46-4DA4-BED8-2EAF1A2A578D>
 [repo]: <https://github.com/ErikEJ/SqlProjectPowerTools>
 
 # SQL Database Project Power Tools
@@ -36,6 +37,18 @@ I have also published [SQL Project Power Pack](https://marketplace.visualstudio.
 
 - [T-SQL Analyzer](https://marketplace.visualstudio.com/items?itemName=ErikEJ.TSqlAnalyzer) - live code analysis of your T-SQL object creation code for design, naming and performance issues using more than 140 rules.
 - [SQL Formatter](https://marketplace.visualstudio.com/items?itemName=MadsKristensen.SqlFormatter) - formats T-SQL code to a consistent and readable layout with .editorconfig support.
+
+### SSMS Extension
+
+I have also published [SQL Database Project Power Tools for SSMS][ssmsgallery] which brings similar features to SQL Server Management Studio (SSMS 22+).
+
+- **Import database** - import the schema and database settings from an existing database
+- **Schema compare** - visually compare your database project with a live database and apply changes to the database or your project
+- **Analyze** - report with static code analysis result of your database project
+- **Create Mermaid E/R diagram** - create an Entity/Relationship diagram of selected tables from your database project
+- **Script Table Data** - generate insert statements for table data in your database project, based on [generate-sql-merge](https://github.com/dnlnln/generate-sql-merge)
+- **Add new pre- and post-deployment scripts** - easily add new pre- and post-deployment scripts to your database project
+- **Scaffold Data API Builder (preview)** - generate a Data API Builder configuration file based on your database project, for use with [Data API Builder](docs/dab-mcp-readme.md)
 
 ## Advanced topics
 
