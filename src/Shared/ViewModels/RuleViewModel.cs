@@ -30,7 +30,7 @@ namespace SqlProjectsPowerTools
 
         public string GroupName { get; }
 
-        public string DisplayText => $"{Id}: {Description}";
+        public string DisplayText => $"{GetLastIdPart(Id)}: {Description}";
 
         public IList<string> AvailableSeverities { get; } = new List<string> { "Warning", "Error" };
 
@@ -78,6 +78,17 @@ namespace SqlProjectsPowerTools
                 isVisible = value;
                 RaisePropertyChanged();
             }
+        }
+
+        private static string GetLastIdPart(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                return string.Empty;
+            }
+
+            var lastDot = id.LastIndexOf('.');
+            return lastDot >= 0 ? id.Substring(lastDot + 1) : id;
         }
 
         private static string GetGroupName(string id, string category)
