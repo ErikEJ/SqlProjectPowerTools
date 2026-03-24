@@ -222,13 +222,15 @@ namespace DacFXTool
                     }
 
                     // getrules "<SqlServerVersion>"
-                    if (args.Length == 2
+                    // getrules "<SqlServerVersion>" "<rulesExpression>"
+                    if ((args.Length == 2 || args.Length == 3)
                         && args[0] == "getrules")
                     {
                         try
                         {
                             var lister = new RulesLister(args[1]);
-                            var rules = lister.GetRules();
+                            var rulesExpression = args.Length == 3 ? args[2] : string.Empty;
+                            var rules = lister.GetRules(rulesExpression);
 
                             var path = Path.Join(Path.GetTempPath(), $"SqlProjRules_{Guid.NewGuid():N}.json");
 

@@ -40,6 +40,9 @@ jobs:
     - name: Restore
       run: dotnet restore SqlProjectPowerTools.sln
 
+    - name: Test
+      run: dotnet test test/DacFXToolLib.Tests/DacFXToolLib.Tests.csproj -c Release --logger "console;verbosity=normal"
+
     - name: Build reveng tools
       if: github.event_name != 'pull_request'
       shell: cmd

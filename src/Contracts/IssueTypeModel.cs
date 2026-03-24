@@ -31,5 +31,11 @@ namespace DacFXToolLib.Common
         /// </summary>
         [DataMember]
         public string Category { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the rule is enabled based on the CodeAnalysisRules project setting.
+        /// </summary>
+        [DataMember]
+        public bool Enabled { get; set; }
     }
 }
