@@ -201,7 +201,6 @@ namespace SqlProjectsPowerTools
 
         private bool Ok_CanExecute() => SelectedDatabaseConnection != null;
 
-
         private void Cancel_Executed()
         {
             SelectedDatabaseConnection = null;

@@ -32,6 +32,8 @@ jobs:
         ((Get-Content -Path Vsix/Properties/AssemblyInfo.cs -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path Vsix/Properties/AssemblyInfo.cs
         ((Get-Content -Path Vsix/source.extension.vsixmanifest -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path Vsix/source.extension.vsixmanifest
         ((Get-Content -Path ExtensionPack/source.extension.vsixmanifest -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path ExtensionPack/source.extension.vsixmanifest
+        ((Get-Content -Path SsmsVsix/Properties/AssemblyInfo.cs -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path SsmsVsix/Properties/AssemblyInfo.cs
+        ((Get-Content -Path SsmsVsix/source.extension.vsixmanifest -Raw) -Replace "1.0.0", "${{ env.VERSION }}") | Set-Content -Path SsmsVsix/source.extension.vsixmanifest
       working-directory: src
       shell: pwsh
 
@@ -57,6 +59,7 @@ jobs:
       run: |
         mv src/Vsix/bin/Release/Vsix.vsix SqlProjectPowerTools-${{ env.VERSION }}.vsix
         mv src/ExtensionPack/bin/Release/ExtensionPack.vsix SqlProjectExtensionPack-${{ env.VERSION }}.vsix
+        mv src/SsmsVsix/bin/Release/SsmsVsix.vsix SqlProjectPowerToolsSsms-${{ env.VERSION }}.vsix
 
     - name: Azure CLI login with federated credential
       if: github.event_name != 'pull_request'
