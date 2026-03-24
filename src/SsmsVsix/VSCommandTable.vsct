@@ -199,6 +199,7 @@
       <IDSymbol name="cmdidDeployScript" value="0x0008" />
       <IDSymbol name="cmdidSeed" value="0x0009" />
       <IDSymbol name="cmdidVisualCompare" value="0x0013" />
+      <IDSymbol name="cmdidManageRules" value="0x0014" />
     </GuidSymbol>
 
   </Symbols>
