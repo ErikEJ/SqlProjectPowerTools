@@ -37,11 +37,9 @@ namespace SqlProjectsPowerTools
                 {
                     File.Delete(rulesJsonPath);
                 }
-                catch (IOException)
+                catch (Exception)
                 {
-                }
-                catch (UnauthorizedAccessException)
-                {
+                    // Ignore
                 }
 
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
@@ -60,7 +58,17 @@ namespace SqlProjectsPowerTools
                 var (newRunCodeAnalysis, newRulesExpression) = viewModel.GetResult();
 
                 await project.TrySetAttributeAsync("RunSqlCodeAnalysis", newRunCodeAnalysis ? "True" : "False");
-                await project.SetPropertyDirectAsync("SqlCodeAnalysisRules", newRulesExpression);
+
+                if (project.IsMsBuildSdkSqlDatabaseProject())
+                {
+                    // MsBuild.Sdk.SqlProj uses CodeAnalysisRules
+                    await project.SetPropertyDirectAsync("CodeAnalysisRules", newRulesExpression);
+                }
+                else
+                {
+                    // Classic .sqlproj / Microsoft.Build.Sql uses SqlCodeAnalysisRules
+                    await project.SetPropertyDirectAsync("SqlCodeAnalysisRules", newRulesExpression);
+                }
 
                 await VS.StatusBar.ShowMessageAsync("Code analysis rules updated.");
             }
