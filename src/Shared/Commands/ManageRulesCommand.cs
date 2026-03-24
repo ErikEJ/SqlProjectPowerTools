@@ -1,5 +1,3 @@
-using System;
-
 namespace SqlProjectsPowerTools
 {
     [Command(PackageIds.cmdidManageRules)]
@@ -9,7 +7,7 @@ namespace SqlProjectsPowerTools
         {
             ThreadHelper.JoinableTaskFactory.Run(async () =>
             {
-                Command.Enabled = await Command.IsEnabledForAnySqlProjectAsync();
+                Command.Enabled = await Command.IsEnabledForModernSqlProjectAsync();
             });
         }
 
