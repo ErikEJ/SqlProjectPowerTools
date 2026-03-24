@@ -89,7 +89,9 @@ namespace DacFXToolLib
                 .Select(r => new IssueTypeModel
                 {
                     Id = r.ShortRuleId,
-                    Severity = r.Severity.ToString(),
+                    Severity = errorRuleSets.Any(s => r.RuleId.StartsWith(s, StringComparison.OrdinalIgnoreCase))
+                        ? "Error"
+                        : r.Severity.ToString(),
                     Description = r.DisplayDescription,
                     Category = $"{r.Namespace}.{r.Metadata.Category}",
                     Enabled = !ignoredRules.Contains(r.RuleId)
