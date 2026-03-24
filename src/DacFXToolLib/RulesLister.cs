@@ -56,6 +56,10 @@ namespace DacFXToolLib
 
         private void BuildRuleLists(string rulesExpression)
         {
+            ignoredRules.Clear();
+            ignoredRuleSets.Clear();
+            errorRuleSets.Clear();
+
             if (!string.IsNullOrWhiteSpace(rulesExpression))
             {
                 var rules = rulesExpression.Split(Separator,
