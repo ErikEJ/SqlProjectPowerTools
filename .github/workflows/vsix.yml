@@ -59,7 +59,7 @@ jobs:
       run: |
         mv src/Vsix/bin/Release/Vsix.vsix SqlProjectPowerTools-${{ env.VERSION }}.vsix
         mv src/ExtensionPack/bin/Release/ExtensionPack.vsix SqlProjectExtensionPack-${{ env.VERSION }}.vsix
-        mv src/SsmsVsix/bin/Release/SsmsVsix.vsix SqlProjectPowerToolsSsms-${{ env.VERSION }}.vsix
+        mv src/SsmsVsix/bin/Release/Vsix.vsix SqlProjectPowerToolsSsms-${{ env.VERSION }}.vsix
 
     - name: Azure CLI login with federated credential
       if: github.event_name != 'pull_request'
