@@ -80,6 +80,23 @@ To analyze your project:
 
 The analysis includes checks for design issues, naming conventions, performance concerns, and more. Consider adding this step to your regular development workflow.
 
+## Managing Code Analysis Rules
+
+The rule manager lets you visually control which static code analysis rules are active for your database project and how violations are reported. This is available for SDK-style SQL database projects.
+
+To manage code analysis rules:
+
+1. Right-click on your SQL database project in Solution Explorer
+2. Select **SQL Project Power Tools > Manage code analysis rules**
+3. In the dialog, check or uncheck **Enable Code Analysis on Build** to turn code analysis on or off
+4. Browse or search for rules by ID, description, or category using the search box
+5. Use the severity filter drop-down to show only rules of a specific severity
+6. Enable or disable individual rules using the checkboxes
+7. For enabled rules, choose the severity (**Warning** or **Error**) using the drop-down
+8. Click **OK** to save your changes to the project file
+
+Rules are organized by category and can be enabled or disabled at the group level using the group checkbox. Your selections are saved to the `RunSqlCodeAnalysis` and `SqlCodeAnalysisRules` (or `CodeAnalysisRules`) properties in your project file.
+
 ## Creating Entity/Relationship Diagrams
 
 Visualizing your database structure is easy with the E/R diagram feature. This creates a Mermaid diagram showing the relationships between your tables.
