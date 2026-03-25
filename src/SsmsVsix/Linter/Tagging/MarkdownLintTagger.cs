@@ -1,0 +1,172 @@
+using System.Collections.Generic;
+using System.Linq;
+using MarkdownLintVS.Linting;
+using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Tagging;
+
+namespace MarkdownLintVS.Tagging
+{
+    /// <summary>
+    /// Tagger that provides error tags for markdown lint violations.
+    /// Uses shared MarkdownAnalysisCache to avoid duplicate parsing.
+    /// </summary>
+    public sealed class MarkdownLintTagger : ITagger<IErrorTag>, IDisposable
+    {
+        private readonly ITextBuffer _buffer;
+        private readonly MarkdownAnalysisCache _analysisCache;
+        private readonly string _filePath;
+        private ITextSnapshot _currentSnapshot;
+        private List<LintResult> _currentResults;
+        private bool _isDisposed;
+        private readonly object _lock = new();
+
+        public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
+
+        public MarkdownLintTagger(ITextBuffer buffer, MarkdownAnalysisCache analysisCache)
+        {
+            _buffer = buffer ?? throw new ArgumentNullException(nameof(buffer));
+            _analysisCache = analysisCache ?? throw new ArgumentNullException(nameof(analysisCache));
+            _currentSnapshot = buffer.CurrentSnapshot;
+            _currentResults = [];
+            _filePath = GetFilePath();
+
+            _buffer.Changed += OnBufferChanged;
+            _analysisCache.AnalysisUpdated += OnAnalysisUpdated;
+
+            // Initial analysis - immediate, no debounce for fast feedback on file open
+            _analysisCache.AnalyzeImmediate(_buffer, _filePath);
+        }
+
+        private void OnBufferChanged(object sender, TextContentChangedEventArgs e)
+        {
+            _currentSnapshot = e.After;
+
+            // Debounced analysis during typing to reduce CPU usage
+            _analysisCache.InvalidateAndAnalyze(_buffer, _filePath);
+        }
+
+        private void OnAnalysisUpdated(object sender, AnalysisUpdatedEventArgs e)
+        {
+            if (e.Buffer != _buffer)
+            {
+                return;
+            }
+
+            ITextSnapshot snapshot = e.Snapshot;
+            var results = e.Violations
+                .Select(v => new LintResult(v, snapshot))
+                .OrderBy(r => r.Start)
+                .ToList();
+
+            lock (_lock)
+            {
+                if (snapshot.Version.VersionNumber >= _currentSnapshot.Version.VersionNumber)
+                {
+                    _currentResults = results;
+
+                    TagsChanged?.Invoke(this, new SnapshotSpanEventArgs(
+                        new SnapshotSpan(snapshot, 0, snapshot.Length)));
+                }
+            }
+        }
+
+        public IEnumerable<ITagSpan<IErrorTag>> GetTags(NormalizedSnapshotSpanCollection spans)
+        {
+            if (spans.Count == 0)
+            {
+                yield break;
+            }
+
+            List<LintResult> results;
+            lock (_lock)
+            {
+                results = [.. _currentResults];
+            }
+
+            ITextSnapshot currentSnapshot = spans[0].Snapshot;
+            var queryStart = spans[0].Start.Position;
+            var queryEnd = spans[spans.Count - 1].End.Position;
+
+            foreach (LintResult result in results)
+            {
+                if (result.Start > queryEnd)
+                {
+                    break;
+                }
+
+                SnapshotSpan? span = result.GetTranslatedSpan(currentSnapshot);
+                if (!span.HasValue)
+                {
+                    continue;
+                }
+
+                if (span.Value.End.Position < queryStart)
+                {
+                    continue;
+                }
+
+                if (IntersectsAnySpan(span.Value, spans))
+                {
+                    yield return new TagSpan<IErrorTag>(
+                        span.Value,
+                        new ErrorTag(GetErrorType(result.Severity)));
+                }
+            }
+        }
+
+        private static bool IntersectsAnySpan(SnapshotSpan target, NormalizedSnapshotSpanCollection spans)
+        {
+            for (var i = 0; i < spans.Count; i++)
+            {
+                SnapshotSpan candidate = spans[i];
+
+                if (candidate.End.Position < target.Start.Position)
+                {
+                    continue;
+                }
+
+                if (candidate.Start.Position > target.End.Position)
+                {
+                    return false;
+                }
+
+                if (candidate.IntersectsWith(target))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private string GetErrorType(Linting.DiagnosticSeverity severity)
+        {
+            return severity switch
+            {
+                DiagnosticSeverity.Error => Microsoft.VisualStudio.Text.Adornments.PredefinedErrorTypeNames.SyntaxError,
+                DiagnosticSeverity.Warning => Microsoft.VisualStudio.Text.Adornments.PredefinedErrorTypeNames.Warning,
+                _ => Microsoft.VisualStudio.Text.Adornments.PredefinedErrorTypeNames.HintedSuggestion,
+            };
+        }
+
+        private string GetFilePath()
+        {
+            if (_buffer.Properties.TryGetProperty(typeof(ITextDocument), out ITextDocument document))
+            {
+                return document.FilePath;
+            }
+
+            return null;
+        }
+
+        public void Dispose()
+        {
+            if (!_isDisposed)
+            {
+                _buffer.Changed -= OnBufferChanged;
+                _analysisCache.AnalysisUpdated -= OnAnalysisUpdated;
+                _isDisposed = true;
+            }
+        }
+    }
+}
