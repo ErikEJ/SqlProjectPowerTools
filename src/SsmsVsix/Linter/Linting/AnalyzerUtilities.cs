@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using EnvDTE;
 using Microsoft;
 using Microsoft.VisualStudio.Threading;
 
@@ -25,7 +26,7 @@ internal class AnalyzerUtilities
 
     public async Task<List<SqlAnalyzerDiagnosticInfo>> AnalyzeAsync(string text, string filePath, string rules, string sqlVersion, CancellationToken cancellationToken = default)
     {
-        using var analyzer = new Process();
+        using var analyzer = new System.Diagnostics.Process();
         var lineQueue = new AsyncQueue<string>();
 
         if (text?.Length > 8192)
@@ -43,31 +44,31 @@ internal class AnalyzerUtilities
         return sqlDiagnostics;
     }
 
-    private static void StartAnalyzerProcess(Process analyzer, AsyncQueue<string> lineQueue, string path, string? rules, string? sqlVersion)
+    private static void StartAnalyzerProcess(System.Diagnostics.Process analyzer, AsyncQueue<string> lineQueue, string path, string rules, string sqlVersion)
     {
         bool useDnx = IsVisualStudioVersion18OrLater();
         string fileName;
         string args;
 
-        if (useDnx)
-        {
-            // Use dnx syntax for VS 2026 (version 18) or later
-            fileName = "dnx";
-            args = "ErikEJ.DacFX.TSQLAnalyzer.Cli --yes -- -n -i" +
-                $" \"{path}\"";
+        ////if (useDnx)
+        ////{
+        ////    // Use dnx syntax for VS 2026 (version 18) or later
+        ////    fileName = "dnx";
+        ////    args = "ErikEJ.DacFX.TSQLAnalyzer.Cli --yes -- -n -i" +
+        ////        $" \"{path}\"";
 
-            if (!string.IsNullOrWhiteSpace(rules))
-            {
-                args = args + $" -r Rules:{rules}";
-            }
+        ////    if (!string.IsNullOrWhiteSpace(rules))
+        ////    {
+        ////        args = args + $" -r Rules:{rules}";
+        ////    }
 
-            if (!string.IsNullOrWhiteSpace(sqlVersion))
-            {
-                args = args + $" -s {sqlVersion}";
-            }
-        }
-        else
-        {
+        ////    if (!string.IsNullOrWhiteSpace(sqlVersion))
+        ////    {
+        ////        args = args + $" -s {sqlVersion}";
+        ////    }
+        ////}
+        ////else
+        ////{
             // Use tsqlanalyze command for older VS versions
             fileName = "cmd.exe";
             args = "/c \"tsqlanalyze -n -i" +
@@ -82,7 +83,7 @@ internal class AnalyzerUtilities
             {
                 args = args + $" -s {sqlVersion}";
             }
-        }
+        ////}
 
         analyzer.StartInfo = new ProcessStartInfo()
         {
@@ -125,7 +126,7 @@ internal class AnalyzerUtilities
     {
         try
         {
-            var process = Process.GetCurrentProcess();
+            var process = System.Diagnostics.Process.GetCurrentProcess();
             if (process.MainModule?.FileName != null)
             {
                 var versionInfo = FileVersionInfo.GetVersionInfo(process.MainModule.FileName);
@@ -150,7 +151,7 @@ internal class AnalyzerUtilities
 
         while (!(lineQueue.IsCompleted && lineQueue.IsEmpty))
         {
-            string? line;
+            string line;
             try
             {
                 line = await lineQueue.DequeueAsync();
@@ -175,7 +176,7 @@ internal class AnalyzerUtilities
         return diagnostics;
     }
 
-    private static SqlAnalyzerDiagnosticInfo? GetDiagnosticFromAnalyzerOutput(string outputLine)
+    private static SqlAnalyzerDiagnosticInfo GetDiagnosticFromAnalyzerOutput(string outputLine)
     {
         Requires.NotNull(outputLine, nameof(outputLine));
 
@@ -206,13 +207,14 @@ internal class AnalyzerUtilities
             return null;
         }
 
-        var parts = outputLine.Split([':'], StringSplitOptions.RemoveEmptyEntries);
+        var parts = outputLine.Split([": "], StringSplitOptions.RemoveEmptyEntries);
 
         if (parts.Length < 3)
         {
             return null;
         }
 
+        // C:\Users\ErikEjlskovJensen(De\AppData\Local\Temp\tsqlanalyzerscratch.sql(23,1): SqlServer.Rules.SRN0007 : Index 'IFK_EmployeeReportsTo' does not follow the company naming standard. Please use a format that starts with IX_Employee*. (https://github.com/ErikEJ/SqlServer.Rules/blob/master/docs/Naming/SRN0007.md)
         // C:\Users\ErikEjlskovJensen(De\AppData\Local\Temp\tsqlanalyzerscratch.sql(6,9): Smells.SML005 : Avoid use of 'Select *'. (https://github.com/ErikEJ/SqlServer.Rules/blob/master/docs/CodeSmells/SML005.md)
         var fileAndPosition = parts[0].Trim();
         var lineColumnStart = fileAndPosition.LastIndexOf('(');

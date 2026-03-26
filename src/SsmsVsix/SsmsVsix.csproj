@@ -58,7 +58,10 @@
       <DependentUpon>PickTablesDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Linter\ErrorList\MarkdownDocumentListener.cs" />
+    <Compile Include="Linter\ErrorList\MarkdownLintError.cs" />
     <Compile Include="Linter\ErrorList\MarkdownLintTableDataSource.cs" />
+    <Compile Include="Linter\ErrorList\SinkManager.cs" />
+    <Compile Include="Linter\ErrorList\TableEntriesSnapshot.cs" />
     <Compile Include="Linter\Linting\AnalyzerUtilities.cs" />
     <Compile Include="Linter\Linting\CachedAnalysisResult.cs" />
     <Compile Include="Linter\Linting\DiagnosticSeverity.cs" />

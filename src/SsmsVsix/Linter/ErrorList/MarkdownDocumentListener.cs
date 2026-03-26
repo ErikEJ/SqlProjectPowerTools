@@ -11,7 +11,8 @@ namespace MarkdownLintVS.ErrorList
     /// Uses shared MarkdownAnalysisCache to avoid duplicate parsing.
     /// </summary>
     [Export(typeof(ITextViewCreationListener))]
-    [ContentType("sql")]
+    [ContentType("SQL")]
+    [ContentType("SQL Server Tools")]
     [TextViewRole(PredefinedTextViewRoles.Document)]
     public class MarkdownDocumentListener : ITextViewCreationListener
     {

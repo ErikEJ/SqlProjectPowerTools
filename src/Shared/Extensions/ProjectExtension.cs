@@ -212,6 +212,19 @@ namespace SqlProjectsPowerTools
             }
         }
 
+        public static async Task<(bool Run, string Rules, string SqlVersion)> IsInSqlProjAsync(this Project project)
+        {
+            var rulesExpression = await project.GetAttributeAsync("SqlCodeAnalysisRules")
+                ?? await project.GetAttributeAsync("CodeAnalysisRules")
+                ?? string.Empty;
+            var runCodeAnalysisValue = await project.GetAttributeAsync("RunSqlCodeAnalysis") ?? string.Empty;
+            var runCodeAnalysis = string.Equals(runCodeAnalysisValue, "True", StringComparison.OrdinalIgnoreCase);
+
+            var serverVersion = await project.GetSqlServerVersionAsync();
+
+            return (runCodeAnalysis, rulesExpression, serverVersion);
+        }
+
         public static async Task<string> GetSqlServerVersionAsync(this Project project)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();

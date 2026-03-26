@@ -33,7 +33,7 @@ namespace MarkdownLintVS.Linting
         /// captured on the calling thread, then analysis runs off the UI thread and notifies
         /// listeners via AnalysisUpdated.
         /// </summary>
-        public void AnalyzeImmediate(ITextBuffer buffer, string filePath)
+        public void AnalyzeImmediate(ITextBuffer buffer, string filePath, string sqlVersion, string rules)
         {
             ITextSnapshot snapshot = buffer.CurrentSnapshot;
             if (HasPendingAnalysisForSnapshot(buffer, snapshot.Version.VersionNumber))
@@ -49,14 +49,14 @@ namespace MarkdownLintVS.Linting
             // Run analysis on a background thread without debounce delay
             var pendingAnalysis = new PendingAnalysis(new CancellationTokenSource(), snapshot.Version.VersionNumber);
             buffer.Properties[_pendingAnalysisKey] = pendingAnalysis;
-            PerformAnalysisNowAsync(buffer, filePath, pendingAnalysis.CancellationTokenSource.Token, snapshot, text).FireAndForget();
+            PerformAnalysisNowAsync(buffer, filePath, sqlVersion, rules, pendingAnalysis.CancellationTokenSource.Token, snapshot, text).FireAndForget();
         }
 
         /// <summary>
         /// Triggers debounced analysis on a background thread. Waits for a pause in typing before analyzing to reduce
         /// CPU usage. Use this when the buffer content changes during editing.
         /// </summary>
-        public void InvalidateAndAnalyze(ITextBuffer buffer, string filePath)
+        public void InvalidateAndAnalyze(ITextBuffer buffer, string filePath, string sqlVersion, string rules)
         {
             // Cancel any pending analysis for this buffer
             CancelPendingAnalysis(buffer);
@@ -67,10 +67,10 @@ namespace MarkdownLintVS.Linting
             var text = snapshot.GetText();
 
             // Pass the token, not the CTS, to avoid accessing disposed CTS
-            PerformAnalysisAsync(buffer, filePath, cts.Token, snapshot, text).FireAndForget();
+            PerformAnalysisAsync(buffer, filePath, sqlVersion, rules, cts.Token, snapshot, text).FireAndForget();
         }
 
-        private async Task PerformAnalysisAsync(ITextBuffer buffer, string filePath, CancellationToken cancellationToken, ITextSnapshot snapshot, string text)
+        private async Task PerformAnalysisAsync(ITextBuffer buffer, string filePath, string sqlVersion, string rules, CancellationToken cancellationToken, ITextSnapshot snapshot, string text)
         {
             try
             {
@@ -78,7 +78,7 @@ namespace MarkdownLintVS.Linting
 
                 if (!cancellationToken.IsCancellationRequested)
                 {
-                    PerformAnalysis(buffer, snapshot, text, filePath, cancellationToken);
+                    PerformAnalysis(buffer, snapshot, text, filePath, sqlVersion, rules, cancellationToken);
                 }
             }
             catch (OperationCanceledException)
@@ -91,12 +91,12 @@ namespace MarkdownLintVS.Linting
             }
         }
 
-        private async Task PerformAnalysisNowAsync(ITextBuffer buffer, string filePath, CancellationToken cancellationToken, ITextSnapshot snapshot, string text)
+        private async Task PerformAnalysisNowAsync(ITextBuffer buffer, string filePath, string sqlVersion, string rules, CancellationToken cancellationToken, ITextSnapshot snapshot, string text)
         {
             try
             {
                 // Yield to background thread immediately (no debounce delay)
-                await Task.Run(() => PerformAnalysis(buffer, snapshot, text, filePath, cancellationToken), cancellationToken);
+                await Task.Run(() => PerformAnalysis(buffer, snapshot, text, filePath, sqlVersion, rules, cancellationToken), cancellationToken);
             }
             catch (OperationCanceledException)
             {
@@ -115,7 +115,7 @@ namespace MarkdownLintVS.Linting
         /// <summary>
         /// Performs the actual analysis and updates the cache.
         /// </summary>
-        private void PerformAnalysis(ITextBuffer buffer, ITextSnapshot snapshot, string text, string filePath, CancellationToken cancellationToken = default)
+        private void PerformAnalysis(ITextBuffer buffer, ITextSnapshot snapshot, string text, string filePath, string sqlVersion, string rules, CancellationToken cancellationToken = default)
         {
             try
             {
@@ -124,12 +124,7 @@ namespace MarkdownLintVS.Linting
 
                 ThreadHelper.JoinableTaskFactory.Run(async () =>
                 {
-                    var runProperties = await IsInSqlProjAsync();
-
-                    if (runProperties.Run)
-                    {
-                        violations = await AnalyzerUtilities.Instance.AnalyzeAsync(text, filePath, runProperties.Rules, runProperties.SqlVersion, cancellationToken);
-                    }
+                    violations = await AnalyzerUtilities.Instance.AnalyzeAsync(text, filePath, rules, sqlVersion, cancellationToken);
                 });
 
                 var result = new CachedAnalysisResult(snapshot.Version.VersionNumber, violations);
@@ -188,25 +183,7 @@ namespace MarkdownLintVS.Linting
             }
         }
 
-        private async Task<(bool Run, string Rules, string SqlVersion)> IsInSqlProjAsync()
-        {
-            var project = await VS.Solutions.GetActiveProjectAsync();
 
-            if (project == null)
-            {
-                return (false, null, null);
-            }
-
-            var rulesExpression = await project.GetAttributeAsync("SqlCodeAnalysisRules")
-                ?? await project.GetAttributeAsync("CodeAnalysisRules")
-                ?? string.Empty;
-            var runCodeAnalysisValue = await project.GetAttributeAsync("RunSqlCodeAnalysis") ?? string.Empty;
-            var runCodeAnalysis = string.Equals(runCodeAnalysisValue, "True", StringComparison.OrdinalIgnoreCase);
-
-            var serverVersion = await project.GetSqlServerVersionAsync();
-
-            return (runCodeAnalysis, rulesExpression, serverVersion);
-        }
     }
 
     /// <summary>
