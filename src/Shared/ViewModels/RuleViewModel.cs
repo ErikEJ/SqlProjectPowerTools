@@ -134,10 +134,15 @@ namespace SqlProjectsPowerTools
 
             if (id.StartsWith("SqlServer.Rules.", StringComparison.OrdinalIgnoreCase))
             {
-                if (categoryName is "Design" or "Naming" or "Performance" or "CodeSmells")
+                if (categoryName is "Design" or "Naming" or "Performance")
                 {
                     return $"https://github.com/ErikEJ/SqlServer.Rules/blob/master/docs/{categoryName}/{ruleId}.md";
                 }
+            }
+
+            if (id.StartsWith("Smells.", StringComparison.OrdinalIgnoreCase))
+            {
+                return $"https://github.com/ErikEJ/SqlServer.Rules/blob/master/docs/CodeSmells/{ruleId}.md";
             }
 
             return string.Empty;
