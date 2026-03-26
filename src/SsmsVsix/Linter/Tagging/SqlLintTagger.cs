@@ -7,8 +7,8 @@ using SqlProjectsPowerTools.Linting;
 namespace SqlProjectsPowerTools.Tagging
 {
     /// <summary>
-    /// Tagger that provides error tags for markdown lint violations.
-    /// Uses shared MarkdownAnalysisCache to avoid duplicate parsing.
+    /// Tagger that provides error tags for T-SQL lint violations.
+    /// Uses shared SqlAnalysisCache to avoid duplicate parsing.
     /// </summary>
     public sealed class SqlLintTagger : ITagger<IErrorTag>, IDisposable
     {

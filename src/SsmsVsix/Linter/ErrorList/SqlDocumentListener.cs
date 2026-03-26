@@ -8,7 +8,7 @@ namespace SqlProjectsPowerTools.ErrorList
 {
     /// <summary>
     /// Listens for document changes and updates the error list.
-    /// Uses shared MarkdownAnalysisCache to avoid duplicate parsing.
+    /// Uses shared SqlAnalysisCache to avoid duplicate parsing.
     /// </summary>
     [Export(typeof(ITextViewCreationListener))]
     [ContentType("SQL")]

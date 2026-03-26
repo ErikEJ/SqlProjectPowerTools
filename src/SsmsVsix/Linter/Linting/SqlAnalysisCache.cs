@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.Text;
 namespace SqlProjectsPowerTools.Linting
 {
     /// <summary>
-    /// Provides shared analysis caching for markdown documents. Both the tagger and error list use this to avoid
+    /// Provides shared analysis caching for T-SQL documents. Both the tagger and error list use this to avoid
     /// duplicate parsing.
     /// </summary>
     [Export(typeof(SqlAnalysisCache))]

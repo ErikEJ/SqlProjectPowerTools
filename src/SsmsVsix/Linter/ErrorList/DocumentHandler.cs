@@ -6,7 +6,7 @@ namespace SqlProjectsPowerTools.ErrorList
     /// <summary>
     /// Handles document events for a specific text view.
     /// Listens to shared analysis cache for results.
-    /// Note: Debouncing is handled by MarkdownAnalysisCache, not here.
+    /// Note: Debouncing is handled by SqlAnalysisCache, not here.
     /// </summary>
     internal sealed class DocumentHandler : IDisposable
     {

@@ -1,7 +1,7 @@
 namespace SqlProjectsPowerTools.Linting
 {
     /// <summary>
-    /// Represents a diagnostic severity level for markdown lint rules.
+    /// Represents a diagnostic severity level for sql lint rules.
     /// Maps to EditorConfig severity values and Visual Studio error types.
     /// </summary>
     public enum DiagnosticSeverity
