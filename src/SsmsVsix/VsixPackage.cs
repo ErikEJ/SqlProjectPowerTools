@@ -9,7 +9,6 @@ global using Task = System.Threading.Tasks.Task;
 using System.Runtime.InteropServices;
 using System.Threading;
 using GalaSoft.MvvmLight.Messaging;
-using MarkdownLintVS.ErrorList;
 using Microsoft.Extensions.DependencyInjection;
 
 #pragma warning restore SA1210 // Using directives should be ordered alphabetically by namespace

@@ -29,6 +29,11 @@ namespace MarkdownLintVS.Tagging
                 return null;
             }
 
+            if (ToolOptions.Instance.DisableCodeAnalysis)
+            {
+                return null;
+            }
+
             var enabled = false;
             var sqlVersion = string.Empty;
             var rules = string.Empty;

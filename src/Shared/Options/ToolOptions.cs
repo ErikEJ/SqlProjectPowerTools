@@ -1,4 +1,4 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 
 namespace SqlProjectsPowerTools
 {
@@ -9,5 +9,11 @@ namespace SqlProjectsPowerTools
         [Description("Merge dependent .dacpac files")]
         [DefaultValue(false)]
         public bool MergeDacpacs { get; set; }
+
+        [Category("General")]
+        [DisplayName(@"Disable live code analysis")]
+        [Description("Disable live static SQL code analysis")]
+        [DefaultValue(false)]
+        public bool DisableCodeAnalysis { get; set; }
     }
 }
