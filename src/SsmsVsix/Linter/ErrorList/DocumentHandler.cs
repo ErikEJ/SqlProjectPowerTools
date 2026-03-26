@@ -1,26 +1,25 @@
-using SqlProjectsPowerTools.Linting;
 using Microsoft.VisualStudio.Text.Editor;
+using SqlProjectsPowerTools.Linting;
 
 namespace SqlProjectsPowerTools.ErrorList
 {
-
     /// <summary>
     /// Handles document events for a specific text view.
     /// Listens to shared analysis cache for results.
-    /// Note: Debouncing is handled by MarkdownAnalysisCache, not here.
+    /// Note: Debouncing is handled by SqlAnalysisCache, not here.
     /// </summary>
     internal sealed class DocumentHandler : IDisposable
     {
         private readonly ITextView _textView;
-        private readonly MarkdownLintTableDataSource _tableDataSource;
-        private readonly MarkdownAnalysisCache _analysisCache;
+        private readonly SqlLintTableDataSource _tableDataSource;
+        private readonly SqlAnalysisCache _analysisCache;
         private readonly string _filePath;
         private bool _disposed;
 
         public DocumentHandler(
             ITextView textView,
-            MarkdownLintTableDataSource tableDataSource,
-            MarkdownAnalysisCache analysisCache,
+            SqlLintTableDataSource tableDataSource,
+            SqlAnalysisCache analysisCache,
             string filePath)
         {
             _textView = textView;

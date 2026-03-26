@@ -1,10 +1,10 @@
 using System.ComponentModel.Composition;
-using SqlProjectsPowerTools.Linting;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
 using SqlProjectsPowerTools;
+using SqlProjectsPowerTools.Linting;
 
 namespace SqlProjectsPowerTools.Tagging
 {
@@ -16,10 +16,10 @@ namespace SqlProjectsPowerTools.Tagging
     [ContentType("SQL Server Tools")]
     [TagType(typeof(IErrorTag))]
     [TextViewRole(PredefinedTextViewRoles.Document)]
-    public class MarkdownLintTaggerProvider : ITaggerProvider
+    public class SqlLintTaggerProvider : ITaggerProvider
     {
         [Import]
-        internal MarkdownAnalysisCache AnalysisCache { get; set; }
+        internal SqlAnalysisCache AnalysisCache { get; set; }
 
         public ITagger<T> CreateTagger<T>(ITextBuffer buffer)
             where T : ITag
@@ -67,8 +67,8 @@ namespace SqlProjectsPowerTools.Tagging
             }
 
             return buffer.Properties.GetOrCreateSingletonProperty(
-                typeof(MarkdownLintTagger),
-                () => new MarkdownLintTagger(buffer, AnalysisCache, sqlVersion, rules, project)) as ITagger<T>;
+                typeof(SqlLintTagger),
+                () => new SqlLintTagger(buffer, AnalysisCache, sqlVersion, rules, project)) as ITagger<T>;
         }
     }
 }

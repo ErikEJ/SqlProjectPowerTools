@@ -2,11 +2,10 @@ using Microsoft.VisualStudio.Shell.Interop;
 
 namespace SqlProjectsPowerTools.ErrorList
 {
-
     /// <summary>
     /// Represents an error in the error list.
     /// </summary>
-    internal class MarkdownLintError
+    internal class SqlLintError
     {
         public string FilePath { get; }
 
@@ -26,7 +25,7 @@ namespace SqlProjectsPowerTools.ErrorList
 
         public __VSERRORCATEGORY Severity { get; }
 
-        public MarkdownLintError(Linting.SqlAnalyzerDiagnosticInfo violation, string filePath, string projectName)
+        public SqlLintError(Linting.SqlAnalyzerDiagnosticInfo violation, string filePath, string projectName)
         {
             FilePath = filePath;
             Line = violation.Range.StartLine;
@@ -39,7 +38,7 @@ namespace SqlProjectsPowerTools.ErrorList
             ProjectName = projectName;
         }
 
-        public MarkdownLintError(
+        public SqlLintError(
             string filePath,
             int line,
             int column,

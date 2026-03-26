@@ -10,12 +10,12 @@ namespace SqlProjectsPowerTools.ErrorList
     /// <summary>
     /// Table data source for the Error List window.
     /// </summary>
-    [Export(typeof(MarkdownLintTableDataSource))]
-    public class MarkdownLintTableDataSource : ITableDataSource
+    [Export(typeof(SqlLintTableDataSource))]
+    public class SqlLintTableDataSource : ITableDataSource
     {
-        private static MarkdownLintTableDataSource _instance;
+        private static SqlLintTableDataSource _instance;
 
-        public static MarkdownLintTableDataSource Instance => _instance;
+        public static SqlLintTableDataSource Instance => _instance;
 
         private readonly List<SinkManager> _managers = [];
         private readonly Dictionary<string, TableEntriesSnapshot> _snapshots =
@@ -28,7 +28,7 @@ namespace SqlProjectsPowerTools.ErrorList
         public string DisplayName => Vsix.Name;
 
         [ImportingConstructor]
-        public MarkdownLintTableDataSource([Import] ITableManagerProvider tableManagerProvider)
+        public SqlLintTableDataSource([Import] ITableManagerProvider tableManagerProvider)
         {
             _instance = this;
 
@@ -74,7 +74,7 @@ namespace SqlProjectsPowerTools.ErrorList
 
             violations ??= [];
 
-            var errors = violations.Select(v => new MarkdownLintError(v, filePath, projectName)).ToList();
+            var errors = violations.Select(v => new SqlLintError(v, filePath, projectName)).ToList();
 
             lock (_snapshots)
             {

@@ -58,21 +58,21 @@
       <DependentUpon>PickTablesDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Linter\ErrorList\DocumentHandler.cs" />
-    <Compile Include="Linter\ErrorList\MarkdownDocumentListener.cs" />
-    <Compile Include="Linter\ErrorList\MarkdownLintError.cs" />
-    <Compile Include="Linter\ErrorList\MarkdownLintTableDataSource.cs" />
+    <Compile Include="Linter\ErrorList\SqlDocumentListener.cs" />
+    <Compile Include="Linter\ErrorList\SqlLintError.cs" />
+    <Compile Include="Linter\ErrorList\SqlLintTableDataSource.cs" />
     <Compile Include="Linter\ErrorList\SinkManager.cs" />
     <Compile Include="Linter\ErrorList\TableEntriesSnapshot.cs" />
     <Compile Include="Linter\Linting\AnalysisUpdatedEventArgs.cs" />
     <Compile Include="Linter\Linting\AnalyzerUtilities.cs" />
     <Compile Include="Linter\Linting\CachedAnalysisResult.cs" />
     <Compile Include="Linter\Linting\DiagnosticSeverity.cs" />
-    <Compile Include="Linter\Linting\MarkdownAnalysisCache.cs" />
+    <Compile Include="Linter\Linting\SqlAnalysisCache.cs" />
     <Compile Include="Linter\Linting\PendingAnalysis.cs" />
     <Compile Include="Linter\Linting\SqlAnalyzerDiagnosticInfo.cs" />
     <Compile Include="Linter\Tagging\LintResult.cs" />
-    <Compile Include="Linter\Tagging\MarkdownLintTagger.cs" />
-    <Compile Include="Linter\Tagging\MarkdownLintTaggerProvider.cs" />
+    <Compile Include="Linter\Tagging\SqlLintTagger.cs" />
+    <Compile Include="Linter\Tagging\SqlLintTaggerProvider.cs" />
     <Compile Include="ToolWindows\SchemaCompareToolWindow.cs" />
     <Compile Include="ToolWindows\SchemaCompareWindowControl.xaml.cs">
       <DependentUpon>SchemaCompareWindowControl.xaml</DependentUpon>

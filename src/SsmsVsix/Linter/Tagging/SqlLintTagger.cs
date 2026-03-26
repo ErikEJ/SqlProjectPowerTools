@@ -1,19 +1,19 @@
 using System.Collections.Generic;
 using System.Linq;
-using SqlProjectsPowerTools.Linting;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
+using SqlProjectsPowerTools.Linting;
 
 namespace SqlProjectsPowerTools.Tagging
 {
     /// <summary>
-    /// Tagger that provides error tags for markdown lint violations.
-    /// Uses shared MarkdownAnalysisCache to avoid duplicate parsing.
+    /// Tagger that provides error tags for T-SQL lint violations.
+    /// Uses shared SqlAnalysisCache to avoid duplicate parsing.
     /// </summary>
-    public sealed class MarkdownLintTagger : ITagger<IErrorTag>, IDisposable
+    public sealed class SqlLintTagger : ITagger<IErrorTag>, IDisposable
     {
         private readonly ITextBuffer _buffer;
-        private readonly MarkdownAnalysisCache _analysisCache;
+        private readonly SqlAnalysisCache _analysisCache;
         private readonly string _filePath;
         private ITextSnapshot _currentSnapshot;
         private List<LintResult> _currentResults;
@@ -25,7 +25,7 @@ namespace SqlProjectsPowerTools.Tagging
 
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
-        public MarkdownLintTagger(ITextBuffer buffer, MarkdownAnalysisCache analysisCache, string sqlVersion, string rules, string projectName)
+        public SqlLintTagger(ITextBuffer buffer, SqlAnalysisCache analysisCache, string sqlVersion, string rules, string projectName)
         {
             _buffer = buffer ?? throw new ArgumentNullException(nameof(buffer));
             _analysisCache = analysisCache ?? throw new ArgumentNullException(nameof(analysisCache));

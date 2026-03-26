@@ -1,26 +1,26 @@
 using System.ComponentModel.Composition;
-using SqlProjectsPowerTools.Linting;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Utilities;
+using SqlProjectsPowerTools.Linting;
 
 namespace SqlProjectsPowerTools.ErrorList
 {
     /// <summary>
     /// Listens for document changes and updates the error list.
-    /// Uses shared MarkdownAnalysisCache to avoid duplicate parsing.
+    /// Uses shared SqlAnalysisCache to avoid duplicate parsing.
     /// </summary>
     [Export(typeof(ITextViewCreationListener))]
     [ContentType("SQL")]
     [ContentType("SQL Server Tools")]
     [TextViewRole(PredefinedTextViewRoles.Document)]
-    public class MarkdownDocumentListener : ITextViewCreationListener
+    public class SqlDocumentListener : ITextViewCreationListener
     {
         [Import]
-        internal MarkdownLintTableDataSource TableDataSource { get; set; }
+        internal SqlLintTableDataSource TableDataSource { get; set; }
 
         [Import]
-        internal MarkdownAnalysisCache AnalysisCache { get; set; }
+        internal SqlAnalysisCache AnalysisCache { get; set; }
 
         public void TextViewCreated(ITextView textView)
         {

@@ -1,19 +1,19 @@
-using Microsoft.VisualStudio.Text;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Threading;
+using Microsoft.VisualStudio.Text;
 
 namespace SqlProjectsPowerTools.Linting
 {
     /// <summary>
-    /// Provides shared analysis caching for markdown documents. Both the tagger and error list use this to avoid
+    /// Provides shared analysis caching for T-SQL documents. Both the tagger and error list use this to avoid
     /// duplicate parsing.
     /// </summary>
-    [Export(typeof(MarkdownAnalysisCache))]
-    public class MarkdownAnalysisCache
+    [Export(typeof(SqlAnalysisCache))]
+    public class SqlAnalysisCache
     {
-        private static readonly object _propertyKey = typeof(MarkdownAnalysisCache);
-        private static readonly object _pendingAnalysisKey = typeof(MarkdownAnalysisCache).FullName + ".PendingAnalysis";
+        private static readonly object _propertyKey = typeof(SqlAnalysisCache);
+        private static readonly object _pendingAnalysisKey = typeof(SqlAnalysisCache).FullName + ".PendingAnalysis";
 
         /// <summary>
         /// Delay in milliseconds before analyzing after the last keystroke.
@@ -149,6 +149,7 @@ namespace SqlProjectsPowerTools.Linting
             if (buffer.Properties.TryGetProperty(_pendingAnalysisKey, out PendingAnalysis pendingAnalysis))
             {
                 _ = buffer.Properties.RemoveProperty(_pendingAnalysisKey);
+
                 // Cancel first, then dispose - order matters for race condition safety
                 // The token is passed by value to the async method, so accessing IsCancellationRequested
                 // after Cancel() is safe, but we should not dispose until after Task.Delay returns
