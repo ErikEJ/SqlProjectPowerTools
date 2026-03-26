@@ -144,8 +144,6 @@ internal class AnalyzerUtilities
             CreateNoWindow = true,
         };
 
-        Debug.WriteLine(args);
-
         analyzer.EnableRaisingEvents = true;
         analyzer.OutputDataReceived += new DataReceivedEventHandler((sender, e) =>
         {
