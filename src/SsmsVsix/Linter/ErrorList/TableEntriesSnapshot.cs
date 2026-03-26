@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.Shell.TableManager;
 
-namespace MarkdownLintVS.ErrorList
+namespace SqlProjectsPowerTools.ErrorList
 {
 
     /// <summary>

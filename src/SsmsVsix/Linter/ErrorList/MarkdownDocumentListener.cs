@@ -1,10 +1,10 @@
 using System.ComponentModel.Composition;
-using MarkdownLintVS.Linting;
+using SqlProjectsPowerTools.Linting;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Utilities;
 
-namespace MarkdownLintVS.ErrorList
+namespace SqlProjectsPowerTools.ErrorList
 {
     /// <summary>
     /// Listens for document changes and updates the error list.

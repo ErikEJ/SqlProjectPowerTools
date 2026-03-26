@@ -1,4 +1,4 @@
-namespace MarkdownLintVS.Linting
+namespace SqlProjectsPowerTools.Linting
 {
     /// <summary>
     /// Represents a diagnostic severity level for markdown lint rules.

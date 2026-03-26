@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Threading;
 
-namespace MarkdownLintVS.Linting
+namespace SqlProjectsPowerTools.Linting
 {
     /// <summary>
     /// Provides shared analysis caching for markdown documents. Both the tagger and error list use this to avoid

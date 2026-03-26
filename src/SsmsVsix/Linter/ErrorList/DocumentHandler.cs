@@ -1,7 +1,7 @@
-using MarkdownLintVS.Linting;
+using SqlProjectsPowerTools.Linting;
 using Microsoft.VisualStudio.Text.Editor;
 
-namespace MarkdownLintVS.ErrorList
+namespace SqlProjectsPowerTools.ErrorList
 {
 
     /// <summary>

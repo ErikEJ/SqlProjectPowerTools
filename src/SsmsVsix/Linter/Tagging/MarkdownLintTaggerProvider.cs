@@ -1,12 +1,12 @@
 using System.ComponentModel.Composition;
-using MarkdownLintVS.Linting;
+using SqlProjectsPowerTools.Linting;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
 using SqlProjectsPowerTools;
 
-namespace MarkdownLintVS.Tagging
+namespace SqlProjectsPowerTools.Tagging
 {
     /// <summary>
     /// Provides the tagger for sql files.

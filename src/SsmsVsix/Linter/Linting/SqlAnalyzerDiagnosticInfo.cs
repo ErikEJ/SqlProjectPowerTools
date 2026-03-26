@@ -1,6 +1,6 @@
 using Range = Microsoft.VisualStudio.RpcContracts.Utilities.Range;
 
-namespace MarkdownLintVS.Linting;
+namespace SqlProjectsPowerTools.Linting;
 
 /// <summary>
 /// Class that contains diagnostic information found by the SQL analyzer.

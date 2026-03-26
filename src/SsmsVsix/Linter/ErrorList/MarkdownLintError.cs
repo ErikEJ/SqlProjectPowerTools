@@ -1,6 +1,6 @@
 using Microsoft.VisualStudio.Shell.Interop;
 
-namespace MarkdownLintVS.ErrorList
+namespace SqlProjectsPowerTools.ErrorList
 {
 
     /// <summary>

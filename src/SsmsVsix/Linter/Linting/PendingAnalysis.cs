@@ -1,6 +1,6 @@
 using System.Threading;
 
-namespace MarkdownLintVS.Linting
+namespace SqlProjectsPowerTools.Linting
 {
     internal sealed class PendingAnalysis(CancellationTokenSource cancellationTokenSource, int snapshotVersion)
     {
