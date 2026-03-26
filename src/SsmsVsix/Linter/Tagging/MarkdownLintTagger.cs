@@ -39,8 +39,6 @@ namespace MarkdownLintVS.Tagging
 
             // Initial analysis - immediate, no debounce for fast feedback on file open
             _analysisCache.AnalyzeImmediate(_buffer, _filePath, _sqlVersion, _rules);
-            _sqlVersion = sqlVersion;
-            _rules = rules;
         }
 
         private void OnBufferChanged(object sender, TextContentChangedEventArgs e)
