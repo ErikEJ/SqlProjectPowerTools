@@ -1,4 +1,4 @@
-using MarkdownLintVS.Linting;
+using SqlProjectsPowerTools.Linting;
 using Microsoft.VisualStudio.Text;
 
 namespace MarkdownLintVS.Tagging

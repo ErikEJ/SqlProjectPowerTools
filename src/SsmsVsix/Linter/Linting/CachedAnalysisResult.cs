@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace MarkdownLintVS.Linting
+namespace SqlProjectsPowerTools.Linting
 {
     /// <summary>
     /// Cached analysis result for a text buffer.

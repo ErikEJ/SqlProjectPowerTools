@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using MarkdownLintVS.Linting;
+using SqlProjectsPowerTools.Linting;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
 

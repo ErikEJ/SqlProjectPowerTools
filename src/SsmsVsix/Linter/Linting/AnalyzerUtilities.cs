@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Microsoft;
 using Microsoft.VisualStudio.Threading;
 
-namespace MarkdownLintVS.Linting;
+namespace SqlProjectsPowerTools.Linting;
 
 /// <summary>
 /// Helper class for running analyzer on a string or file.

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.Text;
 
-namespace MarkdownLintVS.Linting
+namespace SqlProjectsPowerTools.Linting
 {
 
     /// <summary>
