@@ -41,7 +41,7 @@ namespace MarkdownLintVS.ErrorList
             }
 
             // Update error list with new results
-            _tableDataSource?.UpdateErrors(_filePath, e.Violations);
+            _tableDataSource?.UpdateErrors(e.FilePath, e.Violations);
         }
 
         public void Dispose()

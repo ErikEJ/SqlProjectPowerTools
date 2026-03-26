@@ -59,11 +59,11 @@ namespace MarkdownLintVS.ErrorList
                     return true;
 
                 case StandardTableKeyNames.ErrorCategory:
-                    content = "Markdown";
+                    content = "SQL";
                     return true;
 
                 case StandardTableKeyNames.BuildTool:
-                    content = "MarkdownLint";
+                    content = "TSqlAnalyzer";
                     return true;
 
                 case StandardTableKeyNames.HelpLink:

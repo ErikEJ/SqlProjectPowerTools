@@ -2,11 +2,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using EnvDTE;
 using Microsoft;
 using Microsoft.VisualStudio.Threading;
 
@@ -22,11 +20,11 @@ internal class AnalyzerUtilities
 
     public static AnalyzerUtilities Instance => _instance.Value;
 
-    private readonly string tempPath = Path.Combine(Path.GetTempPath(), "tsqlanalyzerscratch.sql");
+    private readonly string tempPath = Path.Combine(Path.GetTempPath(), $"tsqlanalyzerscratch-{Guid.NewGuid()}.sql");
 
-    public async Task<List<SqlAnalyzerDiagnosticInfo>> AnalyzeAsync(string text, string filePath, string rules, string sqlVersion, CancellationToken cancellationToken = default)
+    public async Task<List<SqlAnalyzerDiagnosticInfo>> AnalyzeAsync(string text, string rules, string sqlVersion, CancellationToken cancellationToken = default)
     {
-        using var analyzer = new System.Diagnostics.Process();
+        using var analyzer = new Process();
         var lineQueue = new AsyncQueue<string>();
 
         if (text?.Length > 8192)
@@ -39,50 +37,30 @@ internal class AnalyzerUtilities
 
         StartAnalyzerProcess(analyzer, lineQueue, tempPath, rules, sqlVersion);
 
-        var sqlDiagnostics = await ProcessAnalyzerQueueAsync(lineQueue);
+        var sqlDiagnostics = await ProcessAnalyzerQueueAsync(lineQueue, cancellationToken);
 
         return sqlDiagnostics;
     }
 
     private static void StartAnalyzerProcess(System.Diagnostics.Process analyzer, AsyncQueue<string> lineQueue, string path, string rules, string sqlVersion)
     {
-        bool useDnx = IsVisualStudioVersion18OrLater();
         string fileName;
         string args;
 
-        ////if (useDnx)
-        ////{
-        ////    // Use dnx syntax for VS 2026 (version 18) or later
-        ////    fileName = "dnx";
-        ////    args = "ErikEJ.DacFX.TSQLAnalyzer.Cli --yes -- -n -i" +
-        ////        $" \"{path}\"";
+        // Use tsqlanalyze command for older VS versions
+        fileName = "cmd.exe";
+        args = "/c \"tsqlanalyze -n -i" +
+            $" \"{path}\"\"";
 
-        ////    if (!string.IsNullOrWhiteSpace(rules))
-        ////    {
-        ////        args = args + $" -r Rules:{rules}";
-        ////    }
+        if (!string.IsNullOrWhiteSpace(rules))
+        {
+            args = args + $" -r Rules:{rules}";
+        }
 
-        ////    if (!string.IsNullOrWhiteSpace(sqlVersion))
-        ////    {
-        ////        args = args + $" -s {sqlVersion}";
-        ////    }
-        ////}
-        ////else
-        ////{
-            // Use tsqlanalyze command for older VS versions
-            fileName = "cmd.exe";
-            args = "/c \"tsqlanalyze -n -i" +
-                $" \"{path}\"\"";
-
-            if (!string.IsNullOrWhiteSpace(rules))
-            {
-                args = args + $" -r Rules:{rules}";
-            }
-
-            if (!string.IsNullOrWhiteSpace(sqlVersion))
-            {
-                args = args + $" -s {sqlVersion}";
-            }
+        if (!string.IsNullOrWhiteSpace(sqlVersion))
+        {
+            args = args + $" -s {sqlVersion}";
+        }
         ////}
 
         analyzer.StartInfo = new ProcessStartInfo()
@@ -118,32 +96,7 @@ internal class AnalyzerUtilities
         }
     }
 
-    /// <summary>
-    /// Determines if the current Visual Studio host is version 18 or later.
-    /// </summary>
-    /// <returns>True if running in VS 2026 (version 18) or later, false otherwise.</returns>
-    private static bool IsVisualStudioVersion18OrLater()
-    {
-        try
-        {
-            var process = System.Diagnostics.Process.GetCurrentProcess();
-            if (process.MainModule?.FileName != null)
-            {
-                var versionInfo = FileVersionInfo.GetVersionInfo(process.MainModule.FileName);
-                return versionInfo.FileMajorPart >= 18;
-            }
-        }
-        catch (Exception)
-        {
-            // If we can't determine the version (due to security restrictions, process access issues, etc.),
-            // fall back to the old behavior (using tsqlanalyze command).
-            // This ensures the extension continues to work even if version detection fails.
-        }
-
-        return false;
-    }
-
-    private static async Task<List<SqlAnalyzerDiagnosticInfo>> ProcessAnalyzerQueueAsync(AsyncQueue<string> lineQueue)
+    private static async Task<List<SqlAnalyzerDiagnosticInfo>> ProcessAnalyzerQueueAsync(AsyncQueue<string> lineQueue, CancellationToken cancellationToken)
     {
         Requires.NotNull(lineQueue, nameof(lineQueue));
 
@@ -154,7 +107,7 @@ internal class AnalyzerUtilities
             string line;
             try
             {
-                line = await lineQueue.DequeueAsync();
+                line = await lineQueue.DequeueAsync(cancellationToken);
             }
             catch (OperationCanceledException)
             {
@@ -239,7 +192,7 @@ internal class AnalyzerUtilities
         var urlStartIndex = description.IndexOf(" (https", StringComparison.OrdinalIgnoreCase);
         var url = urlStartIndex >= 0 ? description.Substring(urlStartIndex + 2, description.Length - urlStartIndex - 3) : string.Empty;
 
-        var ruleNumber = ruleId.Split('.').Last();
+        var ruleNumber = ruleId.Split('.')[ruleId.Length - 1];
         var rulePrefix = ruleId.Replace("." + ruleNumber, string.Empty);
 
         var descriptionWithoutUrl = urlStartIndex >= 0 ? description.Substring(0, urlStartIndex) : description;

@@ -1,9 +1,7 @@
 using Microsoft.VisualStudio.Text;
-using SqlProjectsPowerTools;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace MarkdownLintVS.Linting
 {
@@ -124,7 +122,7 @@ namespace MarkdownLintVS.Linting
 
                 ThreadHelper.JoinableTaskFactory.Run(async () =>
                 {
-                    violations = await AnalyzerUtilities.Instance.AnalyzeAsync(text, filePath, rules, sqlVersion, cancellationToken);
+                    violations = await AnalyzerUtilities.Instance.AnalyzeAsync(text, rules, sqlVersion, cancellationToken);
                 });
 
                 var result = new CachedAnalysisResult(snapshot.Version.VersionNumber, violations);
@@ -182,25 +180,5 @@ namespace MarkdownLintVS.Linting
                 pendingAnalysis.CancellationTokenSource.Dispose();
             }
         }
-
-
-    }
-
-    /// <summary>
-    /// Event args for analysis completion.
-    /// </summary>
-    public class AnalysisUpdatedEventArgs(
-        ITextBuffer buffer,
-        ITextSnapshot snapshot,
-        IReadOnlyList<SqlAnalyzerDiagnosticInfo> violations,
-        string filePath) : EventArgs
-    {
-        public ITextBuffer Buffer { get; } = buffer;
-
-        public ITextSnapshot Snapshot { get; } = snapshot;
-
-        public IReadOnlyList<SqlAnalyzerDiagnosticInfo> Violations { get; } = violations;
-
-        public string FilePath { get; } = filePath;
     }
 }
