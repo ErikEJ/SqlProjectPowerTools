@@ -22,9 +22,11 @@ namespace MarkdownLintVS.ErrorList
 
         public string HelpLink { get; }
 
+        public string ProjectName { get; }
+
         public __VSERRORCATEGORY Severity { get; }
 
-        public MarkdownLintError(Linting.SqlAnalyzerDiagnosticInfo violation, string filePath)
+        public MarkdownLintError(Linting.SqlAnalyzerDiagnosticInfo violation, string filePath, string projectName)
         {
             FilePath = filePath;
             Line = violation.Range.StartLine;
@@ -34,6 +36,7 @@ namespace MarkdownLintVS.ErrorList
             Description = violation.Message;
             HelpLink = violation.HelpLink?.ToString() ?? string.Empty;
             Severity = __VSERRORCATEGORY.EC_WARNING;
+            ProjectName = projectName;
         }
 
         public MarkdownLintError(
@@ -44,6 +47,7 @@ namespace MarkdownLintVS.ErrorList
             string message,
             string description,
             string helpLink,
+            string projectName,
             Linting.DiagnosticSeverity severity)
         {
             FilePath = filePath;
@@ -54,6 +58,7 @@ namespace MarkdownLintVS.ErrorList
             Description = description ?? string.Empty;
             HelpLink = helpLink ?? string.Empty;
             Severity = GetSeverity(severity);
+            ProjectName = projectName;
         }
 
         private static __VSERRORCATEGORY GetSeverity(Linting.DiagnosticSeverity severity)

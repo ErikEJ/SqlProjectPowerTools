@@ -65,7 +65,7 @@ namespace MarkdownLintVS.ErrorList
             return manager;
         }
 
-        public void UpdateErrors(string filePath, IEnumerable<Linting.SqlAnalyzerDiagnosticInfo> violations)
+        public void UpdateErrors(string filePath, string projectName, IEnumerable<Linting.SqlAnalyzerDiagnosticInfo> violations)
         {
             if (string.IsNullOrEmpty(filePath))
             {
@@ -74,7 +74,7 @@ namespace MarkdownLintVS.ErrorList
 
             violations ??= [];
 
-            var errors = violations.Select(v => new MarkdownLintError(v, filePath)).ToList();
+            var errors = violations.Select(v => new MarkdownLintError(v, filePath, projectName)).ToList();
 
             lock (_snapshots)
             {

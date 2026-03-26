@@ -37,6 +37,7 @@ namespace MarkdownLintVS.Tagging
             var enabled = false;
             var sqlVersion = string.Empty;
             var rules = string.Empty;
+            var project = string.Empty;
 
             ThreadHelper.JoinableTaskFactory.Run(async () =>
             {
@@ -46,6 +47,7 @@ namespace MarkdownLintVS.Tagging
 
                 if (currentProject != null)
                 {
+                    project = currentProject.Name;
                     var runProperties = await currentProject.IsInSqlProjAsync();
                     enabled = runProperties.Run;
                     sqlVersion = runProperties.SqlVersion;
@@ -66,7 +68,7 @@ namespace MarkdownLintVS.Tagging
 
             return buffer.Properties.GetOrCreateSingletonProperty(
                 typeof(MarkdownLintTagger),
-                () => new MarkdownLintTagger(buffer, AnalysisCache, sqlVersion, rules)) as ITagger<T>;
+                () => new MarkdownLintTagger(buffer, AnalysisCache, sqlVersion, rules, project)) as ITagger<T>;
         }
     }
 }

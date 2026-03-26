@@ -21,10 +21,11 @@ namespace MarkdownLintVS.Tagging
         private readonly object _lock = new();
         private readonly string _sqlVersion;
         private readonly string _rules;
+        private readonly string _projectName;
 
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
 
-        public MarkdownLintTagger(ITextBuffer buffer, MarkdownAnalysisCache analysisCache, string sqlVersion, string rules)
+        public MarkdownLintTagger(ITextBuffer buffer, MarkdownAnalysisCache analysisCache, string sqlVersion, string rules, string projectName)
         {
             _buffer = buffer ?? throw new ArgumentNullException(nameof(buffer));
             _analysisCache = analysisCache ?? throw new ArgumentNullException(nameof(analysisCache));
@@ -33,12 +34,13 @@ namespace MarkdownLintVS.Tagging
             _filePath = GetFilePath();
             _sqlVersion = sqlVersion;
             _rules = rules;
+            _projectName = projectName;
 
             _buffer.Changed += OnBufferChanged;
             _analysisCache.AnalysisUpdated += OnAnalysisUpdated;
 
             // Initial analysis - immediate, no debounce for fast feedback on file open
-            _analysisCache.AnalyzeImmediate(_buffer, _filePath, _sqlVersion, _rules);
+            _analysisCache.AnalyzeImmediate(_buffer, _filePath, _sqlVersion, _rules, _projectName);
         }
 
         private void OnBufferChanged(object sender, TextContentChangedEventArgs e)
@@ -46,7 +48,7 @@ namespace MarkdownLintVS.Tagging
             _currentSnapshot = e.After;
 
             // Debounced analysis during typing to reduce CPU usage
-            _analysisCache.InvalidateAndAnalyze(_buffer, _filePath, _sqlVersion, _rules);
+            _analysisCache.InvalidateAndAnalyze(_buffer, _filePath, _sqlVersion, _rules, _projectName);
         }
 
         private void OnAnalysisUpdated(object sender, AnalysisUpdatedEventArgs e)

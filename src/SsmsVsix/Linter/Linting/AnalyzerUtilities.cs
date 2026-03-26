@@ -20,7 +20,7 @@ internal class AnalyzerUtilities
 
     public static AnalyzerUtilities Instance => _instance.Value;
 
-    private readonly string tempPath = Path.Combine(Path.GetTempPath(), $"tsqlanalyzerscratch-{Guid.NewGuid()}.sql");
+    private static string CreateTempFilePath() => Path.Combine(Path.GetTempPath(), $"tsqlanalyzerscratch-{Guid.NewGuid()}.sql");
 
     public async Task<List<SqlAnalyzerDiagnosticInfo>> AnalyzeAsync(string text, string rules, string sqlVersion, CancellationToken cancellationToken = default)
     {
@@ -33,7 +33,27 @@ internal class AnalyzerUtilities
             return [];
         }
 
-        File.WriteAllText(tempPath, text, Encoding.UTF8);
+        // Create a unique temp file for each analysis to support concurrent calls.
+        var tempPath = CreateTempFilePath();
+
+        try
+        {
+            await WriteTempFileAsync(tempPath, text, cancellationToken).ConfigureAwait(false);
+        }
+        catch (IOException ioex)
+        {
+            await ioex.LogAsync();
+
+            // Failed to write temp file; cannot proceed with analysis.
+            return [];
+        }
+        catch (UnauthorizedAccessException uex)
+        {
+            await uex.LogAsync();
+
+            // No permission to write temp file; cannot proceed with analysis.
+            return [];
+        }
 
         StartAnalyzerProcess(analyzer, lineQueue, tempPath, rules, sqlVersion);
 
@@ -68,11 +88,40 @@ internal class AnalyzerUtilities
                     // Process has already exited; nothing more to do.
                 }
             }
+
+            DeleteTempFile(tempPath);
         }
+
         return sqlDiagnostics;
     }
 
-    private static void StartAnalyzerProcess(System.Diagnostics.Process analyzer, AsyncQueue<string> lineQueue, string path, string rules, string sqlVersion)
+    private static async Task WriteTempFileAsync(string path, string content, CancellationToken cancellationToken)
+    {
+        using var stream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true);
+        var bytes = Encoding.UTF8.GetBytes(content);
+        await stream.WriteAsync(bytes, 0, bytes.Length, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static void DeleteTempFile(string path)
+    {
+        try
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+        catch (IOException)
+        {
+            // File may be locked; ignore cleanup failure.
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // No permission to delete; ignore cleanup failure.
+        }
+    }
+
+    private static void StartAnalyzerProcess(Process analyzer, AsyncQueue<string> lineQueue, string path, string rules, string sqlVersion)
     {
         var args = $"-n -i \"{path}\"";
 
@@ -94,6 +143,8 @@ internal class AnalyzerUtilities
             UseShellExecute = false,
             CreateNoWindow = true,
         };
+
+        Debug.WriteLine(args);
 
         analyzer.EnableRaisingEvents = true;
         analyzer.OutputDataReceived += new DataReceivedEventHandler((sender, e) =>
@@ -128,6 +179,7 @@ internal class AnalyzerUtilities
         while (!(lineQueue.IsCompleted && lineQueue.IsEmpty))
         {
             string line;
+
             try
             {
                 line = await lineQueue.DequeueAsync(cancellationToken);
@@ -135,6 +187,11 @@ internal class AnalyzerUtilities
             catch (OperationCanceledException)
             {
                 break;
+            }
+
+            if (line != null)
+            {
+                Debug.WriteLine(line);
             }
 
             var diagnostic = line is not null ? GetDiagnosticFromAnalyzerOutput(line) : null;

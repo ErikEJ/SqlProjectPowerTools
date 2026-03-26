@@ -74,6 +74,10 @@ namespace MarkdownLintVS.ErrorList
                     content = error.Description;
                     return true;
 
+                case StandardTableKeyNames.ProjectName:
+                    content = error.ProjectName;
+                    return true;
+
                 default:
                     content = null;
                     return false;
