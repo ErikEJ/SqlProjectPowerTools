@@ -3,11 +3,10 @@ using Microsoft.VisualStudio.Shell.TableManager;
 
 namespace SqlProjectsPowerTools.ErrorList
 {
-
     /// <summary>
     /// Snapshot of error entries for a file.
     /// </summary>
-    internal sealed class TableEntriesSnapshot(string filePath, List<MarkdownLintError> errors) : ITableEntriesSnapshot
+    internal sealed class TableEntriesSnapshot(string filePath, List<SqlLintError> errors) : ITableEntriesSnapshot
     {
         public string FilePath { get; } = filePath;
 
@@ -15,7 +14,7 @@ namespace SqlProjectsPowerTools.ErrorList
 
         public int Count => errors.Count;
 
-        public IEnumerable<MarkdownLintError> GetErrors() => errors;
+        public IEnumerable<SqlLintError> GetErrors() => errors;
 
         public int IndexOf(int currentIndex, ITableEntriesSnapshot newSnapshot)
         {
@@ -30,7 +29,7 @@ namespace SqlProjectsPowerTools.ErrorList
                 return false;
             }
 
-            MarkdownLintError error = errors[index];
+            SqlLintError error = errors[index];
 
             switch (keyName)
             {

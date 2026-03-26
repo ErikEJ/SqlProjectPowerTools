@@ -1,5 +1,5 @@
-using SqlProjectsPowerTools.Linting;
 using Microsoft.VisualStudio.Text;
+using SqlProjectsPowerTools.Linting;
 
 namespace SqlProjectsPowerTools.Tagging
 {

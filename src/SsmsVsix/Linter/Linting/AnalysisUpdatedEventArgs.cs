@@ -3,7 +3,6 @@ using Microsoft.VisualStudio.Text;
 
 namespace SqlProjectsPowerTools.Linting
 {
-
     /// <summary>
     /// Event args for analysis completion.
     /// </summary>

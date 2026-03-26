@@ -1,8 +1,8 @@
 using System.ComponentModel.Composition;
-using SqlProjectsPowerTools.Linting;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Utilities;
+using SqlProjectsPowerTools.Linting;
 
 namespace SqlProjectsPowerTools.ErrorList
 {
@@ -14,13 +14,13 @@ namespace SqlProjectsPowerTools.ErrorList
     [ContentType("SQL")]
     [ContentType("SQL Server Tools")]
     [TextViewRole(PredefinedTextViewRoles.Document)]
-    public class MarkdownDocumentListener : ITextViewCreationListener
+    public class SqlDocumentListener : ITextViewCreationListener
     {
         [Import]
-        internal MarkdownLintTableDataSource TableDataSource { get; set; }
+        internal SqlLintTableDataSource TableDataSource { get; set; }
 
         [Import]
-        internal MarkdownAnalysisCache AnalysisCache { get; set; }
+        internal SqlAnalysisCache AnalysisCache { get; set; }
 
         public void TextViewCreated(ITextView textView)
         {
