@@ -57,6 +57,7 @@
     <Compile Include="Dialogs\PickTablesDialog.xaml.cs">
       <DependentUpon>PickTablesDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Linter\ErrorList\DocumentHandler.cs" />
     <Compile Include="Linter\ErrorList\MarkdownDocumentListener.cs" />
     <Compile Include="Linter\ErrorList\MarkdownLintError.cs" />
     <Compile Include="Linter\ErrorList\MarkdownLintTableDataSource.cs" />
