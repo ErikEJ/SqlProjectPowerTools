@@ -20,7 +20,7 @@ internal class AnalyzerUtilities
 
     public static AnalyzerUtilities Instance => _instance.Value;
 
-    private readonly string tempPath = Path.Combine(Path.GetTempPath(), $"tsqlanalyzerscratch-{Guid.NewGuid()}.sql");
+    private static string CreateTempFilePath() => Path.Combine(Path.GetTempPath(), $"tsqlanalyzerscratch-{Guid.NewGuid()}.sql");
 
     public async Task<List<SqlAnalyzerDiagnosticInfo>> AnalyzeAsync(string text, string rules, string sqlVersion, CancellationToken cancellationToken = default)
     {
@@ -33,46 +33,100 @@ internal class AnalyzerUtilities
             return [];
         }
 
-        File.WriteAllText(tempPath, text, Encoding.UTF8);
+        // Create a unique temp file for each analysis to support concurrent calls.
+        var tempPath = CreateTempFilePath();
 
-        StartAnalyzerProcess(analyzer, lineQueue, tempPath, rules, sqlVersion);
-
-        List<SqlAnalyzerDiagnosticInfo> sqlDiagnostics;
         try
         {
-            sqlDiagnostics = await ProcessAnalyzerQueueAsync(lineQueue, cancellationToken).ConfigureAwait(false);
+            try
+            {
+                await WriteTempFileAsync(tempPath, text, cancellationToken).ConfigureAwait(false);
+            }
+            catch (IOException ioex)
+            {
+                await ioex.LogAsync();
+
+                // Failed to write temp file; cannot proceed with analysis.
+                return [];
+            }
+            catch (UnauthorizedAccessException uex)
+            {
+                await uex.LogAsync();
+
+                // No permission to write temp file; cannot proceed with analysis.
+                return [];
+            }
+
+            StartAnalyzerProcess(analyzer, lineQueue, tempPath, rules, sqlVersion);
+
+            List<SqlAnalyzerDiagnosticInfo> sqlDiagnostics;
+            try
+            {
+                sqlDiagnostics = await ProcessAnalyzerQueueAsync(lineQueue, cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                if (!analyzer.HasExited)
+                {
+                    try
+                    {
+                        analyzer.Kill();
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // Process has already exited or was not started; ignore.
+                    }
+                    catch (Win32Exception)
+                    {
+                        // Failed to kill the process; ignore to avoid throwing during cleanup.
+                    }
+
+                    try
+                    {
+                        analyzer.WaitForExit();
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // Process has already exited; nothing more to do.
+                    }
+                }
+            }
+
+            return sqlDiagnostics;
         }
         finally
         {
-            if (!analyzer.HasExited)
-            {
-                try
-                {
-                    analyzer.Kill();
-                }
-                catch (InvalidOperationException)
-                {
-                    // Process has already exited or was not started; ignore.
-                }
-                catch (Win32Exception)
-                {
-                    // Failed to kill the process; ignore to avoid throwing during cleanup.
-                }
-
-                try
-                {
-                    analyzer.WaitForExit();
-                }
-                catch (InvalidOperationException)
-                {
-                    // Process has already exited; nothing more to do.
-                }
-            }
+            DeleteTempFile(tempPath);
         }
-        return sqlDiagnostics;
     }
 
-    private static void StartAnalyzerProcess(System.Diagnostics.Process analyzer, AsyncQueue<string> lineQueue, string path, string rules, string sqlVersion)
+    private static async Task WriteTempFileAsync(string path, string content, CancellationToken cancellationToken)
+    {
+        using var stream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.None, bufferSize: 4096, useAsync: true);
+        var bytes = Encoding.UTF8.GetBytes(content);
+        await stream.WriteAsync(bytes, 0, bytes.Length, cancellationToken).ConfigureAwait(false);
+    }
+
+    private static void DeleteTempFile(string path)
+    {
+        try
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+        catch (IOException)
+        {
+            // File may be locked; ignore cleanup failure.
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // No permission to delete; ignore cleanup failure.
+        }
+    }
+
+    private static void StartAnalyzerProcess(Process analyzer, AsyncQueue<string> lineQueue, string path, string rules, string sqlVersion)
     {
         var args = $"-n -i \"{path}\"";
 
@@ -128,6 +182,7 @@ internal class AnalyzerUtilities
         while (!(lineQueue.IsCompleted && lineQueue.IsEmpty))
         {
             string line;
+
             try
             {
                 line = await lineQueue.DequeueAsync(cancellationToken);

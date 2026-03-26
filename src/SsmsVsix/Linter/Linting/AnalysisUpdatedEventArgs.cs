@@ -1,7 +1,5 @@
-using Microsoft.VisualStudio.Text;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.Threading;
+using Microsoft.VisualStudio.Text;
 
 namespace MarkdownLintVS.Linting
 {
@@ -13,7 +11,8 @@ namespace MarkdownLintVS.Linting
         ITextBuffer buffer,
         ITextSnapshot snapshot,
         IReadOnlyList<SqlAnalyzerDiagnosticInfo> violations,
-        string filePath) : EventArgs
+        string filePath,
+        string projectName) : EventArgs
     {
         public ITextBuffer Buffer { get; } = buffer;
 
@@ -22,5 +21,7 @@ namespace MarkdownLintVS.Linting
         public IReadOnlyList<SqlAnalyzerDiagnosticInfo> Violations { get; } = violations;
 
         public string FilePath { get; } = filePath;
+
+        public string ProjectName { get; } = projectName;
     }
 }
