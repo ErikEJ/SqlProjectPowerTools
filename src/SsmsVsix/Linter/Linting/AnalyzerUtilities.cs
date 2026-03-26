@@ -37,8 +37,38 @@ internal class AnalyzerUtilities
 
         StartAnalyzerProcess(analyzer, lineQueue, tempPath, rules, sqlVersion);
 
-        var sqlDiagnostics = await ProcessAnalyzerQueueAsync(lineQueue, cancellationToken);
+        List<SqlAnalyzerDiagnosticInfo> sqlDiagnostics;
+        try
+        {
+            sqlDiagnostics = await ProcessAnalyzerQueueAsync(lineQueue, cancellationToken).ConfigureAwait(false);
+        }
+        finally
+        {
+            if (!analyzer.HasExited)
+            {
+                try
+                {
+                    analyzer.Kill(entireProcessTree: true);
+                }
+                catch (InvalidOperationException)
+                {
+                    // Process has already exited or was not started; ignore.
+                }
+                catch (Win32Exception)
+                {
+                    // Failed to kill the process; ignore to avoid throwing during cleanup.
+                }
 
+                try
+                {
+                    analyzer.WaitForExit();
+                }
+                catch (InvalidOperationException)
+                {
+                    // Process has already exited; nothing more to do.
+                }
+            }
+        }
         return sqlDiagnostics;
     }
 
