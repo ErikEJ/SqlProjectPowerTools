@@ -192,11 +192,6 @@ internal class AnalyzerUtilities
                 break;
             }
 
-            if (line != null)
-            {
-                Debug.WriteLine(line);
-            }
-
             var diagnostic = line is not null ? GetDiagnosticFromAnalyzerOutput(line) : null;
             if (diagnostic is not null)
             {
