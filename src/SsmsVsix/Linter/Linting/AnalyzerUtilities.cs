@@ -48,7 +48,7 @@ internal class AnalyzerUtilities
             {
                 try
                 {
-                    analyzer.Kill(entireProcessTree: true);
+                    analyzer.Kill();
                 }
                 catch (InvalidOperationException)
                 {
@@ -74,13 +74,7 @@ internal class AnalyzerUtilities
 
     private static void StartAnalyzerProcess(System.Diagnostics.Process analyzer, AsyncQueue<string> lineQueue, string path, string rules, string sqlVersion)
     {
-        string fileName;
-        string args;
-
-        // Use tsqlanalyze command for older VS versions
-        fileName = "cmd.exe";
-        args = "/c \"tsqlanalyze -n -i" +
-            $" \"{path}\"\"";
+        var args = $"-n -i \"{path}\"";
 
         if (!string.IsNullOrWhiteSpace(rules))
         {
@@ -91,11 +85,10 @@ internal class AnalyzerUtilities
         {
             args = args + $" -s {sqlVersion}";
         }
-        ////}
 
         analyzer.StartInfo = new ProcessStartInfo()
         {
-            FileName = fileName,
+            FileName = "tsqlanalyze",
             Arguments = args,
             RedirectStandardOutput = true,
             UseShellExecute = false,
