@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.Text.Tagging;
 using Microsoft.VisualStudio.Utilities;
 using SqlProjectsPowerTools;
 
-namespace MarkdownLintVS.Tagging
+namespace SqlProjectsPowerTools.Tagging
 {
     /// <summary>
     /// Provides the tagger for sql files.

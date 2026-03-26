@@ -1,7 +1,7 @@
 using SqlProjectsPowerTools.Linting;
 using Microsoft.VisualStudio.Text;
 
-namespace MarkdownLintVS.Tagging
+namespace SqlProjectsPowerTools.Tagging
 {
     /// <summary>
     /// Represents a lint result with tracking span support.

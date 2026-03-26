@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.Shell.TableControl;
 using Microsoft.VisualStudio.Shell.TableManager;
 using SqlProjectsPowerTools;
 
-namespace MarkdownLintVS.ErrorList
+namespace SqlProjectsPowerTools.ErrorList
 {
     /// <summary>
     /// Table data source for the Error List window.

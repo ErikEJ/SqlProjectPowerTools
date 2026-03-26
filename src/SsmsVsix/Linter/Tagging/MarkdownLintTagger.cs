@@ -4,7 +4,7 @@ using SqlProjectsPowerTools.Linting;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
 
-namespace MarkdownLintVS.Tagging
+namespace SqlProjectsPowerTools.Tagging
 {
     /// <summary>
     /// Tagger that provides error tags for markdown lint violations.
