@@ -192,7 +192,8 @@ internal class AnalyzerUtilities
         var urlStartIndex = description.IndexOf(" (https", StringComparison.OrdinalIgnoreCase);
         var url = urlStartIndex >= 0 ? description.Substring(urlStartIndex + 2, description.Length - urlStartIndex - 3) : string.Empty;
 
-        var ruleNumber = ruleId.Split('.')[ruleId.Length - 1];
+        var ruleIdParts = ruleId.Split('.');
+        var ruleNumber = ruleIdParts[ruleIdParts.Length - 1];
         var rulePrefix = ruleId.Replace("." + ruleNumber, string.Empty);
 
         var descriptionWithoutUrl = urlStartIndex >= 0 ? description.Substring(0, urlStartIndex) : description;
