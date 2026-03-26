@@ -38,61 +38,66 @@ internal class AnalyzerUtilities
 
         try
         {
-            await WriteTempFileAsync(tempPath, text, cancellationToken).ConfigureAwait(false);
-        }
-        catch (IOException ioex)
-        {
-            await ioex.LogAsync();
-
-            // Failed to write temp file; cannot proceed with analysis.
-            return [];
-        }
-        catch (UnauthorizedAccessException uex)
-        {
-            await uex.LogAsync();
-
-            // No permission to write temp file; cannot proceed with analysis.
-            return [];
-        }
-
-        StartAnalyzerProcess(analyzer, lineQueue, tempPath, rules, sqlVersion);
-
-        List<SqlAnalyzerDiagnosticInfo> sqlDiagnostics;
-        try
-        {
-            sqlDiagnostics = await ProcessAnalyzerQueueAsync(lineQueue, cancellationToken).ConfigureAwait(false);
-        }
-        finally
-        {
-            if (!analyzer.HasExited)
+            try
             {
-                try
-                {
-                    analyzer.Kill();
-                }
-                catch (InvalidOperationException)
-                {
-                    // Process has already exited or was not started; ignore.
-                }
-                catch (Win32Exception)
-                {
-                    // Failed to kill the process; ignore to avoid throwing during cleanup.
-                }
+                await WriteTempFileAsync(tempPath, text, cancellationToken).ConfigureAwait(false);
+            }
+            catch (IOException ioex)
+            {
+                await ioex.LogAsync();
 
-                try
+                // Failed to write temp file; cannot proceed with analysis.
+                return [];
+            }
+            catch (UnauthorizedAccessException uex)
+            {
+                await uex.LogAsync();
+
+                // No permission to write temp file; cannot proceed with analysis.
+                return [];
+            }
+
+            StartAnalyzerProcess(analyzer, lineQueue, tempPath, rules, sqlVersion);
+
+            List<SqlAnalyzerDiagnosticInfo> sqlDiagnostics;
+            try
+            {
+                sqlDiagnostics = await ProcessAnalyzerQueueAsync(lineQueue, cancellationToken).ConfigureAwait(false);
+            }
+            finally
+            {
+                if (!analyzer.HasExited)
                 {
-                    analyzer.WaitForExit();
-                }
-                catch (InvalidOperationException)
-                {
-                    // Process has already exited; nothing more to do.
+                    try
+                    {
+                        analyzer.Kill();
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // Process has already exited or was not started; ignore.
+                    }
+                    catch (Win32Exception)
+                    {
+                        // Failed to kill the process; ignore to avoid throwing during cleanup.
+                    }
+
+                    try
+                    {
+                        analyzer.WaitForExit();
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // Process has already exited; nothing more to do.
+                    }
                 }
             }
 
+            return sqlDiagnostics;
+        }
+        finally
+        {
             DeleteTempFile(tempPath);
         }
-
-        return sqlDiagnostics;
     }
 
     private static async Task WriteTempFileAsync(string path, string content, CancellationToken cancellationToken)
