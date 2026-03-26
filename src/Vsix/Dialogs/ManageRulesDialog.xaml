@@ -147,6 +147,12 @@
                                   Height="22"
                                   VerticalAlignment="Center"
                                   Margin="0,0,6,0" />
+                        <TextBlock DockPanel.Dock="Right"
+                                   VerticalAlignment="Center"
+                                   Margin="4,0,0,0"
+                                   Visibility="{Binding HasHelpLink, Converter={StaticResource BoolToVisibility}}">
+                            <Hyperlink NavigateUri="{Binding HelpLink}">?</Hyperlink>
+                        </TextBlock>
                         <TextBlock Text="{Binding DisplayText}"
                                    VerticalAlignment="Center"
                                    TextTrimming="CharacterEllipsis"
