@@ -20,6 +20,6 @@ namespace SqlProjectsPowerTools
         [DisplayName(@"Check for updates")]
         [Description("Check for updates to the extension on startup")]
         [DefaultValue(true)]
-        public bool CheckForUpdates { get; set; }
+        public bool CheckForUpdates { get; set; } = true;
     }
 }

@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Net;
 using System.Xml.Linq;
@@ -31,7 +32,7 @@ namespace SqlProjectsPowerTools
                 }
 
                 var content = File.ReadAllText(filePath).Trim();
-                return DateTime.TryParse(content, out var lastCheck) &&
+                return DateTime.TryParse(content, CultureInfo.InvariantCulture, DateTimeStyles.None, out var lastCheck) &&
                        lastCheck.ToUniversalTime().Date == DateTime.UtcNow.Date;
             }
             catch (Exception ex)
@@ -85,7 +86,7 @@ namespace SqlProjectsPowerTools
             }
             catch (Exception ex)
             {
-                ex.Log();
+                await ex.LogAsync();
             }
         }
 

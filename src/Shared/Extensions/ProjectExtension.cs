@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Linq;
+using NuGet.ProjectModel;
 
 namespace SqlProjectsPowerTools
 {
@@ -57,6 +58,29 @@ namespace SqlProjectsPowerTools
 #else
             return project.IsCapabilityMatch(VsixPackage.SdkProjCapability);
 #endif
+        }
+
+        public static async Task<bool> IsInstalledAsync(this Project project, string packageId)
+        {
+            var projectAssetsFile = await project.GetAttributeAsync("ProjectAssetsFile");
+
+            if (projectAssetsFile != null && File.Exists(projectAssetsFile))
+            {
+                var lockFile = LockFileUtilities.GetLockFile(projectAssetsFile, NuGet.Common.NullLogger.Instance);
+
+                if (lockFile != null)
+                {
+                    foreach (var lib in lockFile.Libraries)
+                    {
+                        if (lib.Name == packageId)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+            return false;
         }
 
         private static bool IsMicrosoftSdkSqlDatabaseProject(this Project project)
@@ -151,13 +175,7 @@ namespace SqlProjectsPowerTools
                 return false;
             }
 
-            return project.References.Any(r => IsRulesPackage(r.Name));
-        }
-
-        private static bool IsRulesPackage(string packageName)
-        {
-            return string.Equals(packageName, "ErikEJ.DacFX.TSQLSmellSCA", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(packageName, "ErikEJ.DacFX.SqlServer.Rules", StringComparison.OrdinalIgnoreCase);
+            return await project.IsInstalledAsync("ErikEJ.DacFX.SqlServer.Rules");
         }
 
         public static void AddDeployToProject(this Project project, string itemInclude, string section)
