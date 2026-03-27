@@ -33,11 +33,24 @@ namespace SqlProjectsPowerTools
 
         private static void OnHyperlinkRequestNavigate(object sender, RequestNavigateEventArgs e)
         {
-            if (e.Uri.Scheme is "http" or "https")
+            var uri = e.Uri;
+            if (uri is null)
             {
-                Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri) { UseShellExecute = true });
+                e.Handled = true;
+                return;
             }
 
+            if (uri.Scheme is "http" or "https")
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true });
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.WriteLine("Failed to open hyperlink '{0}': {1}", uri, ex);
+                }
+            }
             e.Handled = true;
         }
     }
