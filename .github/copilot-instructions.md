@@ -119,7 +119,7 @@ Fix via `dotnet format src/<Project>/<Project>.csproj` (VSIX projects: fix manua
 
 ## Development Workflow
 
-1. **Identify project:** UI→`Vsix/`, SSMS→`SsmsVsix/`, Core→`DacFXToolLib/`, CLI→`DacFXTool/`, Shared→`Contracts/`, Analysis→`SqlServer.Rules.Report/`
+1. **Identify project:** UI→`Vsix/`, SSMS→`SsmsVsix/`, Core→`DacFXToolLib/`, CLI→`DacFXTool/`, Shared UI→`Shared/`, Shared contracts→`Contracts/`, Analysis→`SqlServer.Rules.Report/`
 2. **Edit code:** Follow `.editorconfig` (file-scoped namespaces, properties not fields)
 3. **Build:** `dotnet build src/<Project>/<Project>.csproj` or MSBuild for full solution
 4. **Fix analyzer errors:** Build shows SA####, CA####, IDE#### codes (refer to `.editorconfig`)
