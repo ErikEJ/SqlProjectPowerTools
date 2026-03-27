@@ -156,13 +156,8 @@ namespace SqlProjectsPowerTools
 
         private static bool IsRulesPackage(string packageName)
         {
-            if (string.IsNullOrEmpty(packageName))
-            {
-                return false;
-            }
-
-            return packageName.EndsWith(".Rules", StringComparison.OrdinalIgnoreCase)
-                || packageName.Contains("TSQLSmell", StringComparison.OrdinalIgnoreCase);
+            return string.Equals(packageName, "ErikEJ.DacFX.TSQLSmellSCA", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(packageName, "ErikEJ.DacFX.SqlServer.Rules", StringComparison.OrdinalIgnoreCase);
         }
 
         public static void AddDeployToProject(this Project project, string itemInclude, string section)
