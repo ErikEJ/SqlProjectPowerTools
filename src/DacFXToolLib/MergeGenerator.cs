@@ -8,6 +8,11 @@ namespace DacFXToolLib
     {
         public static string Generate(string projectPath, string connectionString, string tableName, string schema)
         {
+            ArgumentNullException.ThrowIfNull(projectPath);
+            ArgumentNullException.ThrowIfNull(connectionString);
+            ArgumentNullException.ThrowIfNull(tableName);
+            ArgumentNullException.ThrowIfNull(schema);
+
             var script = ReadScript();
 
             const string parameterOverrides = @"SET @table_name = @p_table_name

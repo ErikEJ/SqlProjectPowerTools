@@ -60,6 +60,7 @@ namespace SqlProjectsPowerTools
                     Debug.WriteLine("Failed to open hyperlink '{0}': {1}", uri, ex);
                 }
             }
+
             e.Handled = true;
         }
     }
