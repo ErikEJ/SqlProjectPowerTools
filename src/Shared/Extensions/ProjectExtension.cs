@@ -146,24 +146,12 @@ namespace SqlProjectsPowerTools
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            var projectFilePath = project?.FullPath;
-            if (string.IsNullOrEmpty(projectFilePath) || !File.Exists(projectFilePath))
+            if (project == null)
             {
                 return false;
             }
 
-            var xmlSettings = new XmlReaderSettings
-            {
-                DtdProcessing = DtdProcessing.Prohibit,
-                XmlResolver = null,
-            };
-
-            using var xmlReader = XmlReader.Create(projectFilePath, xmlSettings);
-            var doc = XDocument.Load(xmlReader);
-            var ns = doc.Root?.Name.Namespace ?? XNamespace.None;
-
-            return doc.Descendants(ns + "PackageReference")
-                .Any(e => IsRulesPackage(e.Attribute("Include")?.Value));
+            return project.References.Any(r => IsRulesPackage(r.Name));
         }
 
         private static bool IsRulesPackage(string packageName)
