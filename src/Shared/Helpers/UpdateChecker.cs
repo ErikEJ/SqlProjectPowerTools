@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.IO;
 using System.Net;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.Imaging;
@@ -10,12 +11,59 @@ namespace SqlProjectsPowerTools
     {
         private static readonly XNamespace AtomNamespace = "http://www.w3.org/2005/Atom";
 
+        private static string GetLastCheckFilePath(string extensionId)
+        {
+            var folder = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                "SqlProjectPowerTools");
+            Directory.CreateDirectory(folder);
+            return Path.Combine(folder, $"{extensionId}-lastcheck.txt");
+        }
+
+        private static bool HasCheckedToday(string extensionId)
+        {
+            try
+            {
+                var filePath = GetLastCheckFilePath(extensionId);
+                if (!File.Exists(filePath))
+                {
+                    return false;
+                }
+
+                var content = File.ReadAllText(filePath).Trim();
+                return DateTime.TryParse(content, out var lastCheck) &&
+                       lastCheck.ToUniversalTime().Date == DateTime.UtcNow.Date;
+            }
+            catch (Exception ex)
+            {
+                ex.Log();
+                return false;
+            }
+        }
+
+        private static void SaveLastCheckDate(string extensionId)
+        {
+            try
+            {
+                File.WriteAllText(GetLastCheckFilePath(extensionId), DateTime.UtcNow.Date.ToString("O"));
+            }
+            catch (Exception ex)
+            {
+                ex.Log();
+            }
+        }
+
         public static async Task CheckForUpdatesAsync(string extensionId, string currentVersion, string extensionName)
         {
             try
             {
                 var options = await ToolOptions.GetLiveInstanceAsync();
                 if (!options.CheckForUpdates)
+                {
+                    return;
+                }
+
+                if (HasCheckedToday(extensionId))
                 {
                     return;
                 }
@@ -29,6 +77,7 @@ namespace SqlProjectsPowerTools
                 }
 
                 var latestVersion = ParseVersionFromFeed(feedContent);
+                SaveLastCheckDate(extensionId);
                 if (latestVersion != null && IsNewerVersion(latestVersion, currentVersion))
                 {
                     await ShowUpdateNotificationAsync(extensionId, extensionName, latestVersion);
