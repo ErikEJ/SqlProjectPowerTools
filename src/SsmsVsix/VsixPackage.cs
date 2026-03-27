@@ -48,6 +48,8 @@ namespace SqlProjectsPowerTools
 
             typeof(Microsoft.Xaml.Behaviors.Behavior).ToString();
             typeof(DropDownButtonLib.Controls.DropDownButton).ToString();
+
+            _ = UpdateChecker.CheckForUpdatesAsync(Vsix.Id, Vsix.Version);
         }
 
         internal TView GetView<TView>()
