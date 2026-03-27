@@ -142,6 +142,41 @@ namespace SqlProjectsPowerTools
             }
         }
 
+        public static async Task<bool> HasRulesPackagesAsync(this Project project)
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            var projectFilePath = project?.FullPath;
+            if (string.IsNullOrEmpty(projectFilePath) || !File.Exists(projectFilePath))
+            {
+                return false;
+            }
+
+            var xmlSettings = new XmlReaderSettings
+            {
+                DtdProcessing = DtdProcessing.Prohibit,
+                XmlResolver = null,
+            };
+
+            using var xmlReader = XmlReader.Create(projectFilePath, xmlSettings);
+            var doc = XDocument.Load(xmlReader);
+            var ns = doc.Root?.Name.Namespace ?? XNamespace.None;
+
+            return doc.Descendants(ns + "PackageReference")
+                .Any(e => IsRulesPackage(e.Attribute("Include")?.Value));
+        }
+
+        private static bool IsRulesPackage(string packageName)
+        {
+            if (string.IsNullOrEmpty(packageName))
+            {
+                return false;
+            }
+
+            return packageName.EndsWith(".Rules", StringComparison.OrdinalIgnoreCase)
+                || packageName.Contains("TSQLSmell", StringComparison.OrdinalIgnoreCase);
+        }
+
         public static void AddDeployToProject(this Project project, string itemInclude, string section)
         {
             var projectFilePath = project.FullPath;
