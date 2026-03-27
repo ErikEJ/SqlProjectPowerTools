@@ -35,6 +35,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="60" />
@@ -48,8 +49,19 @@
                   FontWeight="SemiBold"
                   VerticalAlignment="Center" />
 
+        <!-- No rules packages warning -->
+        <Border Grid.Row="1"
+                Background="#FFF5C600"
+                Padding="8,4"
+                Margin="0,0,0,8"
+                Visibility="{Binding ShowNoRulesPackageWarning, Converter={StaticResource BoolToVisibility}}">
+            <TextBlock TextWrapping="Wrap"
+                       Foreground="#FF000000"
+                       Text="No code analysis rules packages are referenced in this project. Consider adding NuGet packages such as 'ErikEJ.DacFX.TSQLSmellSCA' or 'ErikEJ.DacFX.SqlServer.Rules' to get additional rules." />
+        </Border>
+
         <!-- Search and Severity filter row -->
-        <Grid Grid.Row="1" Margin="0,0,0,8">
+        <Grid Grid.Row="2" Margin="0,0,0,8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="160" />
@@ -69,7 +81,7 @@
         </Grid>
 
         <!-- Wildcard warning message -->
-        <Border Grid.Row="2"
+        <Border Grid.Row="3"
                 Background="#FFF5C600"
                 Padding="8,4"
                 Margin="0,0,0,8"
@@ -80,13 +92,13 @@
         </Border>
 
         <!-- Column headers -->
-        <Grid Grid.Row="3"
+        <Grid Grid.Row="4"
               Margin="0,0,0,2">
             <TextBlock Text="Rules" FontWeight="Bold" Margin="20,0,0,0" />
         </Grid>
 
         <!-- Rules TreeView -->
-        <TreeView Grid.Row="4"
+        <TreeView Grid.Row="5"
                   ItemsSource="{Binding Groups}"
                   IsEnabled="{Binding HasWildcards, Converter={StaticResource BoolInvertConverter}}">
 
@@ -167,11 +179,11 @@
         </TreeView>
 
         <!-- Separator -->
-        <Separator Grid.Row="5" Margin="0,4,0,0" />
+        <Separator Grid.Row="6" Margin="0,4,0,0" />
 
         <!-- OK / Cancel buttons -->
         <StackPanel Orientation="Horizontal"
-                    Grid.Row="6"
+                    Grid.Row="7"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Top"
                     Margin="0,5,0,0">
