@@ -1,5 +1,6 @@
 using System.Diagnostics;
-using System.Windows;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Shell.Interop;
 using System.Windows.Documents;
 using System.Windows.Navigation;
 
@@ -20,12 +21,11 @@ namespace SqlProjectsPowerTools
             };
 
             viewModel.ConfirmReset = () =>
-                MessageBox.Show(
-                    this,
-                    "This will enable all rules and set all severities to Warning. Are you sure?",
+                VS.MessageBox.Show(
                     "Reset Rules",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question) == MessageBoxResult.Yes;
+                    "This will enable all rules and set all severities to Warning. Are you sure?",
+                    OLEMSGBUTTON.OLEMSGBUTTON_YESNO,
+                    OLEMSGICON.OLEMSGICON_QUERY) == VSConstants.MessageBoxResult.IDYES;
 
             Title = $"Code Analysis Rules - {projectName}";
 
