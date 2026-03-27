@@ -1,3 +1,7 @@
+using System.Diagnostics;
+using System.Windows.Documents;
+using System.Windows.Navigation;
+
 namespace SqlProjectsPowerTools
 {
     public partial class ManageRulesDialog
@@ -17,12 +21,37 @@ namespace SqlProjectsPowerTools
             Title = $"Code Analysis Rules - {projectName}";
 
             InitializeComponent();
+
+            AddHandler(Hyperlink.RequestNavigateEvent, new RequestNavigateEventHandler(OnHyperlinkRequestNavigate));
         }
 
         public (bool ClosedByOK, ManageRulesViewModel ViewModel) ShowAndAwaitUserResponse()
         {
             var closedByOk = ShowModal() == true;
             return (closedByOk, viewModel);
+        }
+
+        private static void OnHyperlinkRequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            var uri = e.Uri;
+            if (uri is null)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            if (uri.Scheme is "http" or "https")
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo(uri.AbsoluteUri) { UseShellExecute = true });
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.WriteLine("Failed to open hyperlink '{0}': {1}", uri, ex);
+                }
+            }
+            e.Handled = true;
         }
     }
 }
