@@ -50,7 +50,7 @@ namespace SqlProjectsPowerTools
             typeof(Microsoft.Xaml.Behaviors.Behavior).ToString();
             typeof(DropDownButtonLib.Controls.DropDownButton).ToString();
 
-            _ = UpdateChecker.CheckForUpdatesAsync(Vsix.Id, FileVersionInfo.GetVersionInfo(typeof(VsixPackage).Assembly.Location).FileVersion);
+            _ = UpdateChecker.CheckForUpdatesAsync(Vsix.Id, FileVersionInfo.GetVersionInfo(typeof(VsixPackage).Assembly.Location).FileVersion, Vsix.Name);
         }
 
         internal TView GetView<TView>()

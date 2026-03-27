@@ -10,7 +10,7 @@ namespace SqlProjectsPowerTools
     {
         private static readonly XNamespace AtomNamespace = "http://www.w3.org/2005/Atom";
 
-        public static async Task CheckForUpdatesAsync(string extensionId, string currentVersion)
+        public static async Task CheckForUpdatesAsync(string extensionId, string currentVersion, string extensionName)
         {
             try
             {
@@ -31,7 +31,7 @@ namespace SqlProjectsPowerTools
                 var latestVersion = ParseVersionFromFeed(feedContent);
                 if (latestVersion != null && IsNewerVersion(latestVersion, currentVersion))
                 {
-                    await ShowUpdateNotificationAsync(extensionId, latestVersion);
+                    await ShowUpdateNotificationAsync(extensionId, extensionName, latestVersion);
                 }
             }
             catch (Exception ex)
@@ -94,14 +94,14 @@ namespace SqlProjectsPowerTools
             return false;
         }
 
-        private static async Task ShowUpdateNotificationAsync(string extensionId, string newVersion)
+        private static async Task ShowUpdateNotificationAsync(string extensionId, string extensionName, string newVersion)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             var downloadUrl = $"https://www.vsixgallery.com/extension/{extensionId}";
 
             var model = new InfoBarModel(
-                $"SQL Database Project Power Tools {newVersion} is available.",
+                $"{extensionName} {newVersion} is available.",
                 new IVsInfoBarActionItem[] { new InfoBarHyperlink("Download") },
                 KnownMonikers.StatusInformation);
 
