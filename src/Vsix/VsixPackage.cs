@@ -6,6 +6,7 @@ global using Microsoft.VisualStudio.Shell;
 global using Task = System.Threading.Tasks.Task;
 #pragma warning restore SA1209 // Using alias directives should be placed after other using directives
 
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using GalaSoft.MvvmLight.Messaging;
@@ -50,7 +51,7 @@ namespace SqlProjectsPowerTools
             typeof(Microsoft.Xaml.Behaviors.Behavior).ToString();
             typeof(DropDownButtonLib.Controls.DropDownButton).ToString();
 
-            _ = UpdateChecker.CheckForUpdatesAsync(Vsix.Id, Vsix.Version);
+            _ = UpdateChecker.CheckForUpdatesAsync(Vsix.Id, FileVersionInfo.GetVersionInfo(typeof(VsixPackage).Assembly.Location).FileVersion);
         }
 
         internal TView GetView<TView>()
