@@ -29,11 +29,6 @@ namespace SqlProjectsPowerTools.Tagging
                 return null;
             }
 
-            if (ToolOptions.Instance.DisableCodeAnalysis)
-            {
-                return null;
-            }
-
             var enabled = false;
             var sqlVersion = string.Empty;
             var rules = string.Empty;
@@ -42,6 +37,12 @@ namespace SqlProjectsPowerTools.Tagging
             ThreadHelper.JoinableTaskFactory.Run(async () =>
             {
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+                var options = await ToolOptions.GetLiveInstanceAsync();
+                if (options.DisableCodeAnalysis)
+                {
+                    return;
+                }
 
                 var currentProject = await VS.Solutions.GetActiveProjectAsync();
 

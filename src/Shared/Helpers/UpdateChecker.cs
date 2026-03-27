@@ -4,13 +4,13 @@ using System.IO;
 using System.Net;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.Imaging;
-using Microsoft.VisualStudio.Shell.Interop;
 
 namespace SqlProjectsPowerTools
 {
     internal static class UpdateChecker
     {
         private static readonly XNamespace AtomNamespace = "http://www.w3.org/2005/Atom";
+        private static readonly XNamespace VsixNamespace = "http://schemas.microsoft.com/developer/vsx-syndication-schema/2010";
 
         private static string GetLastCheckFilePath(string extensionId)
         {
@@ -100,34 +100,12 @@ namespace SqlProjectsPowerTools
                 return null;
             }
 
-            // Try to get version from the link href (e.g. /extension/{id}/{version})
-            var linkHref = firstEntry.Element(AtomNamespace + "link")?.Attribute("href")?.Value;
-            if (linkHref != null)
+            // Get version from the Vsix/Version element
+            var vsixElement = firstEntry.Element(VsixNamespace + "Vsix");
+            var versionElement = vsixElement?.Element(VsixNamespace + "Version");
+            if (versionElement != null && Version.TryParse(versionElement.Value, out _))
             {
-                var segments = linkHref.TrimEnd('/').Split('/');
-                if (segments.Length > 0)
-                {
-                    var lastSegment = segments[segments.Length - 1];
-                    if (Version.TryParse(lastSegment, out _))
-                    {
-                        return lastSegment;
-                    }
-                }
-            }
-
-            // Fallback: try to get version from the title ("Extension Name X.Y.Z")
-            var title = firstEntry.Element(AtomNamespace + "title")?.Value;
-            if (title != null)
-            {
-                var parts = title.Trim().Split(' ');
-                if (parts.Length > 0)
-                {
-                    var lastPart = parts[parts.Length - 1];
-                    if (Version.TryParse(lastPart, out _))
-                    {
-                        return lastPart;
-                    }
-                }
+                return versionElement.Value;
             }
 
             return null;
@@ -148,11 +126,11 @@ namespace SqlProjectsPowerTools
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            var downloadUrl = $"https://www.vsixgallery.com/extension/{extensionId}";
+            var downloadUrl = $"https://www.vsixgallery.com/extensions/{extensionId}/extension.vsix";
 
             var model = new InfoBarModel(
                 $"{extensionName} {newVersion} is available.",
-                new IVsInfoBarActionItem[] { new InfoBarHyperlink("Download") },
+                [new InfoBarHyperlink("Download")],
                 KnownMonikers.StatusInformation);
 
             var infoBar = await VS.InfoBar.CreateAsync(model);
