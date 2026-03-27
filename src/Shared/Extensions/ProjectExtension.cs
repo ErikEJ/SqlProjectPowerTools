@@ -142,6 +142,24 @@ namespace SqlProjectsPowerTools
             }
         }
 
+        public static async Task<bool> HasRulesPackagesAsync(this Project project)
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            if (project == null)
+            {
+                return false;
+            }
+
+            return project.References.Any(r => IsRulesPackage(r.Name));
+        }
+
+        private static bool IsRulesPackage(string packageName)
+        {
+            return string.Equals(packageName, "ErikEJ.DacFX.TSQLSmellSCA", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(packageName, "ErikEJ.DacFX.SqlServer.Rules", StringComparison.OrdinalIgnoreCase);
+        }
+
         public static void AddDeployToProject(this Project project, string itemInclude, string section)
         {
             var projectFilePath = project.FullPath;

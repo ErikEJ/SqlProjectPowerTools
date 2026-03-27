@@ -15,6 +15,7 @@ namespace SqlProjectsPowerTools
         private string searchText = string.Empty;
         private string selectedSeverityFilter;
         private bool hasWildcards;
+        private bool hasRulesPackages;
 
         public ManageRulesViewModel()
         {
@@ -46,6 +47,7 @@ namespace SqlProjectsPowerTools
 
                 runSqlCodeAnalysis = value;
                 RaisePropertyChanged();
+                RaisePropertyChanged(nameof(ShowNoRulesPackageWarning));
             }
         }
 
@@ -96,12 +98,32 @@ namespace SqlProjectsPowerTools
             }
         }
 
-        public void LoadRules(IList<IssueTypeModel> rules, bool runCodeAnalysis, string rulesExpression)
+        public bool HasRulesPackages
+        {
+            get => hasRulesPackages;
+            private set
+            {
+                if (Equals(value, hasRulesPackages))
+                {
+                    return;
+                }
+
+                hasRulesPackages = value;
+                RaisePropertyChanged();
+                RaisePropertyChanged(nameof(ShowNoRulesPackageWarning));
+            }
+        }
+
+        public bool ShowNoRulesPackageWarning => RunSqlCodeAnalysis && !HasRulesPackages;
+
+        public void LoadRules(IList<IssueTypeModel> rules, bool runCodeAnalysis, string rulesExpression, bool hasRulesPackages)
         {
             HasWildcards = rulesExpression?.Contains('*') ?? false;
 
             runSqlCodeAnalysis = runCodeAnalysis;
             RaisePropertyChanged(nameof(RunSqlCodeAnalysis));
+
+            HasRulesPackages = hasRulesPackages;
 
             Groups.Clear();
 

@@ -41,10 +41,12 @@ namespace SqlProjectsPowerTools
                     // Ignore
                 }
 
+                var hasRulesPackages = await project.HasRulesPackagesAsync();
+
                 await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
                 var viewModel = new ManageRulesViewModel();
-                viewModel.LoadRules(rules, runCodeAnalysis, rulesExpression);
+                viewModel.LoadRules(rules, runCodeAnalysis, rulesExpression, hasRulesPackages);
 
                 var dialog = new ManageRulesDialog(viewModel, project.Name ?? string.Empty);
                 var result = dialog.ShowAndAwaitUserResponse();
