@@ -110,8 +110,21 @@ namespace SqlProjectsPowerTools
             {
                 infoBar.ActionItemClicked += (sender, e) =>
                 {
-                    Process.Start(new ProcessStartInfo(downloadUrl) { UseShellExecute = true });
-                    ((InfoBar)sender).Close();
+                    try
+                    {
+                        Process.Start(new ProcessStartInfo(downloadUrl) { UseShellExecute = true });
+                    }
+                    catch (Exception ex)
+                    {
+                        ex.Log();
+                    }
+                    finally
+                    {
+                        if (sender is InfoBar bar)
+                        {
+                            bar.Close();
+                        }
+                    }
                 };
 
                 await infoBar.TryShowInfoBarUIAsync();
