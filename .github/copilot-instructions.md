@@ -4,7 +4,7 @@
 
 **SQL Database Project Power Tools** is a Visual Studio VSIX extension for SQL Database Projects. Features: database import, schema comparison, static analysis, E/R diagrams.
 
-**Tech Stack:** C#, .NET Framework 4.8 (VSIX), .NET 8.0 (CLI tools), .NET Standard 2.0 (contracts). **Build:** MSBuild (VSIX), dotnet CLI (libraries). **Size:** ~7 projects.
+**Tech Stack:** C#, .NET Framework 4.8 (VSIX), .NET 8.0 (CLI tools), .NET Standard 2.0 (contracts). **Build:** MSBuild (VSIX), dotnet CLI (libraries). **Size:** ~9 projects.
 
 ## Repository Structure
 
@@ -16,6 +16,8 @@
 
 ### Source (`/src`)
 - **`Vsix/`** - Main VSIX (.NET Framework 4.8, old-style csproj). UI (WPF), commands, handlers. Embeds `dacfxtool.exe.zip`.
+- **`SsmsVsix/`** - SSMS extension VSIX (.NET Framework 4.8). Same features as Vsix, targeting SQL Server Management Studio 22+.
+- **`Shared/`** - Shared project (.shproj) for code sharing between Vsix and SsmsVsix.
 - **`ExtensionPack/`** - Extension pack VSIX (.NET Framework 4.7.2)
 - **`DacFXTool/`** - CLI tool (.NET 8.0), built by `BuildCmdlineTool.cmd`
 - **`DacFXToolLib/`** - Core library (.NET 8.0): schema extraction, comparison, E/R diagrams
@@ -24,7 +26,8 @@
 - **`Lib/`** - Binary deps: `dacfxtool.exe.zip` (17+ MB), `DropDownButtonLib.dll`
 
 ### Tests (`/test`)
-- **`SmokeTest/`** - Sample SQL projects (Classic, SdkStyle, MsSdkStyle, ClassLib). **No automated unit tests exist.**
+- **`DacFXToolLib.Tests/`** - xUnit automated tests for DacFXToolLib (.NET 8.0). Run with `dotnet test`.
+- **`SmokeTest/`** - Sample SQL projects (Classic, SdkStyle, MsSdkStyle, ClassLib) for manual testing.
 
 ## Build Instructions
 
@@ -68,7 +71,7 @@
 
 For .NET SDK projects only: `dotnet build src/<ProjectName>/<ProjectName>.csproj -c Release`
 
-**Do NOT use `dotnet build` on VSIX projects (Vsix, ExtensionPack).**
+**Do NOT use `dotnet build` on VSIX projects (Vsix, SsmsVsix, ExtensionPack).**
 
 ### Common Build Issues
 
@@ -78,7 +81,13 @@ For .NET SDK projects only: `dotnet build src/<ProjectName>/<ProjectName>.csproj
 
 ## Testing
 
-**NO automated unit tests exist.** Manually test via VS experimental instance (F5 in VS) using `test/SmokeTest/` sample projects.
+Automated xUnit tests exist in `test/DacFXToolLib.Tests/`. Run with:
+
+```bash
+dotnet test test/DacFXToolLib.Tests/DacFXToolLib.Tests.csproj -c Release --logger "console;verbosity=normal"
+```
+
+Manual testing via VS experimental instance (F5 in VS) using `test/SmokeTest/` sample projects.
 
 ## Code Quality
 
@@ -103,32 +112,34 @@ Fix via `dotnet format src/<Project>/<Project>.csproj` (VSIX projects: fix manua
 **Steps:**
 1. Setup .NET 8.0.x
 2. Restore: `dotnet restore SqlProjectPowerTools.sln`
-3. Build CLI tool: `BuildCmdlineTool.cmd` (non-PR only)
-4. Build VSIX: `msbuild SqlProjectPowerTools.sln /property:Configuration=Release /p:DeployExtension=false /p:ZipPackageCompressionLevel=normal /v:m`
-5. Sign and publish (main branch only)
-
-**No tests run in CI** (none exist).
+3. Run tests: `dotnet test test/DacFXToolLib.Tests/DacFXToolLib.Tests.csproj -c Release --logger "console;verbosity=normal"`
+4. Build CLI tool: `BuildCmdlineTool.cmd` (non-PR only)
+5. Build VSIX: `msbuild SqlProjectPowerTools.sln /property:Configuration=Release /p:DeployExtension=false /p:ZipPackageCompressionLevel=normal /v:m`
+6. Sign and publish (main branch only)
 
 ## Development Workflow
 
-1. **Identify project:** UI→`Vsix/`, Core→`DacFXToolLib/`, CLI→`DacFXTool/`, Shared→`Contracts/`, Analysis→`SqlServer.Rules.Report/`
+1. **Identify project:** UI→`Vsix/`, SSMS→`SsmsVsix/`, Core→`DacFXToolLib/`, CLI→`DacFXTool/`, Shared→`Contracts/`, Analysis→`SqlServer.Rules.Report/`
 2. **Edit code:** Follow `.editorconfig` (file-scoped namespaces, properties not fields)
 3. **Build:** `dotnet build src/<Project>/<Project>.csproj` or MSBuild for full solution
 4. **Fix analyzer errors:** Build shows SA####, CA####, IDE#### codes (refer to `.editorconfig`)
-5. **Test:** F5 in VS launches experimental instance, use `test/SmokeTest/` projects
+5. **Run tests:** `dotnet test test/DacFXToolLib.Tests/DacFXToolLib.Tests.csproj`
+6. **Test manually:** F5 in VS launches experimental instance, use `test/SmokeTest/` projects
 
 ## Key Dependencies
 
 **Vsix:** Community.VisualStudio.Toolkit.17, MvvmLight, Microsoft.VisualStudio.Data.Framework
-**DacFXToolLib:** ErikEJ.EntityFrameworkCore.SqlServer.Dacpac, Microsoft.Data.SqlClient, EF Core
+**SsmsVsix:** Same as Vsix (shares code via `Shared/` project)
+**DacFXToolLib:** Humanizer.Core, Microsoft.Data.SqlClient, Microsoft.SqlServer.DacFx
 **SqlServer.Rules.Report:** Microsoft.SqlServer.DacFx, ErikEJ.DacFX.TSQLSmellSCA
+**DacFXToolLib.Tests:** xunit, coverlet.collector
 
 ## Important Notes
 
 1. **Use MSBuild for full builds** (not `dotnet build`)
 2. **Don't modify `src/Lib/dacfxtool.exe.zip`** - regenerate via `BuildCmdlineTool.cmd`
 3. **Code analysis is strict** - fix all errors before committing
-4. **No automated tests** - test manually in VS experimental instance
+4. **Run automated tests** with `dotnet test test/DacFXToolLib.Tests/DacFXToolLib.Tests.csproj` before committing
 5. **Windows-only development** (VSIX requires Windows + VS)
 6. **Build times:** .NET projects 5-10s each, MSBuild 30-60s
 7. **Template nupkg** must exist in Vsix project at build time
