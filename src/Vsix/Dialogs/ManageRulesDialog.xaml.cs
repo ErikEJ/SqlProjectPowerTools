@@ -24,8 +24,8 @@ namespace SqlProjectsPowerTools
                 VS.MessageBox.Show(
                     "Reset Rules",
                     "This will enable all rules and set all severities to Warning. Are you sure?",
-                    OLEMSGBUTTON.OLEMSGBUTTON_YESNO,
-                    OLEMSGICON.OLEMSGICON_QUERY) == VSConstants.MessageBoxResult.IDYES;
+                    OLEMSGICON.OLEMSGICON_QUERY,
+                    OLEMSGBUTTON.OLEMSGBUTTON_YESNO) == VSConstants.MessageBoxResult.IDYES;
 
             Title = $"Code Analysis Rules - {projectName}";
 
