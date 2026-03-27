@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Navigation;
 
@@ -17,6 +18,14 @@ namespace SqlProjectsPowerTools
                 DialogResult = args.DialogResult;
                 Close();
             };
+
+            viewModel.ConfirmReset = () =>
+                MessageBox.Show(
+                    this,
+                    "This will enable all rules and set all severities to Warning. Are you sure?",
+                    "Reset Rules",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question) == MessageBoxResult.Yes;
 
             Title = $"Code Analysis Rules - {projectName}";
 

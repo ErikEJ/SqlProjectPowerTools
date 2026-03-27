@@ -34,6 +34,8 @@ namespace SqlProjectsPowerTools
 
         public ICommand ResetCommand { get; }
 
+        public Func<bool> ConfirmReset { get; set; }
+
         public ObservableCollection<RuleGroupViewModel> Groups { get; } = new ObservableCollection<RuleGroupViewModel>();
 
         public IList<string> SeverityFilters { get; }
@@ -201,13 +203,7 @@ namespace SqlProjectsPowerTools
 
         private void ResetExecuted()
         {
-            var result = System.Windows.MessageBox.Show(
-                "This will enable all rules and set all severities to Warning. Are you sure?",
-                "Reset Rules",
-                System.Windows.MessageBoxButton.YesNo,
-                System.Windows.MessageBoxImage.Question);
-
-            if (result != System.Windows.MessageBoxResult.Yes)
+            if (ConfirmReset?.Invoke() != true)
             {
                 return;
             }
@@ -221,7 +217,7 @@ namespace SqlProjectsPowerTools
                 }
             }
 
-            ApplyFilter(SearchText, SelectedSeverityFilter);
+            ApplyFilter();
         }
 
         private void OkExecuted()

@@ -185,11 +185,16 @@
         <Grid Grid.Row="7"
               VerticalAlignment="Top"
               Margin="0,5,0,0">
-            <dw:DialogButton Content="Reset"
-                             HorizontalAlignment="Left"
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <dw:DialogButton Grid.Column="0"
+                             Content="Reset"
                              IsEnabled="{Binding HasWildcards, Converter={StaticResource BoolInvertConverter}}"
                              Command="{Binding ResetCommand}" />
-            <StackPanel Orientation="Horizontal"
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
                         HorizontalAlignment="Right">
                 <dw:DialogButton Content="OK"
                                  IsDefault="True"
