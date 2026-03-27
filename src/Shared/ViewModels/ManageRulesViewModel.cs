@@ -220,6 +220,8 @@ namespace SqlProjectsPowerTools
                     rule.Severity = "Warning";
                 }
             }
+
+            ApplyFilter(SearchText, SelectedSeverityFilter);
         }
 
         private void OkExecuted()
