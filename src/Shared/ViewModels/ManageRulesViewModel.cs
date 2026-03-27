@@ -21,6 +21,7 @@ namespace SqlProjectsPowerTools
         {
             OkCommand = new RelayCommand(OkExecuted);
             CancelCommand = new RelayCommand(CancelExecuted);
+            ResetCommand = new RelayCommand(ResetExecuted, () => !HasWildcards);
             SeverityFilters = new List<string> { "All severities", "Warning", "Error" };
             selectedSeverityFilter = SeverityFilters[0];
         }
@@ -30,6 +31,10 @@ namespace SqlProjectsPowerTools
         public ICommand OkCommand { get; }
 
         public ICommand CancelCommand { get; }
+
+        public ICommand ResetCommand { get; }
+
+        public Func<bool> ConfirmReset { get; set; }
 
         public ObservableCollection<RuleGroupViewModel> Groups { get; } = new ObservableCollection<RuleGroupViewModel>();
 
@@ -95,6 +100,7 @@ namespace SqlProjectsPowerTools
 
                 hasWildcards = value;
                 RaisePropertyChanged();
+                ((RelayCommand)ResetCommand).RaiseCanExecuteChanged();
             }
         }
 
@@ -193,6 +199,25 @@ namespace SqlProjectsPowerTools
 
                 group.UpdateGroupVisibility();
             }
+        }
+
+        private void ResetExecuted()
+        {
+            if (ConfirmReset?.Invoke() != true)
+            {
+                return;
+            }
+
+            foreach (var group in Groups)
+            {
+                foreach (var rule in group.Rules)
+                {
+                    rule.IsEnabled = true;
+                    rule.Severity = "Warning";
+                }
+            }
+
+            ApplyFilter();
         }
 
         private void OkExecuted()

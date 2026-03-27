@@ -182,21 +182,29 @@
         <Separator Grid.Row="6" Margin="0,4,0,0" />
 
         <!-- OK / Cancel buttons -->
-        <StackPanel Orientation="Horizontal"
-                    Grid.Row="7"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Top"
-                    Margin="0,10">
-            <dw:DialogButton Content="OK"
-                             IsDefault="True"
-                             HorizontalAlignment="Right"
-                             Margin="0,0,12,0"
+        <Grid Grid.Row="7"
+              VerticalAlignment="Top"
+              Margin="0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <dw:DialogButton Grid.Column="0"
+                             Content="Reset"
                              IsEnabled="{Binding HasWildcards, Converter={StaticResource BoolInvertConverter}}"
-                             Command="{Binding OkCommand}" />
-            <dw:DialogButton Content="Cancel"
-                             IsCancel="True"
-                             HorizontalAlignment="Right"
-                             Command="{Binding CancelCommand}" />
-        </StackPanel>
+                             Command="{Binding ResetCommand}" />
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Right">
+                <dw:DialogButton Content="OK"
+                                 IsDefault="True"
+                                 Margin="0,0,12,0"
+                                 IsEnabled="{Binding HasWildcards, Converter={StaticResource BoolInvertConverter}}"
+                                 Command="{Binding OkCommand}" />
+                <dw:DialogButton Content="Cancel"
+                                 IsCancel="True"
+                                 Command="{Binding CancelCommand}" />
+            </StackPanel>
+        </Grid>
     </Grid>
 </dw:DialogWindow>
