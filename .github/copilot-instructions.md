@@ -129,7 +129,7 @@ Fix via `dotnet format src/<Project>/<Project>.csproj` (VSIX projects: fix manua
 ## Key Dependencies
 
 **Vsix:** Community.VisualStudio.Toolkit.17, MvvmLight, Microsoft.VisualStudio.Data.Framework
-**SsmsVsix:** Same as Vsix (shares code via `Shared/` project)
+**SsmsVsix:** Shares most code with `Vsix` via `Shared/`, but has some dependency differences (e.g., does not reference `Microsoft.VisualStudio.Data.Framework` and does reference `System.Text.Json`).
 **DacFXToolLib:** Humanizer.Core, Microsoft.Data.SqlClient, Microsoft.SqlServer.DacFx
 **SqlServer.Rules.Report:** Microsoft.SqlServer.DacFx, ErikEJ.DacFX.TSQLSmellSCA
 **DacFXToolLib.Tests:** xunit, coverlet.collector
