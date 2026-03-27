@@ -1,43 +1,38 @@
-
-CREATE OR ALTER PROCEDURE [#sp_generate_merge]
-(
- @table_name nvarchar(776), -- The table/view for which the MERGE statement will be generated using the existing data. This parameter accepts unquoted single-part identifiers only (e.g. MyTable)
- @target_table nvarchar(776) = NULL, -- Use this parameter to specify a different table name into which the data will be inserted/updated/deleted. This parameter accepts unquoted single-part identifiers (e.g. MyTable) or quoted multi-part identifiers (e.g. [OtherDb].[dbo].[MyTable])
- @from nvarchar(max) = NULL, -- Use this parameter to filter the rows based on a filter condition (using WHERE). Note: To avoid inconsistent ordering of results, including an ORDER BY clause is highly recommended
- @include_values bit = 1, -- When 1, a VALUES clause containing data from @table_name is generated. When 0, data will be sourced directly from @table_name when the MERGE is executed (see example 15 for use case)
- @include_timestamp bit = 0, -- [OBSOLETE] Sql Server does not allow modification of TIMESTAMP data type
- @debug_mode bit = 0, -- When 1, the SQL statements constructed by this procedure will be included in the output
- @schema nvarchar(64) = NULL, -- The schema that @table_name belongs to (needed if the table is not in the default schema)
- @exclude_image_columns bit = 0, -- When 1, any columns of the image data type will be excluded
- @exclude_identity_columns bit = 0, -- When 1, any columns that have an auto-incrementing identity will be excluded
- @ommit_images bit = NULL, -- [DEPRECATED] Use @exclude_image_columns instead
- @ommit_identity bit = NULL, -- [DEPRECATED] Use @exclude_identity_columns instead
- @top int = NULL, -- Use this parameter to generate a MERGE statement only for the TOP n rows
- @cols_to_include nvarchar(max) = NULL, -- List of columns to be included in the MERGE statement. Note that table aliases are NOT supported.
- @cols_to_exclude nvarchar(max) = NULL, -- List of columns to be excluded from the MERGE statement. Note that table aliases are NOT supported.
- @cols_to_join_on nvarchar(max) = NULL, -- List of columns needed to JOIN the source table to the target table (useful when @table_name is missing a primary key). Note that table aliases are NOT supported.
- @update_only_if_changed bit = 1, -- When 1, only performs an UPDATE operation if an included column in a matched row has changed. NOTE: Column collations are observed with respect to equality checks, e.g. if a case-insensitive collation is used, then case differences in data will be ignored.
- @hash_compare_column nvarchar(128) = NULL, -- When specified, change detection will be based on a SHA2_256 hash of the source data (the hash value will be stored in this @target_table column for later comparison; see Example 16)
- @delete_if_not_matched bit = 1, -- When 1, performs a DELETE when the target includes extra rows. When 0, the MERGE statement will only include the INSERT and, if @update_existing=1, UPDATE operations.
- @disable_constraints bit = 0, -- When 1, disables foreign key constraints and enables them after the MERGE statement
- @exclude_computed_columns bit = 1, -- When 1, computed columns will be included in the MERGE statement
- @exclude_generated_always_columns bit = 1, -- When 1, GENERATED ALWAYS columns will be excluded
- @ommit_computed_cols bit = NULL, -- [DEPRECATED] Use @exclude_computed_columns instead
- @ommit_generated_always_cols bit = NULL, -- [DEPRECATED] Use @exclude_generated_always_columns instead
- @include_use_db bit = 1, -- When 1, includes a USE [DatabaseName] statement at the beginning of the generated batch
- @results_to_text bit = 0, -- When 1, outputs results to grid/messages window. When 0, outputs MERGE statement in an XML fragment. When NULL, only the @output OUTPUT parameter is returned.
- @include_rowsaffected bit = 1, -- When 1, a section is added to the end of the batch which outputs rows affected by the MERGE
- @nologo bit = 0, -- When 1, the "About" comment is suppressed from output
- @batch_separator nvarchar(50) = 'GO', -- Batch separator to use. Specify NULL to output all statements within a single batch
- @output nvarchar(max) = null output, -- Use this output parameter to return the generated T-SQL batches to the caller (Hint: specify @batch_separator=NULL to output all statements within a single batch)
- @update_existing bit = 1, -- When 1, performs an UPDATE operation on existing rows. When 0, the MERGE statement will only include the INSERT and, if @delete_if_not_matched=1, DELETE operations.
- @max_rows_per_batch int = NULL, -- When not NULL, splits the MERGE command into multiple batches, each batch merges X rows as specified
- @quiet bit = 0, -- When 1, this proc will not print informational messages and warnings
- @execute bit = 0, -- When 1, the generated MERGE will be executed by this proc. Note: The @batch_separator param must be set to NULL when @execute=1
- @serializable bit = 1 -- When 1, the generated MERGE will include the WITH (SERIALIZABLE) table hint
-)
-AS
-BEGIN
+DECLARE @table_name nvarchar(776) = NULL
+DECLARE @target_table nvarchar(776) = NULL
+DECLARE @from nvarchar(max) = NULL
+DECLARE @include_values bit = 1
+DECLARE @include_timestamp bit = 0
+DECLARE @debug_mode bit = 0
+DECLARE @schema nvarchar(64) = NULL
+DECLARE @exclude_image_columns bit = 0
+DECLARE @exclude_identity_columns bit = 0
+DECLARE @ommit_images bit = NULL
+DECLARE @ommit_identity bit = NULL
+DECLARE @top int = NULL
+DECLARE @cols_to_include nvarchar(max) = NULL
+DECLARE @cols_to_exclude nvarchar(max) = NULL
+DECLARE @cols_to_join_on nvarchar(max) = NULL
+DECLARE @update_only_if_changed bit = 1
+DECLARE @hash_compare_column nvarchar(128) = NULL
+DECLARE @delete_if_not_matched bit = 1
+DECLARE @disable_constraints bit = 0
+DECLARE @exclude_computed_columns bit = 1
+DECLARE @exclude_generated_always_columns bit = 1
+DECLARE @ommit_computed_cols bit = NULL
+DECLARE @ommit_generated_always_cols bit = NULL
+DECLARE @include_use_db bit = 1
+DECLARE @results_to_text bit = 0
+DECLARE @include_rowsaffected bit = 1
+DECLARE @nologo bit = 0
+DECLARE @batch_separator nvarchar(50) = 'GO'
+DECLARE @output nvarchar(max) = NULL
+DECLARE @update_existing bit = 1
+DECLARE @max_rows_per_batch int = NULL
+DECLARE @quiet bit = 0
+DECLARE @execute bit = 0
+DECLARE @serializable bit = 1
+-- {PARAMETER_OVERRIDES}
 
 /***********************************************************************************************************
 PROCEDURE: sp_generate_merge
@@ -1067,4 +1062,3 @@ END
 
 SET NOCOUNT OFF
 RETURN 0
-END
