@@ -41,7 +41,7 @@ I have also published [SQL Project Power Pack](https://marketplace.visualstudio.
 
 ### SSMS Extension
 
-An SSMS extension build is available from [VSIX Gallery][ssmsgallery], bringing similar features to SQL Server Management Studio (SSMS 22+). Both classic (.sqlproj) and SDK-style ([Microsoft.Build.Sql](https://learn.microsoft.com/en-us/sql/tools/sql-database-projects/sql-database-projects)) database projects are supported.
+An SSMS extension build is available from [VSIX Gallery][ssmsgallery], bringing similar features to SQL Server Management Studio (SSMS 22+). SDK-style ([Microsoft.Build.Sql](https://learn.microsoft.com/en-us/sql/tools/sql-database-projects/sql-database-projects)) database projects are supported.
 
 - **Import database** - import the schema and database settings from an existing database
 - **Schema compare** - visually compare your database project with a live database and apply changes to the database or your project
