@@ -21,6 +21,7 @@ namespace SqlProjectsPowerTools
         {
             OkCommand = new RelayCommand(OkExecuted);
             CancelCommand = new RelayCommand(CancelExecuted);
+            ResetCommand = new RelayCommand(ResetExecuted, () => !HasWildcards);
             SeverityFilters = new List<string> { "All severities", "Warning", "Error" };
             selectedSeverityFilter = SeverityFilters[0];
         }
@@ -30,6 +31,8 @@ namespace SqlProjectsPowerTools
         public ICommand OkCommand { get; }
 
         public ICommand CancelCommand { get; }
+
+        public ICommand ResetCommand { get; }
 
         public ObservableCollection<RuleGroupViewModel> Groups { get; } = new ObservableCollection<RuleGroupViewModel>();
 
@@ -95,6 +98,7 @@ namespace SqlProjectsPowerTools
 
                 hasWildcards = value;
                 RaisePropertyChanged();
+                ((RelayCommand)ResetCommand).RaiseCanExecuteChanged();
             }
         }
 
@@ -192,6 +196,29 @@ namespace SqlProjectsPowerTools
                 }
 
                 group.UpdateGroupVisibility();
+            }
+        }
+
+        private void ResetExecuted()
+        {
+            var result = System.Windows.MessageBox.Show(
+                "This will enable all rules and set all severities to Warning. Are you sure?",
+                "Reset Rules",
+                System.Windows.MessageBoxButton.YesNo,
+                System.Windows.MessageBoxImage.Question);
+
+            if (result != System.Windows.MessageBoxResult.Yes)
+            {
+                return;
+            }
+
+            foreach (var group in Groups)
+            {
+                foreach (var rule in group.Rules)
+                {
+                    rule.IsEnabled = true;
+                    rule.Severity = "Warning";
+                }
             }
         }
 

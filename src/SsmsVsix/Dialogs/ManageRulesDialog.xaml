@@ -182,20 +182,23 @@
         <Separator Grid.Row="6" Margin="0,4,0,0" />
 
         <!-- OK / Cancel buttons -->
-        <StackPanel Orientation="Horizontal"
-                    Grid.Row="7"
-                    HorizontalAlignment="Right"
-                    VerticalAlignment="Top"
-                    Margin="0,5,0,0">
-            <dw:DialogButton Content="OK"
-                             IsDefault="True"
-                             HorizontalAlignment="Right"
+        <Grid Grid.Row="7"
+              VerticalAlignment="Top"
+              Margin="0,5,0,0">
+            <dw:DialogButton Content="Reset"
+                             HorizontalAlignment="Left"
                              IsEnabled="{Binding HasWildcards, Converter={StaticResource BoolInvertConverter}}"
-                             Command="{Binding OkCommand}" />
-            <dw:DialogButton Content="Cancel"
-                             IsCancel="True"
-                             HorizontalAlignment="Right"
-                             Command="{Binding CancelCommand}" />
-        </StackPanel>
+                             Command="{Binding ResetCommand}" />
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right">
+                <dw:DialogButton Content="OK"
+                                 IsDefault="True"
+                                 IsEnabled="{Binding HasWildcards, Converter={StaticResource BoolInvertConverter}}"
+                                 Command="{Binding OkCommand}" />
+                <dw:DialogButton Content="Cancel"
+                                 IsCancel="True"
+                                 Command="{Binding CancelCommand}" />
+            </StackPanel>
+        </Grid>
     </Grid>
 </dw:DialogWindow>
