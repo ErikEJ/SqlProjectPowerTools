@@ -1,8 +1,8 @@
 using System.Diagnostics;
-using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Shell.Interop;
 using System.Windows.Documents;
 using System.Windows.Navigation;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Shell.Interop;
 
 namespace SqlProjectsPowerTools
 {
