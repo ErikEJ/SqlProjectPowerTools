@@ -8,17 +8,19 @@ SQL Database Project Power Tools enhances your Visual Studio experience when wor
 
 ## Installation
 
-You can install the extension in two ways:
+You can install the extension in multiple ways:
 
 1. **From Visual Studio**: Open Visual Studio, go to Extensions > Manage Extensions, search for "SQL Database Project Power Tools", and click Install.
 
 2. **From the Visual Studio Marketplace**: Download and install from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ErikEJ.SQLProjectPowerTools).
 
-After installation, restart Visual Studio to activate the extension.
+3. **From VSIX Gallery (SSMS)** Download and install from [Open VSXI Gallery](https://www.vsixgallery.com/extension/SqlProjectsPowerTools.SSMS.D7DABDC8-FE46-4DA4-BED8-2EAF1A2A578D)
+
+After installation, restart Visual Studio / SSMS to activate the extension.
 
 ## Creating a New SQL Database Project
 
-SQL Database Project Power Tools adds project templates to make it easy to create new database projects.
+SQL Database Project Power Tools adds project templates to make it easy to create new database projects. (Does not apply to SSMS)
 
 ![New Project Templates](../img/newproject.png)
 
@@ -140,6 +142,14 @@ To script table data:
 
 This is based on the popular [generate-sql-merge](https://github.com/dnlnln/generate-sql-merge) script.
 
+## Real time code analysis (SSMS)
+
+Live code analysis is available in SQL Server Management Studio (SSMS) when working with SQL database projects. This provides immediate feedback on potential issues as you write your SQL code.
+
+You can enable or disable live code analysis in SSMS using the same rule manager as in Visual Studio. This allows you to maintain consistent code quality standards across both environments.
+
+In addition, you can disable the live code analysis via Tools > Options > SQL Server Tools > SQL Project Power Tools and uncheck "Enable live code analysis". This will turn off the real-time analysis feature if you prefer to run it manually.
+
 ## Accessing the Tools
 
 All SQL Database Project Power Tools features are accessible from the context menu in Solution Explorer:
@@ -148,7 +158,7 @@ All SQL Database Project Power Tools features are accessible from the context me
 
 Simply right-click on your SQL database project and look for the **SQL Project Power Tools** menu option.
 
-## Power Pack Extension
+## Power Pack Extension (Visual Studio)
 
 For even more features, consider installing the [SQL Project Power Pack](https://marketplace.visualstudio.com/items?itemName=ErikEJ.SqlProjectPowerPack), which includes:
 
