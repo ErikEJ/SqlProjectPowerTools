@@ -14,7 +14,7 @@ You can install the extension in multiple ways:
 
 2. **From the Visual Studio Marketplace**: Download and install from the [Visual Studio Marketplace](https://marketplace.visualstudio.com/items?itemName=ErikEJ.SQLProjectPowerTools).
 
-3. **From VSIX Gallery (SSMS)** Download and install from [Open VSXI Gallery](https://www.vsixgallery.com/extension/SqlProjectsPowerTools.SSMS.D7DABDC8-FE46-4DA4-BED8-2EAF1A2A578D)
+3. **From VSIX Gallery (SSMS)** Download and install from [Open VSIX Gallery](https://www.vsixgallery.com/extension/SqlProjectsPowerTools.SSMS.D7DABDC8-FE46-4DA4-BED8-2EAF1A2A578D)
 
 After installation, restart Visual Studio / SSMS to activate the extension.
 
