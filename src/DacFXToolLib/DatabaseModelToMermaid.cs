@@ -87,12 +87,9 @@ namespace DacFXToolLib
             Span<char> buffer = new char[name.Length];
 
             int index = 0;
-            foreach (char c in name)
+            foreach (var c in name.Where(IsValidChar))
             {
-                if (IsValidChar(c))
-                {
-                    buffer[index++] = c;
-                }
+                buffer[index++] = c;
             }
 
             return new string(buffer[..index]);
