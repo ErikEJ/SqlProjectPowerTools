@@ -162,7 +162,7 @@
 
       <Button guid="Vsix" id="cmdidMoreExtensions" priority="0x0850" type="Button">
         <Parent guid="Vsix" id="cmdidSqlAboutMenuItemsGroup" />
-        <Icon guid="ImageCatalogGuid" id="Catalog" />
+        <Icon guid="ImageCatalogGuid" id="Extension" />
         <CommandFlag>IconIsMoniker</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>TextChanges</CommandFlag>
