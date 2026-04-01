@@ -16,6 +16,10 @@
         <Parent guid="Vsix" id="cmdidSqlProjectMenu" />
       </Group>
 
+      <Group guid="Vsix" id="cmdidSqlProjectOtherMenuItemsGroup" priority="0x0200">
+        <Parent guid="Vsix" id="cmdidSqlProjectMenu" />
+      </Group>      
+
       <Group guid="Vsix" id="cmdidSqlAboutMenuItemsGroup" priority="0x0800">
         <Parent guid="Vsix" id="cmdidSqlProjectMenu" />
       </Group>
@@ -70,25 +74,14 @@
         </Strings>
       </Button>
 
-      <Button guid="Vsix" id="cmdidVisualCompare" priority="0x0106" type="Button">
+      <Button guid="Vsix" id="cmdidDeployScript" priority="0x0110" type="Button">
         <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
-        <Icon guid="ImageCatalogGuid" id="CompareSchemas" />
+        <Icon guid="ImageCatalogGuid" id="PostDeploymentScript" />
         <CommandFlag>IconIsMoniker</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
-          <ButtonText>Visual Schema Compare (preview)...</ButtonText>
-        </Strings>
-      </Button>
-
-      <Button guid="Vsix" id="cmdidAnalyze" priority="0x0110" type="Button">
-        <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
-        <Icon guid="ImageCatalogGuid" id="CodeAnalysisWindow" />
-        <CommandFlag>IconIsMoniker</CommandFlag>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>TextChanges</CommandFlag>
-        <Strings>
-          <ButtonText>Analyze</ButtonText>
+          <ButtonText>Add deployment scripts</ButtonText>
         </Strings>
       </Button>
 
@@ -103,8 +96,32 @@
         </Strings>
       </Button>
 
+
+
+      <Button guid="Vsix" id="cmdidVisualCompare" priority="0x0106" type="Button">
+        <Parent guid="Vsix" id="cmdidSqlProjectOtherMenuItemsGroup" />
+        <Icon guid="ImageCatalogGuid" id="CompareSchemas" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <ButtonText>Visual Schema Compare (preview)...</ButtonText>
+        </Strings>
+      </Button>
+
+      <Button guid="Vsix" id="cmdidAnalyze" priority="0x0110" type="Button">
+        <Parent guid="Vsix" id="cmdidSqlProjectOtherMenuItemsGroup" />
+        <Icon guid="ImageCatalogGuid" id="CodeAnalysisWindow" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <ButtonText>Analyze</ButtonText>
+        </Strings>
+      </Button>
+
       <Button guid="Vsix" id="cmdidErDiagram" priority="0x0120" type="Button">
-        <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
+        <Parent guid="Vsix" id="cmdidSqlProjectOtherMenuItemsGroup" />
         <Icon guid="ImageCatalogGuid" id="ApplicationConnectionDiagram" />
         <CommandFlag>IconIsMoniker</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
@@ -114,19 +131,9 @@
         </Strings>
       </Button>
 
-      <Button guid="Vsix" id="cmdidDeployScript" priority="0x0140" type="Button">
-        <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
-        <Icon guid="ImageCatalogGuid" id="PostDeploymentScript" />
-        <CommandFlag>IconIsMoniker</CommandFlag>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>TextChanges</CommandFlag>
-        <Strings>
-          <ButtonText>Add deployment scripts</ButtonText>
-        </Strings>
-      </Button>
 
       <Button guid="Vsix" id="cmdidReverseEngineerDab" priority="0x0200" type="Button">
-        <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
+        <Parent guid="Vsix" id="cmdidSqlProjectOtherMenuItemsGroup" />
         <Icon guid="ImageCatalogGuid" id="DynamicWebSite" />
         <CommandFlag>IconIsMoniker</CommandFlag>
         <CommandFlag>DynamicVisibility</CommandFlag>
@@ -157,18 +164,6 @@
         <Strings>
           <CommandName>cmdidGettingStarted</CommandName>
           <ButtonText>Getting Started</ButtonText>
-        </Strings>
-      </Button>
-
-      <Button guid="Vsix" id="cmdidMoreExtensions" priority="0x0850" type="Button">
-        <Parent guid="Vsix" id="cmdidSqlAboutMenuItemsGroup" />
-        <Icon guid="ImageCatalogGuid" id="Extension" />
-        <CommandFlag>IconIsMoniker</CommandFlag>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>TextChanges</CommandFlag>
-        <Strings>
-          <CommandName>cmdidMoreExtensions</CommandName>
-          <ButtonText>More extensions</ButtonText>
         </Strings>
       </Button>
 
@@ -209,6 +204,7 @@
       <IDSymbol name="cmdidSqlMenuGroup" value="0x0600" />
       <IDSymbol name="cmdidSqlProjectMenuItemsGroup" value="0x0700" />
       <IDSymbol name="cmdidSqlAboutMenuItemsGroup" value="0x0800" />
+      <IDSymbol name="cmdidSqlProjectOtherMenuItemsGroup" value="0x0900" />
 
       <IDSymbol name="cmdidSqlProjectMenu" value="0x0003" />
       <IDSymbol name="cmdidSqlProjectMenuGroup" value="0x0004" />
@@ -225,7 +221,6 @@
       <IDSymbol name="cmdidVisualCompare" value="0x0013" />
       <IDSymbol name="cmdidManageRules" value="0x0014" />
       <IDSymbol name="cmdidGettingStarted" value="0x0015" />
-      <IDSymbol name="cmdidMoreExtensions" value="0x0016" />
     </GuidSymbol>
 
   </Symbols>

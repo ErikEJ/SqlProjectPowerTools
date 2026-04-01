@@ -28,6 +28,7 @@ namespace SqlProjectsPowerTools
         public const int cmdidSqlMenuGroup = 0x0600;
         public const int cmdidSqlProjectMenuItemsGroup = 0x0700;
         public const int cmdidSqlAboutMenuItemsGroup = 0x0800;
+        public const int cmdidSqlProjectOtherMenuItemsGroup = 0x0900;
         public const int cmdidSqlProjectMenu = 0x0003;
         public const int cmdidSqlProjectMenuGroup = 0x0004;
         public const int cmdidAnalyze = 0x0001;
@@ -41,6 +42,5 @@ namespace SqlProjectsPowerTools
         public const int cmdidVisualCompare = 0x0013;
         public const int cmdidManageRules = 0x0014;
         public const int cmdidGettingStarted = 0x0015;
-        public const int cmdidMoreExtensions = 0x0016;
     }
 }
