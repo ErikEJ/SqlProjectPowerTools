@@ -15,12 +15,13 @@ namespace SqlProjectsPowerTools
             {
                 if (Process.Start(new ProcessStartInfo(Url) { UseShellExecute = true }) == null)
                 {
-                    await VS.MessageBox.ShowAsync("SQL Database Project Power Tools", ErrorMessage, buttons: Microsoft.VisualStudio.Shell.Interop.OLEMSGBUTTON.OLEMSGBUTTON_OK);
+                    await VS.MessageBox.ShowErrorAsync("SQL Database Project Power Tools", ErrorMessage, buttons: Microsoft.VisualStudio.Shell.Interop.OLEMSGBUTTON.OLEMSGBUTTON_OK);
                 }
             }
             catch (Exception ex) when (ex is InvalidOperationException or Win32Exception or PlatformNotSupportedException)
             {
-                await VS.MessageBox.ShowAsync("SQL Database Project Power Tools", ErrorMessage, buttons: Microsoft.VisualStudio.Shell.Interop.OLEMSGBUTTON.OLEMSGBUTTON_OK);
+                await ex.LogAsync();
+                await VS.MessageBox.ShowErrorAsync("SQL Database Project Power Tools", ErrorMessage, buttons: Microsoft.VisualStudio.Shell.Interop.OLEMSGBUTTON.OLEMSGBUTTON_OK);
             }
         }
     }
