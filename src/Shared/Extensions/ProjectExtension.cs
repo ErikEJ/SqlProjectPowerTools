@@ -209,17 +209,54 @@ namespace SqlProjectsPowerTools
                 {
                     FileName = "dotnet",
                     WorkingDirectory = projectDirectory,
-                    Arguments = $"add \"{projectPath}\" package {packageId}",
+                    Arguments = $"add \"{projectPath.Replace("\"", "\\\"")}\" package {packageId}",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
                 };
 
                 var output = await ExternalProcessLauncher.RunProcessAsync(startInfo);
-                if (output.StartsWith("Error:", StringComparison.OrdinalIgnoreCase) || !await project.IsInstalledAsync(packageId))
+                if (output.StartsWith("Error:", StringComparison.OrdinalIgnoreCase) || HasDotNetCliError(output))
                 {
                     return $"Failed to install package '{packageId}'.{Environment.NewLine}{output}";
+                }
+
+                var restoreStartInfo = new ProcessStartInfo
+                {
+                    FileName = "dotnet",
+                    WorkingDirectory = projectDirectory,
+                    Arguments = $"restore \"{projectPath.Replace("\"", "\\\"")}\"",
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                };
+
+                var restoreOutput = await ExternalProcessLauncher.RunProcessAsync(restoreStartInfo);
+                if (restoreOutput.StartsWith("Error:", StringComparison.OrdinalIgnoreCase) || HasDotNetCliError(restoreOutput))
+                {
+                    return $"Failed to restore project after installing package '{packageId}'.{Environment.NewLine}{restoreOutput}";
+                }
+
+                if (!await project.IsInstalledAsync(packageId))
+                {
+                    return $"Failed to verify package '{packageId}' after install.";
                 }
             }
 
             return null;
+        }
+
+        private static bool HasDotNetCliError(string output)
+        {
+            if (string.IsNullOrWhiteSpace(output))
+            {
+                return false;
+            }
+
+            return new[] { ": error", " error ", "error NU" }
+                .Any(marker => output.IndexOf(marker, StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
         public static void AddDeployToProject(this Project project, string itemInclude, string section)
