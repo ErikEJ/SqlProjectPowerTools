@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -10,6 +11,8 @@ namespace SqlProjectsPowerTools
 {
     internal static class ProjectExtension
     {
+        private const string SqlServerRulesPackageId = "ErikEJ.DacFX.SqlServer.Rules";
+        private const string TSqlSmellRulesPackageId = "ErikEJ.DacFX.TSQLSmellSCA";
         private const string Indent = "\n    ";
         private const string EndElementIndent = "\n  ";
         private const string NewLine = "\n";
@@ -72,7 +75,7 @@ namespace SqlProjectsPowerTools
                 {
                     foreach (var lib in lockFile.Libraries)
                     {
-                        if (lib.Name == packageId)
+                        if (string.Equals(lib.Name, packageId, StringComparison.OrdinalIgnoreCase))
                         {
                             return true;
                         }
@@ -175,7 +178,48 @@ namespace SqlProjectsPowerTools
                 return false;
             }
 
-            return await project.IsInstalledAsync("ErikEJ.DacFX.SqlServer.Rules");
+            return await project.IsInstalledAsync(SqlServerRulesPackageId)
+                || await project.IsInstalledAsync(TSqlSmellRulesPackageId);
+        }
+
+        public static async Task<string> AddRulesPackagesAsync(this Project project)
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            if (project == null)
+            {
+                return "No project selected.";
+            }
+
+            var projectPath = project.FullPath;
+            var projectDirectory = Path.GetDirectoryName(projectPath);
+            if (string.IsNullOrWhiteSpace(projectPath) || string.IsNullOrWhiteSpace(projectDirectory) || !File.Exists(projectPath))
+            {
+                return "Unable to locate the selected project file.";
+            }
+
+            foreach (var packageId in new[] { SqlServerRulesPackageId, TSqlSmellRulesPackageId })
+            {
+                if (await project.IsInstalledAsync(packageId))
+                {
+                    continue;
+                }
+
+                var startInfo = new ProcessStartInfo
+                {
+                    FileName = "dotnet",
+                    WorkingDirectory = projectDirectory,
+                    Arguments = $"add \"{projectPath}\" package {packageId}",
+                };
+
+                var output = await ExternalProcessLauncher.RunProcessAsync(startInfo);
+                if (output.StartsWith("Error:", StringComparison.OrdinalIgnoreCase) || !await project.IsInstalledAsync(packageId))
+                {
+                    return $"Failed to install package '{packageId}'.{Environment.NewLine}{output}";
+                }
+            }
+
+            return null;
         }
 
         public static void AddDeployToProject(this Project project, string itemInclude, string section)

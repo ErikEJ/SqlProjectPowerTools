@@ -16,6 +16,7 @@ namespace SqlProjectsPowerTools
         private string selectedSeverityFilter;
         private bool hasWildcards;
         private bool hasRulesPackages;
+        private bool installRulesPackages;
 
         public ManageRulesViewModel()
         {
@@ -53,6 +54,11 @@ namespace SqlProjectsPowerTools
                 runSqlCodeAnalysis = value;
                 RaisePropertyChanged();
                 RaisePropertyChanged(nameof(ShowNoRulesPackageWarning));
+                RaisePropertyChanged(nameof(CanInstallRulesPackages));
+                if (!CanInstallRulesPackages)
+                {
+                    InstallRulesPackages = false;
+                }
             }
         }
 
@@ -117,10 +123,32 @@ namespace SqlProjectsPowerTools
                 hasRulesPackages = value;
                 RaisePropertyChanged();
                 RaisePropertyChanged(nameof(ShowNoRulesPackageWarning));
+                RaisePropertyChanged(nameof(CanInstallRulesPackages));
+                if (!CanInstallRulesPackages)
+                {
+                    InstallRulesPackages = false;
+                }
             }
         }
 
         public bool ShowNoRulesPackageWarning => RunSqlCodeAnalysis && !HasRulesPackages;
+
+        public bool InstallRulesPackages
+        {
+            get => installRulesPackages;
+            set
+            {
+                if (Equals(value, installRulesPackages))
+                {
+                    return;
+                }
+
+                installRulesPackages = value;
+                RaisePropertyChanged();
+            }
+        }
+
+        public bool CanInstallRulesPackages => RunSqlCodeAnalysis && !HasRulesPackages;
 
         public void LoadRules(IList<IssueTypeModel> rules, bool runCodeAnalysis, string rulesExpression, bool hasRulesPackages)
         {
@@ -128,6 +156,9 @@ namespace SqlProjectsPowerTools
 
             runSqlCodeAnalysis = runCodeAnalysis;
             RaisePropertyChanged(nameof(RunSqlCodeAnalysis));
+
+            installRulesPackages = false;
+            RaisePropertyChanged(nameof(InstallRulesPackages));
 
             HasRulesPackages = hasRulesPackages;
 
@@ -151,7 +182,7 @@ namespace SqlProjectsPowerTools
             }
         }
 
-        public (bool RunCodeAnalysis, string RulesExpression) GetResult()
+        public (bool RunCodeAnalysis, string RulesExpression, bool AddRulesPackages) GetResult()
         {
             var parts = new List<string>();
             foreach (var group in Groups)
@@ -169,7 +200,7 @@ namespace SqlProjectsPowerTools
                 }
             }
 
-            return (RunSqlCodeAnalysis, string.Join(";", parts));
+            return (RunSqlCodeAnalysis, string.Join(";", parts), InstallRulesPackages);
         }
 
         private static string NormalizeSeverity(string severity)

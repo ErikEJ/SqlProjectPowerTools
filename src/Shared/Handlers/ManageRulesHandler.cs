@@ -56,7 +56,7 @@ namespace SqlProjectsPowerTools
                     return;
                 }
 
-                var (newRunCodeAnalysis, newRulesExpression) = viewModel.GetResult();
+                var (newRunCodeAnalysis, newRulesExpression, addRulesPackages) = viewModel.GetResult();
 
                 await project.TrySetAttributeAsync("RunSqlCodeAnalysis", newRunCodeAnalysis ? "True" : "False");
 
@@ -69,6 +69,18 @@ namespace SqlProjectsPowerTools
                 {
                     // Classic .sqlproj / Microsoft.Build.Sql uses SqlCodeAnalysisRules
                     await project.SetPropertyDirectAsync("SqlCodeAnalysisRules", newRulesExpression);
+                }
+
+                if (addRulesPackages)
+                {
+                    await VS.StatusBar.ShowMessageAsync("Installing code analysis NuGet packages...");
+                    var addResult = await project.AddRulesPackagesAsync();
+                    await VS.StatusBar.ClearAsync();
+                    if (!string.IsNullOrEmpty(addResult))
+                    {
+                        VSHelper.ShowError(addResult);
+                        return;
+                    }
                 }
 
                 await VS.StatusBar.ShowMessageAsync("Code analysis rules updated.");

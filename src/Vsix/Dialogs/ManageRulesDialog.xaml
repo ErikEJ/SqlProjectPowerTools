@@ -36,13 +36,21 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="60" />
         </Grid.RowDefinitions>
 
-        <!-- Enable Code Analysis checkbox -->
         <CheckBox Grid.Row="0"
+                  Content="Install community code analyzers (ErikEJ.DacFX.SqlServer.Rules and ErikEJ.DacFX.TSQLSmellSCA)"
+                  IsChecked="{Binding InstallRulesPackages, Mode=TwoWay}"
+                  IsEnabled="{Binding CanInstallRulesPackages}"
+                  Margin="0,4,0,8"
+                  VerticalAlignment="Center" />
+
+        <!-- Enable Code Analysis checkbox -->
+        <CheckBox Grid.Row="1"
                   Content="Enable Code Analysis on Build"
                   IsChecked="{Binding RunSqlCodeAnalysis, Mode=TwoWay}"
                   Margin="0,4,0,8"
@@ -50,7 +58,7 @@
                   VerticalAlignment="Center" />
 
         <!-- No rules packages warning -->
-        <Border Grid.Row="1"
+        <Border Grid.Row="2"
                 Background="#FFF5C600"
                 Padding="8,4"
                 Margin="0,0,0,8"
@@ -61,7 +69,7 @@
         </Border>
 
         <!-- Search and Severity filter row -->
-        <Grid Grid.Row="2" Margin="0,0,0,8">
+        <Grid Grid.Row="3" Margin="0,0,0,8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="160" />
@@ -81,7 +89,7 @@
         </Grid>
 
         <!-- Wildcard warning message -->
-        <Border Grid.Row="3"
+        <Border Grid.Row="4"
                 Background="#FFF5C600"
                 Padding="8,4"
                 Margin="0,0,0,8"
@@ -92,13 +100,13 @@
         </Border>
 
         <!-- Column headers -->
-        <Grid Grid.Row="4"
+        <Grid Grid.Row="5"
               Margin="0,0,0,2">
             <TextBlock Text="Rules" FontWeight="Bold" Margin="20,0,0,0" />
         </Grid>
 
         <!-- Rules TreeView -->
-        <TreeView Grid.Row="5"
+        <TreeView Grid.Row="6"
                   ItemsSource="{Binding Groups}"
                   IsEnabled="{Binding HasWildcards, Converter={StaticResource BoolInvertConverter}}">
 
@@ -179,10 +187,10 @@
         </TreeView>
 
         <!-- Separator -->
-        <Separator Grid.Row="6" Margin="0,4,0,0" />
+        <Separator Grid.Row="7" Margin="0,4,0,0" />
 
         <!-- OK / Cancel buttons -->
-        <Grid Grid.Row="7"
+        <Grid Grid.Row="8"
               VerticalAlignment="Top"
               Margin="0,10">
             <Grid.ColumnDefinitions>
