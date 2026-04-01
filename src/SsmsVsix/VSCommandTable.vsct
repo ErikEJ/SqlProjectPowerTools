@@ -81,7 +81,7 @@
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
-          <ButtonText>Add deployment scripts</ButtonText>
+          <ButtonText>Add Deployment Scripts</ButtonText>
         </Strings>
       </Button>
 
