@@ -14,8 +14,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Commands\DabCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\DeployScriptCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\ImportCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\GettingStartedCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\ManageRulesCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\MermaidCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\MoreExtensionsCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\OptionsCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\SeedCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\VisualCompareCommand.cs" />

@@ -148,6 +148,30 @@
         </Strings>
       </Button>
 
+      <Button guid="Vsix" id="cmdidGettingStarted" priority="0x0800" type="Button">
+        <Parent guid="Vsix" id="cmdidSqlAboutMenuItemsGroup" />
+        <Icon guid="ImageCatalogGuid" id="StatusInformation" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <CommandName>cmdidGettingStarted</CommandName>
+          <ButtonText>Getting Started</ButtonText>
+        </Strings>
+      </Button>
+
+      <Button guid="Vsix" id="cmdidMoreExtensions" priority="0x0850" type="Button">
+        <Parent guid="Vsix" id="cmdidSqlAboutMenuItemsGroup" />
+        <Icon guid="ImageCatalogGuid" id="Catalog" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <CommandName>cmdidMoreExtensions</CommandName>
+          <ButtonText>More extensions</ButtonText>
+        </Strings>
+      </Button>
+
       <Button guid="Vsix" id="cmdidAbout" priority="0x0900" type="Button">
         <Parent guid="Vsix" id="cmdidSqlAboutMenuItemsGroup" />
         <Icon guid="ImageCatalogGuid" id="StatusHelpOutline" />
@@ -200,6 +224,8 @@
       <IDSymbol name="cmdidSeed" value="0x0009" />
       <IDSymbol name="cmdidVisualCompare" value="0x0013" />
       <IDSymbol name="cmdidManageRules" value="0x0014" />
+      <IDSymbol name="cmdidGettingStarted" value="0x0015" />
+      <IDSymbol name="cmdidMoreExtensions" value="0x0016" />
     </GuidSymbol>
 
   </Symbols>
