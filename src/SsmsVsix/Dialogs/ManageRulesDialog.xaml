@@ -43,11 +43,13 @@
         </Grid.RowDefinitions>
 
         <CheckBox Grid.Row="0"
-                  Content="Install community code analyzers (ErikEJ.DacFX.SqlServer.Rules and ErikEJ.DacFX.TSQLSmellSCA)"
                   IsChecked="{Binding InstallRulesPackages, Mode=TwoWay}"
                   IsEnabled="{Binding CanInstallRulesPackages}"
                   Margin="0,4,0,8"
-                  VerticalAlignment="Center" />
+                  VerticalAlignment="Center">
+            <TextBlock TextWrapping="Wrap"
+                       Text="Install community code analyzers (ErikEJ.DacFX.SqlServer.Rules and ErikEJ.DacFX.TSQLSmellSCA)" />
+        </CheckBox>
 
         <!-- Enable Code Analysis checkbox -->
         <CheckBox Grid.Row="1"
