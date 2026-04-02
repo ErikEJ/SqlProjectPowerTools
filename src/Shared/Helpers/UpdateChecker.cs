@@ -58,18 +58,14 @@ namespace SqlProjectsPowerTools
         {
             try
             {
-                OutputWindowPane pane = await VS.Windows.CreateOutputWindowPaneAsync("Extensions");
-
                 var options = await ToolOptions.GetLiveInstanceAsync();
                 if (!options.CheckForUpdates)
                 {
-                    await pane.WriteAsync("Update check is disabled in options.");
                     return;
                 }
 
                 if (HasCheckedToday(extensionId))
                 {
-                    await pane.WriteAsync("Already checked for updates today. Skipping check.");
                     return;
                 }
 
@@ -85,7 +81,6 @@ namespace SqlProjectsPowerTools
                 SaveLastCheckDate(extensionId);
                 if (latestVersion != null && IsNewerVersion(latestVersion, currentVersion))
                 {
-                    await pane.WriteAsync($"New version {latestVersion} is available for {extensionName}.");
                     await ShowUpdateNotificationAsync(extensionId, extensionName, latestVersion);
                 }
             }
