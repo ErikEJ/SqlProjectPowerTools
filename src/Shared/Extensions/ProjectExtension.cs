@@ -216,12 +216,10 @@ namespace SqlProjectsPowerTools
                     RedirectStandardError = true,
                 };
 
-                var result = await Task.Run(() => ExternalProcessLauncher.RunProcessWithExitCodeAsync(startInfo));
-                if (result.ExitCode != 0)
+                var result = await ExternalProcessLauncher.RunProcessAsync(startInfo);
+                if (result.Contains("Error:", StringComparison.OrdinalIgnoreCase))
                 {
-                    var output = $"{result.StandardOutput}{(string.IsNullOrWhiteSpace(result.StandardError) ? string.Empty : $"{Environment.NewLine}{result.StandardError}")}";
-
-                    return $"Failed to install package '{packageId}'.{Environment.NewLine}{output}";
+                    return $"Failed to install package '{packageId}'.{Environment.NewLine}{result}";
                 }
 
                 if (!await project.IsInstalledAsync(packageId))
