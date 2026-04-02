@@ -222,23 +222,6 @@ namespace SqlProjectsPowerTools
                     return $"Failed to install package '{packageId}'.{Environment.NewLine}{output}";
                 }
 
-                var restoreStartInfo = new ProcessStartInfo
-                {
-                    FileName = "dotnet",
-                    WorkingDirectory = projectDirectory,
-                    Arguments = $"restore \"{projectPath.Replace("\"", "\\\"")}\"",
-                    UseShellExecute = false,
-                    CreateNoWindow = true,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true,
-                };
-
-                var restoreOutput = await ExternalProcessLauncher.RunProcessAsync(restoreStartInfo);
-                if (restoreOutput.StartsWith("Error:", StringComparison.OrdinalIgnoreCase) || HasDotNetCliError(restoreOutput))
-                {
-                    return $"Failed to restore project after installing package '{packageId}'.{Environment.NewLine}{restoreOutput}";
-                }
-
                 if (!await project.IsInstalledAsync(packageId))
                 {
                     return $"Failed to verify package '{packageId}' after install.";
