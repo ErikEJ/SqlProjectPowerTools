@@ -217,7 +217,7 @@ namespace SqlProjectsPowerTools
                 };
 
                 var result = await ExternalProcessLauncher.RunProcessAsync(startInfo);
-                if (result.Contains("Error:", StringComparison.OrdinalIgnoreCase))
+                if (result.Contains("Error:"))
                 {
                     return $"Failed to install package '{packageId}'.{Environment.NewLine}{result}";
                 }
