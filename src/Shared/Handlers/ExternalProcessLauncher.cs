@@ -6,7 +6,7 @@ namespace SqlProjectsPowerTools
 {
     public static class ExternalProcessLauncher
     {
-        public static async Task<string> RunProcessAsync(ProcessStartInfo startInfo)
+        public static async Task<(int ExitCode, string StandardOutput, string StandardError)> RunProcessWithExitCodeAsync(ProcessStartInfo startInfo)
         {
             startInfo.UseShellExecute = false;
             startInfo.RedirectStandardOutput = true;
@@ -16,26 +16,28 @@ namespace SqlProjectsPowerTools
             startInfo.StandardErrorEncoding = Encoding.UTF8;
 
             var standardOutput = new StringBuilder();
-            var error = string.Empty;
             using (var process = Process.Start(startInfo))
             {
-                while (process != null && !process.HasExited)
+                if (process == null)
                 {
-                    standardOutput.Append(await process.StandardOutput.ReadToEndAsync());
+                    return (-1, string.Empty, $"Failed to start process '{startInfo.FileName}'.");
                 }
 
-                if (process != null)
-                {
-                    standardOutput.Append(await process.StandardOutput.ReadToEndAsync());
-                }
+                var standardOutputTask = process.StandardOutput.ReadToEndAsync();
+                var standardErrorTask = process.StandardError.ReadToEndAsync();
+                await Task.WhenAll(standardOutputTask, standardErrorTask);
+                process.WaitForExit();
+                standardOutput.Append(standardOutputTask.Result);
+                var error = standardErrorTask.Result;
 
-                if (process != null)
-                {
-                    error = await process.StandardError.ReadToEndAsync();
-                }
+                return (process.ExitCode, standardOutput.ToString(), error);
             }
+        }
 
-            var result = standardOutput.ToString();
+        public static async Task<string> RunProcessAsync(ProcessStartInfo startInfo)
+        {
+            var (_, standardOutput, error) = await RunProcessWithExitCodeAsync(startInfo);
+            var result = standardOutput;
             if (string.IsNullOrEmpty(result) && !string.IsNullOrEmpty(error))
             {
                 result = "Error:" + Environment.NewLine + error;

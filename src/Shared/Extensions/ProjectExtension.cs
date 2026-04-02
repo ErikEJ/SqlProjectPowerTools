@@ -216,9 +216,11 @@ namespace SqlProjectsPowerTools
                     RedirectStandardError = true,
                 };
 
-                var output = await Task.Run(() => ExternalProcessLauncher.RunProcessAsync(startInfo));
-                if (output.StartsWith("Error:", StringComparison.OrdinalIgnoreCase) || HasDotNetCliError(output))
+                var result = await Task.Run(() => ExternalProcessLauncher.RunProcessWithExitCodeAsync(startInfo));
+                if (result.ExitCode != 0)
                 {
+                    var output = $"{result.StandardOutput}{(string.IsNullOrWhiteSpace(result.StandardError) ? string.Empty : $"{Environment.NewLine}{result.StandardError}")}";
+
                     return $"Failed to install package '{packageId}'.{Environment.NewLine}{output}";
                 }
 
@@ -229,17 +231,6 @@ namespace SqlProjectsPowerTools
             }
 
             return null;
-        }
-
-        private static bool HasDotNetCliError(string output)
-        {
-            if (string.IsNullOrWhiteSpace(output))
-            {
-                return false;
-            }
-
-            return new[] { ": error", " error ", "error NU" }
-                .Any(marker => output.IndexOf(marker, StringComparison.OrdinalIgnoreCase) >= 0);
         }
 
         public static void AddDeployToProject(this Project project, string itemInclude, string section)
