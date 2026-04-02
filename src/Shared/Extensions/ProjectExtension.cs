@@ -216,7 +216,7 @@ namespace SqlProjectsPowerTools
                     RedirectStandardError = true,
                 };
 
-                var output = await ExternalProcessLauncher.RunProcessAsync(startInfo);
+                var output = await Task.Run(() => ExternalProcessLauncher.RunProcessAsync(startInfo));
                 if (output.StartsWith("Error:", StringComparison.OrdinalIgnoreCase) || HasDotNetCliError(output))
                 {
                     return $"Failed to install package '{packageId}'.{Environment.NewLine}{output}";
