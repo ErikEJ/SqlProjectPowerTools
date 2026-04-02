@@ -60,7 +60,7 @@ namespace DacFXToolLib
                     relationship = "}o--o";
                 }
 
-                var formattedPrincipalTableName = Sanitize(string.IsNullOrEmpty(foreignKey.PrincipalTable.Schema) ? foreignKey.PrincipalTable.Name : $"{foreignKey.PrincipalTable.Schema}.{foreignKey.PrincipalTable.Name}");
+                var formattedPrincipalTableName = Sanitize($"{foreignKey.PrincipalTable.Schema}.{foreignKey.PrincipalTable.Name}");
                 var formattedForeignKeyName = Sanitize(foreignKey.Name ?? string.Empty);
 
                 sb.AppendLine(CultureInfo.InvariantCulture, $"  \"{formattedTableName}\" {relationship}| \"{formattedPrincipalTableName}\" : {formattedForeignKeyName}");
