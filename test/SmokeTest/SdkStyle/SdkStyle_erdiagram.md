@@ -1,17 +1,17 @@
-```mermaid
+﻿```mermaid
 erDiagram
-  Album {
+  "dbo.Album" {
     AlbumId int PK
     Title nvarchar(160) 
     ArtistId int FK
     Valid bit(NULL) 
   }
-  Album }o--|| Artist : FK_AlbumArtistId
-  Artist {
+  "dbo.Album" }o--|| "dbo.Artist" : FK_AlbumArtistId
+  "dbo.Artist" {
     ArtistId int PK
     Name nvarchar(120)(NULL) 
   }
-  Customer {
+  "dbo.Customer" {
     CustomerId int PK
     FirstName nvarchar(40) 
     LastName nvarchar(20) 
@@ -26,8 +26,8 @@ erDiagram
     Email nvarchar(60) 
     SupportRepId int(NULL) FK
   }
-  Customer }o--|| Employee : FK_CustomerSupportRepId
-  Employee {
+  "dbo.Customer" }o--o| "dbo.Employee" : FK_CustomerSupportRepId
+  "dbo.Employee" {
     EmployeeId int PK
     LastName nvarchar(20) 
     FirstName nvarchar(20) 
@@ -44,12 +44,12 @@ erDiagram
     Fax nvarchar(24)(NULL) 
     Email nvarchar(60)(NULL) 
   }
-  Employee }o--|| Employee : FK_EmployeeReportsTo
-  Genre {
+  "dbo.Employee" }o--o| "dbo.Employee" : FK_EmployeeReportsTo
+  "dbo.Genre" {
     GenreId int PK
     Name nvarchar(120)(NULL) 
   }
-  Invoice {
+  "dbo.Invoice" {
     InvoiceId int PK
     CustomerId int FK
     InvoiceDate datetime 
@@ -60,31 +60,31 @@ erDiagram
     BillingPostalCode nvarchar(10)(NULL) 
     Total numeric(10-2) 
   }
-  Invoice }o--|| Customer : FK_InvoiceCustomerId
-  InvoiceLine {
+  "dbo.Invoice" }o--|| "dbo.Customer" : FK_InvoiceCustomerId
+  "dbo.InvoiceLine" {
     InvoiceLineId int PK
     InvoiceId int FK
     TrackId int FK
     UnitPrice numeric(10-2) 
     Quantity int 
   }
-  InvoiceLine }o--|| Invoice : FK_InvoiceLineInvoiceId
-  InvoiceLine }o--|| Track : FK_InvoiceLineTrackId
-  MediaType {
+  "dbo.InvoiceLine" }o--|| "dbo.Invoice" : FK_InvoiceLineInvoiceId
+  "dbo.InvoiceLine" }o--|| "dbo.Track" : FK_InvoiceLineTrackId
+  "dbo.MediaType" {
     MediaTypeId int PK
     Name nvarchar(120)(NULL) 
   }
-  Playlist {
+  "dbo.Playlist" {
     PlaylistId int PK
     Name nvarchar(120)(NULL) 
   }
-  PlaylistTrack {
+  "dbo.PlaylistTrack" {
     PlaylistId int PK,FK
     TrackId int PK,FK
   }
-  PlaylistTrack }o--|| Playlist : FK_PlaylistTrackPlaylistId
-  PlaylistTrack }o--|| Track : FK_PlaylistTrackTrackId
-  Track {
+  "dbo.PlaylistTrack" }o--|| "dbo.Playlist" : FK_PlaylistTrackPlaylistId
+  "dbo.PlaylistTrack" }o--|| "dbo.Track" : FK_PlaylistTrackTrackId
+  "dbo.Track" {
     TrackId int PK
     Name nvarchar(200) 
     AlbumId int(NULL) FK
@@ -95,7 +95,7 @@ erDiagram
     Bytes int(NULL) 
     UnitPrice numeric(10-2) 
   }
-  Track }o--|| Album : FK_TrackAlbumId
-  Track }o--|| Genre : FK_TrackGenreId
-  Track }o--|| MediaType : FK_TrackMediaTypeId
+  "dbo.Track" }o--o| "dbo.Album" : FK_TrackAlbumId
+  "dbo.Track" }o--o| "dbo.Genre" : FK_TrackGenreId
+  "dbo.Track" }o--|| "dbo.MediaType" : FK_TrackMediaTypeId
 ```
