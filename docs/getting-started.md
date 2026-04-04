@@ -86,6 +86,8 @@ The analysis includes checks for design issues, naming conventions, performance 
 
 The rule manager lets you visually control which static code analysis rules are active for your database project and how violations are reported. This is available for SDK-style SQL database projects.
 
+![Rule Manager](../img/rulemanager.png)
+
 To manage code analysis rules:
 
 1. Right-click on your SQL database project in Solution Explorer
@@ -96,6 +98,8 @@ To manage code analysis rules:
 6. Enable or disable individual rules using the checkboxes
 7. For enabled rules, choose the severity (**Warning** or **Error**) using the drop-down
 8. Click **OK** to save your changes to the project file
+
+You can also reset all rule settings to their default values with the **Reset** button
 
 Rules are organized by category and can be enabled or disabled at the group level using the group checkbox. Your selections are saved to the `RunSqlCodeAnalysis` and `SqlCodeAnalysisRules` (or `CodeAnalysisRules`) properties in your project file.
 
