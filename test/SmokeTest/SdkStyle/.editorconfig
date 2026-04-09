@@ -1,0 +1,12 @@
+
+# All files
+[*]
+indent_style = space
+
+# Xml files
+[*.xml]
+indent_size = 2
+
+# SQL files
+[*.sql]
+sqlserver_rules.srn0007.ix_regex = ^IFK_{{tableName}}.*
