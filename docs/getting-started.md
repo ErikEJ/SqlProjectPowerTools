@@ -94,7 +94,7 @@ To manage code analysis rules:
 2. Select **SQL Project Power Tools > Manage code analysis rules**
 3. In the dialog, check or uncheck **Enable Code Analysis on Build** to turn code analysis on or off
 4. Browse or search for rules by ID, description, or category using the search box
-5. Link to detailed rule documentation via the `?` link.
+5. Use the ? link to open detailed rule documentation
 6. Use the severity filter drop-down to show only rules of a specific severity
 7. Enable or disable individual rules using the checkboxes
 8. For enabled rules, choose the severity (**Warning** or **Error**) using the drop-down
