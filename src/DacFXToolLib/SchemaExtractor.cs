@@ -58,7 +58,7 @@ namespace DacFXToolLib
                 {
                     // Some properties throw NotSupportedException when accessed
                     var value = prop.GetValue(modelOptions, null);
-                    dict[prop.Name] = value?.ToString() ?? null;
+                    dict[prop.Name] = GetModelOptionValue(prop.Name, value);
                 }
                 catch (NotSupportedException)
                 {
@@ -72,6 +72,18 @@ namespace DacFXToolLib
             File.WriteAllText(tempFile, optionsJson, Encoding.UTF8);
 
             return tempFile;
+        }
+
+        private static string? GetModelOptionValue(string propertyName, object? value)
+        {
+            // TODO: Remove this special-case conversion when DacFX returns On/Off for these options.
+            if (propertyName is "DbScopedConfigLegacyCardinalityEstimation" or "DbScopedConfigParameterSniffing"
+                && value is bool boolValue)
+            {
+                return boolValue ? "On" : "Off";
+            }
+
+            return value?.ToString();
         }
 
         public List<TableModel> GetTables()
