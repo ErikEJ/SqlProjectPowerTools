@@ -77,7 +77,7 @@ namespace DacFXToolLib
         private static string? GetModelOptionValue(string propertyName, object? value)
         {
             // TODO: Remove this special-case conversion when DacFX returns On/Off for these options.
-            if (propertyName is "DbScopedConfigLegacyCardinalityEstimation" or "DbScopedConfigParameterSniffing"
+            if ((propertyName is "DbScopedConfigLegacyCardinalityEstimation" or "DbScopedConfigParameterSniffing")
                 && value is bool boolValue)
             {
                 return boolValue ? "On" : "Off";
