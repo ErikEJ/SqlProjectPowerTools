@@ -89,18 +89,31 @@ namespace SqlProjectsPowerTools
                         return;
                     }
 
-                    await VS.StatusBar.ShowMessageAsync("Import completed successfully");
-                    var settingsString = File.ReadAllText(settingsPath, Encoding.UTF8);
-                    var settings = JsonSerializer.Deserialize<Dictionary<string, string>>(settingsString);
-                    foreach (var setting in settings)
+                    try
                     {
-                        await VS.StatusBar.ShowMessageAsync($"Saving database settings: {setting.Key}...");
-                        if (string.IsNullOrEmpty(setting.Value))
+                        await VS.StatusBar.ShowMessageAsync("Import completed successfully");
+                        var settingsString = File.ReadAllText(settingsPath, Encoding.UTF8);
+                        var settings = JsonSerializer.Deserialize<Dictionary<string, string>>(settingsString);
+
+                        if (settings == null)
                         {
-                            continue;
+                            return;
                         }
 
-                        await project.TrySetAttributeAsync(setting.Key, setting.Value);
+                        foreach (var setting in settings)
+                        {
+                            await VS.StatusBar.ShowMessageAsync($"Saving database settings: {setting.Key}...");
+                            if (string.IsNullOrEmpty(setting.Value))
+                            {
+                                continue;
+                            }
+
+                            await project.TrySetAttributeAsync(setting.Key, setting.Value);
+                        }
+                    }
+                    finally
+                    {
+                        TryDeleteFile(settingsPath);
                     }
                 }
             }
@@ -205,6 +218,23 @@ namespace SqlProjectsPowerTools
                 new CodeGenerationItem { Key = 4, Value = "Schema" },
             };
             return list;
+        }
+
+        private static void TryDeleteFile(string filePath)
+        {
+            if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
+            {
+                return;
+            }
+
+            try
+            {
+                File.Delete(filePath);
+            }
+            catch (Exception ex)
+            {
+                ex.Log();
+            }
         }
     }
  }
