@@ -51,6 +51,7 @@ namespace DacFXToolLib
             var dict = new Dictionary<string, string?>();
 
             var properties = modelOptions.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
+            Array.Sort(properties, static (left, right) => StringComparer.Ordinal.Compare(left.Name, right.Name));
 
             foreach (var prop in properties)
             {
