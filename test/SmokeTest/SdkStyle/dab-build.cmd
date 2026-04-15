@@ -10,9 +10,8 @@ dab init -c dab-config.json --database-type mssql --connection-string "@env('dab
 dab add "Album" --source "[dbo].[Album]" --fields.include "AlbumId,Title,ArtistId,Valid" --permissions "anonymous:*" 
 dab add "Artist" --source "[dbo].[Artist]" --fields.include "ArtistId,Name" --permissions "anonymous:*" 
 dab add "Genre" --source "[dbo].[Genre]" --fields.include "GenreId,Name" --permissions "anonymous:*" 
-dab add "MediaType" --source "[dbo].[MediaType]" --fields.include "MediaTypeId,Name" --permissions "anonymous:*" 
 dab add "Track" --source "[dbo].[Track]" --fields.include "TrackId,Name,AlbumId,MediaTypeId,GenreId,Composer,Milliseconds,Bytes,UnitPrice" --permissions "anonymous:*" 
-@echo Adding views and tables without primary key
+@echo Adding tables without primary key
 @echo Adding column descriptions
 @echo Adding relationships
 dab update Album --relationship Artist --target.entity Artist --cardinality one
@@ -21,8 +20,6 @@ dab update Track --relationship Album --target.entity Album --cardinality one
 dab update Album --relationship Track --target.entity Track --cardinality many
 dab update Track --relationship Genre --target.entity Genre --cardinality one
 dab update Genre --relationship Track --target.entity Track --cardinality many
-dab update Track --relationship MediaType --target.entity MediaType --cardinality one
-dab update MediaType --relationship Track --target.entity Track --cardinality many
 @echo Adding stored procedures
 @echo **
 @echo ** run 'dab validate' to validate your configuration **

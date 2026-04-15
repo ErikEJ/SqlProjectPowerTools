@@ -19,10 +19,6 @@
          "ObjectType": 0
       },
       {
-         "Name": "[dbo].[MediaType]",
-         "ObjectType": 0
-      },
-      {
          "Name": "[dbo].[Track]",
          "ObjectType": 0
       }

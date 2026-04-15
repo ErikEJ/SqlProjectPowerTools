@@ -1,5 +1,5 @@
 {
-  "$schema": "https://github.com/Azure/data-api-builder/releases/download/v1.7.86/dab.draft.schema.json",
+  "$schema": "https://github.com/Azure/data-api-builder/releases/download/vmajor.minor.patch/dab.draft.schema.json",
   "data-source": {
     "database-type": "mssql",
     "connection-string": "@env('dab-connection-string')",
@@ -11,7 +11,7 @@
     "rest": {
       "enabled": true,
       "path": "/api",
-      "request-body-strict": true
+      "request-body-strict": false
     },
     "graphql": {
       "enabled": true,
@@ -28,11 +28,20 @@
         "allow-credentials": false
       },
       "authentication": {
-        "provider": "AppService"
+        "provider": "Unauthenticated"
       },
       "mode": "development"
+    },
+    "telemetry": {
+      "open-telemetry": {
+        "enabled": true,
+        "endpoint": "@env('OTEL_EXPORTER_OTLP_ENDPOINT')",
+        "headers": "@env('OTEL_EXPORTER_OTLP_HEADERS')",
+        "service-name": "@env('OTEL_SERVICE_NAME')"
+      }
     }
   },
+  "autoentities": {},
   "entities": {
     "Album": {
       "source": {
@@ -176,50 +185,6 @@
         }
       }
     },
-    "MediaType": {
-      "source": {
-        "object": "[dbo].[MediaType]",
-        "type": "table"
-      },
-      "fields": [],
-      "graphql": {
-        "enabled": true,
-        "type": {
-          "singular": "MediaType",
-          "plural": "MediaTypes"
-        }
-      },
-      "rest": {
-        "enabled": true
-      },
-      "permissions": [
-        {
-          "role": "anonymous",
-          "actions": [
-            {
-              "action": "*",
-              "fields": {
-                "exclude": [],
-                "include": [
-                  "MediaTypeId",
-                  "Name"
-                ]
-              }
-            }
-          ]
-        }
-      ],
-      "relationships": {
-        "Track": {
-          "cardinality": "many",
-          "target.entity": "Track",
-          "source.fields": [],
-          "target.fields": [],
-          "linking.source.fields": [],
-          "linking.target.fields": []
-        }
-      }
-    },
     "Track": {
       "source": {
         "object": "[dbo].[Track]",
@@ -272,14 +237,6 @@
         "Genre": {
           "cardinality": "one",
           "target.entity": "Genre",
-          "source.fields": [],
-          "target.fields": [],
-          "linking.source.fields": [],
-          "linking.target.fields": []
-        },
-        "MediaType": {
-          "cardinality": "one",
-          "target.entity": "MediaType",
           "source.fields": [],
           "target.fields": [],
           "linking.source.fields": [],
