@@ -91,12 +91,12 @@ namespace SqlProjectsPowerTools
 
                     try
                     {
-                        await VS.StatusBar.ShowMessageAsync("Import completed successfully");
                         var settingsString = File.ReadAllText(settingsPath, Encoding.UTF8);
                         var settings = JsonSerializer.Deserialize<Dictionary<string, string>>(settingsString);
 
                         if (settings == null)
                         {
+                            await VS.StatusBar.ShowMessageAsync("Settings import failed!");
                             return;
                         }
 
@@ -115,6 +115,8 @@ namespace SqlProjectsPowerTools
                     {
                         TryDeleteFile(settingsPath);
                     }
+
+                    await VS.StatusBar.ShowMessageAsync("Import completed successfully");
                 }
             }
             catch (AggregateException ae)

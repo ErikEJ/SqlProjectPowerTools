@@ -6,7 +6,6 @@ global using Microsoft.VisualStudio.Shell;
 global using Task = System.Threading.Tasks.Task;
 #pragma warning restore SA1209 // Using alias directives should be placed after other using directives
 
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Threading;
 using GalaSoft.MvvmLight.Messaging;
