@@ -2,7 +2,7 @@
   "profiles": {
     "DacFXTool": {
       "commandName": "Project",
-      "commandLineArgs": "getrules \"Sql160\" \"-Microsoft.Rules.Data.SR0006;-Microsoft.Rules.Data.SR0009;-Microsoft.Rules.Data.SR0012\""
+      "commandLineArgs": "getdboptions \"Data Source=.\\SQLEXPRESS2025;Initial catalog=Chinook;Trusted_Connection=true;Encrypt=false\""
     }
   }
 }
