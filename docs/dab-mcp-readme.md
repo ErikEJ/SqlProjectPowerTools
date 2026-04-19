@@ -17,7 +17,7 @@ SQL Database Project Power Tools makes it easy to scaffold SQL MCP Server config
 
 ### 1. Generate a SQL MCP Server Configuration File
 
-Right-click on your SQL database project in Solution Explorer and select **SQL Project Power Tools > Scaffold SQL MCP Server**:
+Right-click on your SQL database project in Solution Explorer and select **SQL Project Power Tools > SQL MCP Server Scaffold (preview)...**:
 
 1. Choose the tables you want to expose
 2. A `dab-config.json` file and `dab-build.cmd` script will be generated in your project
