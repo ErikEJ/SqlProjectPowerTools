@@ -81,7 +81,8 @@ namespace SqlProjectsPowerTools
                 {
                     await VS.StatusBar.ShowMessageAsync("Importing database settings...");
 
-                    var settingsPath = await RunGetDatabaseSettingsAsync(dbInfo.ConnectionString);
+                    var isMicrosoftBuildSqlProject = project.IsMicrosoftSdkSqlDatabaseProject();
+                    var settingsPath = await RunGetDatabaseSettingsAsync(dbInfo.ConnectionString, isMicrosoftBuildSqlProject);
 
                     if (string.IsNullOrEmpty(settingsPath) || !File.Exists(settingsPath))
                     {
@@ -142,10 +143,10 @@ namespace SqlProjectsPowerTools
             return await launcher.GetImportAsync(filegenerationMode, optionsPath, connectionString);
         }
 
-        private static async Task<string> RunGetDatabaseSettingsAsync(string connectionString)
+        private static async Task<string> RunGetDatabaseSettingsAsync(string connectionString, bool useDbScopedConfigOnOffWorkaround)
         {
             var launcher = new ProcessLauncher();
-            return await launcher.GetDatabaseSettingsAsync(connectionString);
+            return await launcher.GetDatabaseSettingsAsync(connectionString, useDbScopedConfigOnOffWorkaround);
         }
 
         private static async Task<DatabaseConnectionModel> GetDatabaseInfoAsync(DataApiBuilderOptions options)
