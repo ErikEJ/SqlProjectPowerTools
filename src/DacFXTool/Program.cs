@@ -132,12 +132,10 @@ namespace DacFXTool
                     }
 
                     // getdboptions "connection string" <use DbScopedConfig On/Off workaround>
-                    if ((args.Length == 2 || args.Length == 3)
+                    if (args.Length == 3
                         && args[0] == "getdboptions")
                     {
-                        var useDbScopedConfigOnOffWorkaround = false;
-                        if (args.Length == 3
-                            && !bool.TryParse(args[2], out useDbScopedConfigOnOffWorkaround))
+                        if (!bool.TryParse(args[2], out var useDbScopedConfigOnOffWorkaround))
                         {
                             await Console.Out.WriteLineAsync("Error:");
                             await Console.Out.WriteLineAsync($"Invalid workaround flag '{args[2]}'");
@@ -152,6 +150,13 @@ namespace DacFXTool
                         await Console.Out.WriteLineAsync(optionsPath);
 
                         return 0;
+                    }
+
+                    if (args[0] == "getdboptions")
+                    {
+                        await Console.Out.WriteLineAsync("Error:");
+                        await Console.Out.WriteLineAsync("Invalid command line");
+                        return 1;
                     }
 
                     // gettables "connection string"

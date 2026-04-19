@@ -31,7 +31,7 @@ namespace DacFXToolLib
             dac.Extract(outputPath, builder.InitialCatalog, "SQL Database Projects Power Tools", new Version(1, 0, 0, 0), extractOptions: options);
         }
 
-        public string GetDatabaseOptions(bool useDbScopedConfigOnOffWorkaround = false)
+        public string GetDatabaseOptions(bool useDbScopedConfigOnOffWorkaround)
         {
             var modelExtractOptions = new ModelExtractOptions
             {
