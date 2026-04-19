@@ -81,11 +81,11 @@ namespace SqlProjectsPowerTools
             return filePath;
         }
 
-        public async Task<string> GetDatabaseSettingsAsync(string connectionString)
+        public async Task<string> GetDatabaseSettingsAsync(string connectionString, bool useDbScopedConfigOnOffWorkaround)
         {
             var option = "getdboptions ";
 
-            var arguments = option + " \"" + connectionString.Replace("\"", "\\\"") + "\"";
+            var arguments = option + " \"" + connectionString.Replace("\"", "\\\"") + "\" " + useDbScopedConfigOnOffWorkaround.ToString();
 
             var filePath = await GetDiagramInternalAsync(arguments);
 

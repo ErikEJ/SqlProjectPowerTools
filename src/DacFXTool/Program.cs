@@ -131,13 +131,22 @@ namespace DacFXTool
                         return 0;
                     }
 
-                    // getdboptions "connection string"
-                    if (args.Length == 2
+                    // getdboptions "connection string" <use DbScopedConfig On/Off workaround>
+                    if ((args.Length == 2 || args.Length == 3)
                         && args[0] == "getdboptions")
                     {
+                        var useDbScopedConfigOnOffWorkaround = false;
+                        if (args.Length == 3
+                            && !bool.TryParse(args[2], out useDbScopedConfigOnOffWorkaround))
+                        {
+                            await Console.Out.WriteLineAsync("Error:");
+                            await Console.Out.WriteLineAsync($"Invalid workaround flag '{args[2]}'");
+                            return 1;
+                        }
+
                         var importer = new SchemaExtractor(args[1]);
 
-                        var optionsPath = importer.GetDatabaseOptions();
+                        var optionsPath = importer.GetDatabaseOptions(useDbScopedConfigOnOffWorkaround);
 
                         await Console.Out.WriteLineAsync("Result:");
                         await Console.Out.WriteLineAsync(optionsPath);

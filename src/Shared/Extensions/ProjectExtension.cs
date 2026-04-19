@@ -86,7 +86,7 @@ namespace SqlProjectsPowerTools
             return false;
         }
 
-        private static bool IsMicrosoftSdkSqlDatabaseProject(this Project project)
+        public static bool IsMicrosoftSdkSqlDatabaseProject(this Project project)
         {
             if (project == null)
             {

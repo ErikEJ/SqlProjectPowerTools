@@ -31,7 +31,7 @@ namespace DacFXToolLib
             dac.Extract(outputPath, builder.InitialCatalog, "SQL Database Projects Power Tools", new Version(1, 0, 0, 0), extractOptions: options);
         }
 
-        public string GetDatabaseOptions()
+        public string GetDatabaseOptions(bool useDbScopedConfigOnOffWorkaround = false)
         {
             var modelExtractOptions = new ModelExtractOptions
             {
@@ -59,7 +59,7 @@ namespace DacFXToolLib
                 {
                     // Some properties throw NotSupportedException when accessed
                     var value = prop.GetValue(modelOptions, null);
-                    dict[prop.Name] = GetModelOptionValue(prop.Name, value);
+                    dict[prop.Name] = GetModelOptionValue(prop.Name, value, useDbScopedConfigOnOffWorkaround);
                 }
                 catch (NotSupportedException)
                 {
@@ -75,10 +75,11 @@ namespace DacFXToolLib
             return tempFile;
         }
 
-        private static string? GetModelOptionValue(string propertyName, object? value)
+        private static string? GetModelOptionValue(string propertyName, object? value, bool useDbScopedConfigOnOffWorkaround)
         {
             // TODO: Remove this special-case conversion when DacFX returns On/Off for these options.
-            if ((propertyName is "DbScopedConfigLegacyCardinalityEstimation" or "DbScopedConfigParameterSniffing")
+            if (useDbScopedConfigOnOffWorkaround
+                && (propertyName is "DbScopedConfigLegacyCardinalityEstimation" or "DbScopedConfigParameterSniffing")
                 && value is bool boolValue)
             {
                 return boolValue ? "On" : "Off";
