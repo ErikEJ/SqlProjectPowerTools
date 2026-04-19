@@ -60,7 +60,7 @@ namespace DacFXToolLib
 
             sb.AppendLine(CultureInfo.InvariantCulture, $"@echo off");
 
-            sb.AppendLine(CultureInfo.InvariantCulture, $"@echo This cmd file creates a Data API Builder configuration based on the chosen database objects.");
+            sb.AppendLine(CultureInfo.InvariantCulture, $"@echo This cmd file creates a SQL MCP Server configuration based on the chosen database objects.");
             sb.AppendLine(CultureInfo.InvariantCulture, $"@echo To run the cmd, create an .env file with the following contents:");
             sb.AppendLine(CultureInfo.InvariantCulture, $"@echo {options.ConnectionStringName}=your connection string");
             sb.AppendLine(CultureInfo.InvariantCulture, $"@echo ** Make sure to exclude the .env file from source control **");

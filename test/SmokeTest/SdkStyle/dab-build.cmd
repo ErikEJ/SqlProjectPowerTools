@@ -1,5 +1,5 @@
 @echo off
-@echo This cmd file creates a Data API Builder configuration based on the chosen database objects.
+@echo This cmd file creates a SQL MCP Server configuration based on the chosen database objects.
 @echo To run the cmd, create an .env file with the following contents:
 @echo dab-connection-string=your connection string
 @echo ** Make sure to exclude the .env file from source control **

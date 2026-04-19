@@ -139,7 +139,7 @@
         <CommandFlag>DynamicVisibility</CommandFlag>
         <CommandFlag>TextChanges</CommandFlag>
         <Strings>
-          <ButtonText>Data API Builder Scaffold (preview)...</ButtonText>
+          <ButtonText>SQL MCP Server Scaffold (preview)...</ButtonText>
         </Strings>
       </Button>
 
