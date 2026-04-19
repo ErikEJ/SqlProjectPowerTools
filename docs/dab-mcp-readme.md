@@ -200,7 +200,7 @@ Enable AI assistants to understand and query your database schema through the Mo
 
 - Verify MCP is enabled in `dab-config.json`
 - Check that SQL MCP Server is running (`dab start`)
-- Review SQL MCP Server logs for errors
+- Review Data API Builder (DAB) logs for errors
 - Ensure the `.env` file exists with your connection string
 
 ## Support
