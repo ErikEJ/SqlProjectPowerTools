@@ -50,7 +50,7 @@ An SSMS extension build is available from [VSIX Gallery][ssmsgallery], bringing 
 - **Create Mermaid E/R diagram** - create an Entity/Relationship diagram of selected tables from your database project
 - **Script Table Data** - generate insert statements for table data in your database project, based on [generate-sql-merge](https://github.com/dnlnln/generate-sql-merge)
 - **Add new pre- and post-deployment scripts** - easily add new pre- and post-deployment scripts to your database project
-- **Scaffold SQL MCP Server (preview)** - generate a SQL MCP Server configuration file based on your database project, for use with [SQL MCP Server](docs/dab-mcp-readme.md)
+- **SQL MCP Server Scaffold (preview)** - generate a SQL MCP Server configuration file based on your database project, for use with [SQL MCP Server](docs/dab-mcp-readme.md)
 
 ## Advanced topics
 
