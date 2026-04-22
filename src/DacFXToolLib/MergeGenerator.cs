@@ -15,20 +15,20 @@ namespace DacFXToolLib
 
             var script = ReadScript();
 
-            const string parameterOverrides = @"SET @table_name = @p_table_name
-SET @schema = @p_schema
-SET @results_to_text = 1
-SET @include_use_db = 0";
-
-            script = script.Replace("-- {PARAMETER_OVERRIDES}", parameterOverrides, StringComparison.Ordinal);
-
             using var connection = new SqlConnection(connectionString);
             connection.Open();
 #pragma warning disable CA2100 // Review SQL queries for security vulnerabilities
-            using var mergeCommand = new SqlCommand(script, connection);
+            using var command = new SqlCommand(script, connection);
 #pragma warning restore CA2100 // Review SQL queries for security vulnerabilities
-            mergeCommand.Parameters.Add(new SqlParameter("@p_table_name", SqlDbType.NVarChar, 776) { Value = tableName });
-            mergeCommand.Parameters.Add(new SqlParameter("@p_schema", SqlDbType.NVarChar, 64) { Value = schema });
+            command.ExecuteNonQuery();
+
+            // Sample: EXEC [#sp_generate_merge] @schema = 'dbo', @table_name = 'Album', @results_to_text = 1, @include_use_db = 0
+            using var mergeCommand = new SqlCommand("[#sp_generate_merge]", connection);
+            mergeCommand.CommandType = CommandType.StoredProcedure;
+            mergeCommand.Parameters.AddWithValue("@table_name", tableName);
+            mergeCommand.Parameters.AddWithValue("@schema", schema);
+            mergeCommand.Parameters.AddWithValue("@results_to_text", 1);
+            mergeCommand.Parameters.AddWithValue("@include_use_db", 0);
             var result = (string?)mergeCommand.ExecuteScalar();
 
             connection.Close();
@@ -38,9 +38,7 @@ SET @include_use_db = 0";
                 throw new InvalidOperationException("Merge script generation failed.");
             }
 
-            var safeSchema = schema.Replace("'", "''", StringComparison.Ordinal).ReplaceLineEndings(string.Empty);
-            var safeTableName = tableName.Replace("'", "''", StringComparison.Ordinal).ReplaceLineEndings(string.Empty);
-            var preamble = $@"-- @schema = '{safeSchema}', @table_name = '{safeTableName}', @results_to_text = 1, @include_use_db = 0
+            var preamble = $@"--EXEC [#sp_generate_merge] @schema = '{schema}', @table_name = '{tableName}', @results_to_text = 1, @include_use_db = 0
 ";
             result = preamble + result;
 
