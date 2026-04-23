@@ -58,17 +58,23 @@ namespace SqlProjectsPowerTools
 
                 var (newRunCodeAnalysis, newRulesExpression, addRulesPackages) = viewModel.GetResult();
 
-                await project.TrySetAttributeAsync("RunSqlCodeAnalysis", newRunCodeAnalysis ? "True" : "False");
-
-                if (project.IsMsBuildSdkSqlDatabaseProject())
+                if (runCodeAnalysis != newRunCodeAnalysis)
                 {
-                    // MsBuild.Sdk.SqlProj uses CodeAnalysisRules
-                    await project.SetPropertyDirectAsync("CodeAnalysisRules", newRulesExpression);
+                    await project.TrySetAttributeAsync("RunSqlCodeAnalysis", newRunCodeAnalysis ? "True" : "False");
                 }
-                else
+
+                if (!string.IsNullOrWhiteSpace(newRulesExpression))
                 {
-                    // Classic .sqlproj / Microsoft.Build.Sql uses SqlCodeAnalysisRules
-                    await project.SetPropertyDirectAsync("SqlCodeAnalysisRules", newRulesExpression);
+                    if (project.IsMsBuildSdkSqlDatabaseProject())
+                    {
+                        // MsBuild.Sdk.SqlProj uses CodeAnalysisRules
+                        await project.TrySetAttributeAsync("CodeAnalysisRules", newRulesExpression);
+                    }
+                    else
+                    {
+                        // Classic .sqlproj / Microsoft.Build.Sql uses SqlCodeAnalysisRules
+                        await project.TrySetAttributeAsync("SqlCodeAnalysisRules", newRulesExpression);
+                    }
                 }
 
                 if (addRulesPackages)

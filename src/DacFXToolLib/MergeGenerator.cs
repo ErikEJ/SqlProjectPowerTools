@@ -25,10 +25,19 @@ namespace DacFXToolLib
             // Sample: EXEC [#sp_generate_merge] @schema = 'dbo', @table_name = 'Album', @results_to_text = 1, @include_use_db = 0
             using var mergeCommand = new SqlCommand("[#sp_generate_merge]", connection);
             mergeCommand.CommandType = CommandType.StoredProcedure;
-            mergeCommand.Parameters.AddWithValue("@table_name", tableName);
-            mergeCommand.Parameters.AddWithValue("@schema", schema);
-            mergeCommand.Parameters.AddWithValue("@results_to_text", 1);
-            mergeCommand.Parameters.AddWithValue("@include_use_db", 0);
+
+            var tableParameter = new SqlParameter("@table_name", SqlDbType.NVarChar, 776) { Value = tableName };
+            mergeCommand.Parameters.Add(tableParameter);
+
+            var schemaParameter = new SqlParameter("@schema", SqlDbType.NVarChar, 64) { Value = schema };
+            mergeCommand.Parameters.Add(schemaParameter);
+
+            var resultsToTextParameter = new SqlParameter("@results_to_text", SqlDbType.Bit) { Value = 1 };
+            mergeCommand.Parameters.Add(resultsToTextParameter);
+
+            var includeUseDbParameter = new SqlParameter("@include_use_db", SqlDbType.Bit) { Value = 0 };
+            mergeCommand.Parameters.Add(includeUseDbParameter);
+
             var result = (string?)mergeCommand.ExecuteScalar();
 
             connection.Close();
