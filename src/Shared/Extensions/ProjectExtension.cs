@@ -112,6 +112,21 @@ namespace SqlProjectsPowerTools
 
         public static async Task SetMultiValueAttributeAsync(this Project project, string propertyName, string value)
         {
+            if (project == null)
+            {
+                return;
+            }
+
+            if (string.IsNullOrEmpty(propertyName))
+            {
+                return;
+            }
+
+            if (value == null)
+            {
+                value = string.Empty;
+            }
+
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             await project.SaveAsync();
