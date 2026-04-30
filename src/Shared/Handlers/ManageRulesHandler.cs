@@ -66,12 +66,12 @@ namespace SqlProjectsPowerTools
                 if (project.IsMsBuildSdkSqlDatabaseProject())
                 {
                     // MsBuild.Sdk.SqlProj uses CodeAnalysisRules
-                    await project.TrySetAttributeAsync("CodeAnalysisRules", newRulesExpression);
+                    await project.SetMultiValueAttributeAsync("CodeAnalysisRules", newRulesExpression);
                 }
                 else
                 {
                     // Classic .sqlproj / Microsoft.Build.Sql uses SqlCodeAnalysisRules
-                    await project.TrySetAttributeAsync("SqlCodeAnalysisRules", newRulesExpression);
+                    await project.SetMultiValueAttributeAsync("SqlCodeAnalysisRules", newRulesExpression);
                 }
 
                 if (addRulesPackages)

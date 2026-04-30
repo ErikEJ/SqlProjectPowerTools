@@ -1,9 +1,10 @@
-<Project Sdk="MSBuild.Sdk.SqlProj/4.1.1">
+﻿<Project Sdk="MSBuild.Sdk.SqlProj/4.1.1">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <SqlServerVersion>Sql160</SqlServerVersion>
     <RunSqlCodeAnalysis>True</RunSqlCodeAnalysis>
     <GenerateEntityRelationshipDiagram>true</GenerateEntityRelationshipDiagram>
+    <CodeAnalysisRules>-Microsoft.Rules.Data.SR0001;-Microsoft.Rules.Data.SR0008</CodeAnalysisRules>
     <!-- For additional properties that can be set here, please refer to https://github.com/rr-wfm/MSBuild.Sdk.SqlProj#model-properties -->
   </PropertyGroup>
 

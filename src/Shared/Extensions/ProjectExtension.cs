@@ -110,6 +110,67 @@ namespace SqlProjectsPowerTools
             return assemblyName;
         }
 
+        public static async Task SetMultiValueAttributeAsync(this Project project, string propertyName, string value)
+        {
+            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+            await project.SaveAsync();
+
+            var projectFilePath = project.FullPath;
+            if (!File.Exists(projectFilePath))
+            {
+                return;
+            }
+
+            var doc = XDocument.Load(projectFilePath, LoadOptions.PreserveWhitespace);
+            var ns = doc.Root?.Name.Namespace ?? XNamespace.None;
+
+            var existingElement = doc.Descendants(ns + propertyName).FirstOrDefault();
+
+            if (existingElement != null)
+            {
+                existingElement.Value = value;
+            }
+            else
+            {
+                var propertyGroup = doc.Descendants(ns + "PropertyGroup").FirstOrDefault();
+                if (propertyGroup == null)
+                {
+                    propertyGroup = new XElement(ns + "PropertyGroup");
+                    doc.Root?.Add(new XText(EndElementIndent));
+                    doc.Root?.Add(propertyGroup);
+                    doc.Root?.Add(new XText(NewLine));
+                }
+
+                var lastElement = propertyGroup.Elements().LastOrDefault();
+                if (lastElement != null)
+                {
+                    lastElement.AddAfterSelf(
+                        new XText(Indent),
+                        new XElement(ns + propertyName, value));
+                }
+                else
+                {
+                    propertyGroup.Add(new XText(Indent));
+                    propertyGroup.Add(new XElement(ns + propertyName, value));
+                    propertyGroup.Add(new XText(EndElementIndent));
+                }
+            }
+
+            var settings = new XmlWriterSettings
+            {
+                OmitXmlDeclaration = doc.Declaration == null,
+                Indent = false,
+                NewLineOnAttributes = false,
+                Encoding = Encoding.UTF8,
+            };
+
+            using (var writer = XmlWriter.Create(projectFilePath, settings))
+            {
+                doc.Save(writer);
+            }
+        }
+
         public static async Task<bool> HasRulesPackagesAsync(this Project project)
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
