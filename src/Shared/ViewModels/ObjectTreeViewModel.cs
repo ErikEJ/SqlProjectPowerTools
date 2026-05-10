@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -91,19 +91,19 @@ namespace SqlProjectsPowerTools
                 replacingSchema.Tables?.Clear();
                 foreach (var obj in schema.Objects)
                 {
-                    var objectIsRenamed = !obj.Name.Equals(obj.NewName);
-                    var renamedColumns = obj.Columns.Where(c => !c.Name.Equals(c.NewName) && c.IsSelected.Value);
+                    var objectIsRenamed = !obj.Name.Equals(obj.NewName, StringComparison.Ordinal);
+                    var renamedColumns = obj.Columns.Where(c => !c.Name.Equals(c.NewName, StringComparison.Ordinal) && c.IsSelected.Value);
 
                     var originalReplacers = allSchemas.Where(s => s.SchemaName == schema.Name)
                         .SelectMany(a => a.Tables.Where(t => t.Columns != null && t.Name == obj.Name))
                         .ToList();
 
                     var ignoredColumnReplacers = originalReplacers
-                        .SelectMany(o => o.Columns.Where(c => c.Name != null && c.Name.Equals(c.NewName)))
+                        .SelectMany(o => o.Columns.Where(c => c.Name != null && c.Name.Equals(c.NewName, StringComparison.Ordinal)))
                         .ToList();
 
                     var ignoredTableReplacers = originalReplacers
-                        .Where(c => c.Name != null && c.Name.Equals(c.NewName) && (!c.Columns?.Any() ?? false))
+                        .Where(c => c.Name != null && c.Name.Equals(c.NewName, StringComparison.Ordinal) && (!c.Columns?.Any() ?? false))
                         .ToList();
 
                     if (objectIsRenamed
@@ -253,7 +253,7 @@ namespace SqlProjectsPowerTools
                 var t = objects.FirstOrDefault(m => m.Name == obj.ModelDisplayName);
                 obj.ExcludedIndexes = t?.ExcludedIndexes ?? null;
                 obj.SetSelectedCommand.Execute(t != null);
-                if (obj.ObjectType.HasColumns() && obj.IsSelected.Value)
+                if (obj.ObjectType.HasColumns() && obj.IsSelected.HasValue && obj.IsSelected.Value)
                 {
                     foreach (var column in obj.Columns)
                     {
@@ -265,9 +265,9 @@ namespace SqlProjectsPowerTools
 
         private static void PredefineSelection(ITableInformationViewModel t)
         {
-            var unSelect = t.Name.StartsWith("[__")
-                        || t.Name.StartsWith("[dbo].[__")
-                        || t.Name.EndsWith(".[sysdiagrams]");
+            var unSelect = t.Name.StartsWith("[__", StringComparison.OrdinalIgnoreCase)
+                        || t.Name.StartsWith("[dbo].[__", StringComparison.OrdinalIgnoreCase)
+                        || t.Name.EndsWith(".[sysdiagrams]", StringComparison.OrdinalIgnoreCase);
             if (unSelect)
             {
                 t.SetSelectedCommand.Execute(false);

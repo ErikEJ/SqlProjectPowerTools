@@ -4,7 +4,7 @@ using Microsoft.VisualStudio.Data.Services;
 
 namespace SqlProjectsPowerTools
 {
-    public class VisualStudioAccess : IVisualStudioAccess
+    public sealed class VisualStudioAccess : IVisualStudioAccess
     {
 #if !SSMS
         DatabaseConnectionModel IVisualStudioAccess.PromptForNewDatabaseConnection()

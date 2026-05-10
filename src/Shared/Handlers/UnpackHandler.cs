@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
 
@@ -19,7 +20,7 @@ namespace SqlProjectsPowerTools
 
                 var projectPath = Path.GetDirectoryName(project.FullPath);
 
-                var unpackPath = Path.Combine(projectPath, DateTime.Now.ToString("yyyy-MM-dd_HH-mm"));
+                var unpackPath = Path.Combine(projectPath, DateTime.Now.ToString("yyyy-MM-dd_HH-mm", CultureInfo.InvariantCulture));
 
                 var dacpacPath = await SqlProjHelper.BuildSqlProjectAsync(project.FullPath);
 

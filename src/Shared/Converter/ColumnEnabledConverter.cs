@@ -1,8 +1,8 @@
-﻿using System.Windows.Data;
+using System.Windows.Data;
 
 namespace SqlProjectsPowerTools
 {
-    public class ColumnEnabledConverter : IMultiValueConverter
+    public sealed class ColumnEnabledConverter : IMultiValueConverter
     {
         public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {

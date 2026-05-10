@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -131,7 +132,7 @@ namespace SqlProjectsPowerTools.TreeViewer
                 }
                 catch (Exception ex)
                 {
-                    ex.Log();
+                    await ex.LogAsync();
                 }
             },
                 VsTaskRunContext.UIThreadIdlePriority).FireAndForget();
@@ -319,7 +320,7 @@ namespace SqlProjectsPowerTools.TreeViewer
                     try
                     {
                         // Access to FullName can throw COMException if the project is stale/unloaded
-                        needsRefresh = !string.Equals(project.FullName, projectPath, StringComparison.OrdinalIgnoreCase);
+                        needsRefresh = !string.Equals(project!.FullName, projectPath, StringComparison.OrdinalIgnoreCase);
                     }
                     catch (COMException)
                     {
@@ -483,7 +484,7 @@ namespace SqlProjectsPowerTools.TreeViewer
             var builder = new StringBuilder(16);
             for (int i = 0; i < 8; i++)
             {
-                builder.Append(hashBytes[i].ToString("x2"));
+                builder.Append(hashBytes[i].ToString("x2", CultureInfo.InvariantCulture));
             }
 
             return builder.ToString();
@@ -567,8 +568,8 @@ namespace SqlProjectsPowerTools.TreeViewer
             var tooltip = new StringBuilder();
 
             AppendTooltipLine(tooltip, "DACPAC file", fileInfo.Name);
-            AppendTooltipLine(tooltip, "Size", fileInfo.Length.ToString("N0") + " bytes");
-            AppendTooltipLine(tooltip, "Last updated", fileInfo.LastWriteTime.ToString());
+            AppendTooltipLine(tooltip, "Size", fileInfo.Length.ToString("N0", CultureInfo.InvariantCulture) + " bytes");
+            AppendTooltipLine(tooltip, "Last updated", fileInfo.LastWriteTime.ToString(CultureInfo.CurrentCulture));
 
             AddOriginMetadata(tooltip, extractedPath);
 

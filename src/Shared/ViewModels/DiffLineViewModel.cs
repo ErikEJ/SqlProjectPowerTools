@@ -1,4 +1,5 @@
 using DiffPlex.DiffBuilder.Model;
+using System.Globalization;
 
 namespace SqlProjectsPowerTools
 {
@@ -7,7 +8,7 @@ namespace SqlProjectsPowerTools
         public DiffLineViewModel(DiffPiece piece)
         {
             Text = piece?.Text ?? string.Empty;
-            LineNumber = piece?.Position?.ToString() ?? string.Empty;
+            LineNumber = piece?.Position?.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
             DiffType = piece?.Type.ToString() ?? ChangeType.Unchanged.ToString();
             Indicator = GetIndicator(piece?.Type ?? ChangeType.Unchanged);
             Opacity = (piece?.Type ?? ChangeType.Unchanged) == ChangeType.Imaginary ? 0.5 : 1.0;

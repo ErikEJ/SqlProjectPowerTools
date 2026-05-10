@@ -10,7 +10,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectTypeGuids>{82b43b9b-a64c-4715-b499-d71e9ca2bd60};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <ProjectGuid>{C87F759D-D9D2-4BD7-8650-4C931C20F565}</ProjectGuid>
+    <ProjectGuid>{FE839662-04DE-4261-90EA-45145D53B912}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>SqlProjectsPowerTools</RootNamespace>
@@ -33,46 +33,29 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;SSMS</DefineConstants>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CopyVsixExtensionFiles>True</CopyVsixExtensionFiles>
-    <CopyVsixExtensionLocation>C:\Program Files\Microsoft SQL Server Management Studio 22\Release\Common7\IDE\Extensions\SqlProjectsPowerTools</CopyVsixExtensionLocation>
+    <DeployExtension>True</DeployExtension>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;SSMS</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Dialogs\ManageRulesDialog.xaml.cs">
-      <DependentUpon>ManageRulesDialog.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Dialogs\PickServerDatabaseDialog.xaml.cs">
       <DependentUpon>PickServerDatabaseDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\PickTablesDialog.xaml.cs">
       <DependentUpon>PickTablesDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Linter\ErrorList\DocumentHandler.cs" />
-    <Compile Include="Linter\ErrorList\SqlDocumentListener.cs" />
-    <Compile Include="Linter\ErrorList\SqlLintError.cs" />
-    <Compile Include="Linter\ErrorList\SqlLintTableDataSource.cs" />
-    <Compile Include="Linter\ErrorList\SinkManager.cs" />
-    <Compile Include="Linter\ErrorList\TableEntriesSnapshot.cs" />
-    <Compile Include="Linter\Linting\AnalysisUpdatedEventArgs.cs" />
-    <Compile Include="Linter\Linting\AnalyzerUtilities.cs" />
-    <Compile Include="Linter\Linting\CachedAnalysisResult.cs" />
-    <Compile Include="Linter\Linting\DiagnosticSeverity.cs" />
-    <Compile Include="Linter\Linting\SqlAnalysisCache.cs" />
-    <Compile Include="Linter\Linting\PendingAnalysis.cs" />
-    <Compile Include="Linter\Linting\SqlAnalyzerDiagnosticInfo.cs" />
-    <Compile Include="Linter\Tagging\LintResult.cs" />
-    <Compile Include="Linter\Tagging\SqlLintTagger.cs" />
-    <Compile Include="Linter\Tagging\SqlLintTaggerProvider.cs" />
+    <Compile Include="Dialogs\ManageRulesDialog.xaml.cs">
+      <DependentUpon>ManageRulesDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ToolWindows\SchemaCompareToolWindow.cs" />
     <Compile Include="ToolWindows\SchemaCompareWindowControl.xaml.cs">
       <DependentUpon>SchemaCompareWindowControl.xaml</DependentUpon>
@@ -117,7 +100,13 @@
     <Resource Include="Resources\Table.png" />
     <Resource Include="Resources\View.png" />
     <Resource Include="Resources\TableWarning.png" />
+    <Content Include="Templates.pkgdef">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <Resource Include="Resources\Remove.png" />
+    <Content Include="msbuild.sdk.sqlproj.templates.4.1.1.nupkg">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
       <Generator>VsixManifestGenerator</Generator>
@@ -165,9 +154,9 @@
     <PackageReference Include="Microsoft.Extensions.DependencyInjection">
       <Version>5.0.2</Version>
     </PackageReference>
-    <!-- <PackageReference Include="Microsoft.VisualStudio.Data.Framework">
+    <PackageReference Include="Microsoft.VisualStudio.Data.Framework">
       <Version>17.5.33428.388</Version>
-    </PackageReference> -->
+    </PackageReference>
     <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="18.5.40034">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -230,4 +219,17 @@
   <Target Name="AfterBuild">
   </Target>
   -->
+  <Target Name="PreCreateVsixContainer" BeforeTargets="GetVsixSourceItems">
+    <ItemGroup>
+      <_TemplatePackage Include="*.nupkg" />
+    </ItemGroup>
+    <Error Text="No template files found." Condition="@(_TemplatePackage-&gt;Count()) == 0" />
+    <Message Text="Template nuget packages found: @(_TemplatePackage)" Importance="low" />
+    <!-- don't modify the following, the pkgdef file uses the path below -->
+    <ItemGroup>
+      <VSIXSourceItem Include="@(_TemplatePackage)">
+        <VSIXSubPath>ProjectTemplates\</VSIXSubPath>
+      </VSIXSourceItem>
+    </ItemGroup>
+  </Target>
 </Project>

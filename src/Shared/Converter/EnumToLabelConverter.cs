@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -8,7 +8,7 @@ using System.Windows.Data;
 
 namespace SqlProjectsPowerTools
 {
-    public class EnumToLabelConverter : IValueConverter
+    public sealed class EnumToLabelConverter : IValueConverter
     {
         public ResourceDictionary ResourceDictionary { get; set; }
 

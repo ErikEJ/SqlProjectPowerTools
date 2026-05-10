@@ -1,11 +1,11 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
 namespace SqlProjectsPowerTools
 {
-    public class CollectionCountToVisibilityConverter : IValueConverter
+    public sealed class CollectionCountToVisibilityConverter : IValueConverter
     {
         object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

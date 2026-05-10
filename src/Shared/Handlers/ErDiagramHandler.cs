@@ -94,7 +94,7 @@ namespace SqlProjectsPowerTools
             File.WriteAllText(optionsPath, options.Write(), Encoding.UTF8);
         }
 
-        private static async Task<List<TableModel>> GetDacpacTablesAsync(string dacpacPath)
+        private static async Task<IList<TableModel>> GetDacpacTablesAsync(string dacpacPath)
         {
             var builder = new TableListBuilder(dacpacPath, DatabaseType.SQLServerDacpac);
 

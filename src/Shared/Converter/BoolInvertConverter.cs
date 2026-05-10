@@ -1,9 +1,9 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Windows.Data;
 
 namespace SqlProjectsPowerTools
 {
-    public class BoolInvertConverter : IValueConverter
+    public sealed class BoolInvertConverter : IValueConverter
     {
         object IValueConverter.Convert(
             object value,
