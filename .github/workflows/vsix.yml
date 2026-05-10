@@ -38,7 +38,7 @@ jobs:
       shell: pwsh
 
     - name: Restore
-      run: dotnet restore SqlProjectPowerTools.sln
+      run: dotnet restore SqlProjectPowerTools.slnx
 
     - name: Test
       run: dotnet test test/DacFXToolLib.Tests/DacFXToolLib.Tests.csproj -c Release --logger "console;verbosity=normal"
@@ -55,7 +55,7 @@ jobs:
       uses: microsoft/setup-msbuild@v3
 
     - name: Build
-      run: msbuild SqlProjectPowerTools.sln /property:Configuration=Release /p:DeployExtension=false /p:ZipPackageCompressionLevel=normal /v:m
+      run: msbuild SqlProjectPowerTools.slnx /property:Configuration=Release /p:DeployExtension=false /p:ZipPackageCompressionLevel=normal /v:m
 
     - name: Move build output
       if: github.ref == 'refs/heads/main' && github.repository_owner == 'erikej' && (github.event_name == 'push' ||  github.event_name == 'workflow_dispatch')
