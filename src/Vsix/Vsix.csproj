@@ -19,20 +19,6 @@
   <ItemGroup>
     <ProjectCapability Include="CreateVsixContainer" />
   </ItemGroup>
-
-  <!-- Auto-generated files (use Update because SDK auto-includes *.cs) -->
-  <ItemGroup>
-    <Compile Update="source.extension.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>source.extension.vsixmanifest</DependentUpon>
-    </Compile>
-    <Compile Update="VSCommandTable.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>VSCommandTable.vsct</DependentUpon>
-    </Compile>
-  </ItemGroup>
   
   <!-- XAML pages (UseWPF auto-globs; use Update to add metadata) -->
   <ItemGroup>
@@ -82,8 +68,8 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Update="source.extension.cs">
-      <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
       <DependentUpon>source.extension.vsixmanifest</DependentUpon>
     </Compile>
     <Compile Update="VSCommandTable.cs">
