@@ -21,9 +21,11 @@
   <Project Path="src/SqlServer.Rules.Report/SqlServer.Rules.Report.csproj" />
   <Project Path="src/SsmsVsix/SsmsVsix.csproj" Id="c87f759d-d9d2-4bd7-8650-4c931c20f565">
     <Platform Solution="*|arm64" Project="arm64" />
+    <Deploy Solution="Debug|Any CPU" />
   </Project>
   <Project Path="src/Vsix/Vsix.csproj" Id="fe839662-04de-4261-90ea-45145d53b912">
     <Platform Solution="*|arm64" Project="arm64" />
+    <Deploy Solution="Debug|Any CPU" />
   </Project>
   <Project Path="test/DacFXToolLib.Tests/DacFXToolLib.Tests.csproj" />
 </Solution>

@@ -1,5 +1,5 @@
-using DiffPlex.DiffBuilder.Model;
 using System.Globalization;
+using DiffPlex.DiffBuilder.Model;
 
 namespace SqlProjectsPowerTools
 {

@@ -20,6 +20,20 @@
     <ProjectCapability Include="CreateVsixContainer" />
   </ItemGroup>
 
+  <!-- Auto-generated files (use Update because SDK auto-includes *.cs) -->
+  <ItemGroup>
+    <Compile Update="source.extension.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>source.extension.vsixmanifest</DependentUpon>
+    </Compile>
+    <Compile Update="VSCommandTable.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>VSCommandTable.vsct</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  
   <!-- XAML pages (UseWPF auto-globs; use Update to add metadata) -->
   <ItemGroup>
     <Page Update="Dialogs\Converter.xaml">
@@ -176,6 +190,13 @@
     <PackageReference Include="NuGet.ProjectModel" Version="7.3.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Contracts\Contracts.csproj">
+      <Project>{07bc6f43-c15f-e0f2-5973-6f32d66d1a14}</Project>
+      <Name>Contracts</Name>
+    </ProjectReference>
+  </ItemGroup>
+  
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
 
   <Target Name="PreCreateVsixContainer" BeforeTargets="GetVsixSourceItems">
