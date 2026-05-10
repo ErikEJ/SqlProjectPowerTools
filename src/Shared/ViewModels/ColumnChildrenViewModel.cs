@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Windows.Input;
@@ -18,7 +18,7 @@ namespace SqlProjectsPowerTools
         private string schema;
         private ObjectType objectType;
 
-        private bool isSelected = false;
+        private bool isSelected;
         private bool isEditing;
 
         private bool isVisible = true;

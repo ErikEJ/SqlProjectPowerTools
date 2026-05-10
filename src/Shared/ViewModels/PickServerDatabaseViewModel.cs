@@ -15,7 +15,7 @@ namespace SqlProjectsPowerTools
 #endif
 
         private DatabaseConnectionModel selectedDatabaseConnection;
-        private bool filterSchemas = false;
+        private bool filterSchemas;
         private string uiHint;
         private int codeGenerationMode;
 
@@ -121,7 +121,7 @@ namespace SqlProjectsPowerTools
                 if (!string.IsNullOrEmpty(value))
                 {
                     var databaseConnectionCandidate = DatabaseConnections
-                        .FirstOrDefault(c => c.ConnectionName != null && c.ConnectionName.Equals(value, StringComparison.InvariantCultureIgnoreCase));
+                        .FirstOrDefault(c => c.ConnectionName != null && c.ConnectionName.Equals(value, StringComparison.OrdinalIgnoreCase));
 
                     if (databaseConnectionCandidate != null)
                     {
@@ -129,7 +129,7 @@ namespace SqlProjectsPowerTools
                     }
 
                     databaseConnectionCandidate = DatabaseConnections
-                        .FirstOrDefault(c => c.FilePath != null && c.FilePath.Equals(value, StringComparison.InvariantCultureIgnoreCase));
+                        .FirstOrDefault(c => c.FilePath != null && c.FilePath.Equals(value, StringComparison.OrdinalIgnoreCase));
 
                     if (databaseConnectionCandidate != null)
                     {

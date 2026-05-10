@@ -107,7 +107,7 @@ namespace SqlProjectsPowerTools
             var lastCatDot = category?.LastIndexOf('.') ?? -1;
             var categoryName = string.IsNullOrEmpty(category)
                 ? string.Empty
-                : (lastCatDot >= 0 ? category.Substring(lastCatDot + 1) : category);
+                : (lastCatDot >= 0 ? category!.Substring(lastCatDot + 1) : category);
 
             if (id.StartsWith("Microsoft.Rules.Data.", StringComparison.OrdinalIgnoreCase))
             {
@@ -131,12 +131,9 @@ namespace SqlProjectsPowerTools
                 };
             }
 
-            if (id.StartsWith("SqlServer.Rules.", StringComparison.OrdinalIgnoreCase))
+            if (id.StartsWith("SqlServer.Rules.", StringComparison.OrdinalIgnoreCase) && categoryName is "Design" or "Naming" or "Performance")
             {
-                if (categoryName is "Design" or "Naming" or "Performance")
-                {
-                    return $"https://github.com/ErikEJ/SqlServer.Rules/blob/master/docs/{categoryName}/{ruleId}.md";
-                }
+                return $"https://github.com/ErikEJ/SqlServer.Rules/blob/master/docs/{categoryName}/{ruleId}.md";
             }
 
             if (id.StartsWith("Smells.", StringComparison.OrdinalIgnoreCase))
@@ -152,7 +149,7 @@ namespace SqlProjectsPowerTools
             var lastDot = category?.LastIndexOf('.') ?? -1;
             var baseName = string.IsNullOrEmpty(category)
                 ? string.Empty
-                : (lastDot >= 0 ? category.Substring(lastDot + 1) : category);
+                : (lastDot >= 0 ? category!.Substring(lastDot + 1) : category);
 
             if (string.IsNullOrEmpty(id))
             {

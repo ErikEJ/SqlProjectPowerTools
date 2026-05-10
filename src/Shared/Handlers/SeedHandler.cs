@@ -118,7 +118,7 @@ namespace SqlProjectsPowerTools
             }
         }
 
-        private static async Task<List<TableModel>> GetTablesAsync(string connectionString)
+        private static async Task<IList<TableModel>> GetTablesAsync(string connectionString)
         {
             var builder = new TableListBuilder(connectionString, DatabaseType.SQLServer);
 

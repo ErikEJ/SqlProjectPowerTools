@@ -1,10 +1,10 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Globalization;
 using System.Windows.Data;
 
 namespace SqlProjectsPowerTools
 {
-    public class CollectionCountToEnabledConverter : IValueConverter
+    public sealed class CollectionCountToEnabledConverter : IValueConverter
     {
         object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

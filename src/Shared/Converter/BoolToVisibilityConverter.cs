@@ -1,10 +1,10 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
 namespace SqlProjectsPowerTools
 {
-    public class BoolToVisibilityConverter : IValueConverter
+    public sealed class BoolToVisibilityConverter : IValueConverter
     {
         object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
@@ -13,7 +13,7 @@ namespace SqlProjectsPowerTools
                 throw new ArgumentException(@"Value must be of type System.Windows.Visibility.", nameof(targetType));
             }
 
-            var invert = parameter?.ToString().ToLower() == "invert";
+            var invert = parameter?.ToString().ToLowerInvariant() == "invert";
             if (!(value is bool) && value != null)
             {
                 throw new ArgumentException(@"Value must be of type System.Boolean or Nullable<System.Boolean>.", nameof(value));
