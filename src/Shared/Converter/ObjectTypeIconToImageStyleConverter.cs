@@ -1,10 +1,10 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
 namespace SqlProjectsPowerTools
 {
-    public class ObjectTypeIconToImageStyleConverter : IValueConverter
+    public sealed class ObjectTypeIconToImageStyleConverter : IValueConverter
     {
         public ResourceDictionary ResourceDictionary { get; set; }
 

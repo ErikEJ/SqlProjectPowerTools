@@ -14,14 +14,3 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("1.0.0")]
 [assembly: AssemblyFileVersion("1.0.0")]
-
-namespace System.Runtime.CompilerServices
-{
-#pragma warning disable SA1649 // File name should match first type name
-#pragma warning disable S2094 // Classes should not be empty
-    public class IsExternalInit
-    {
-    }
-#pragma warning restore S2094 // Classes should not be empty
-#pragma warning restore SA1649 // File name should match first type name
-}

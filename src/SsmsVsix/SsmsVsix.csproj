@@ -172,6 +172,13 @@
     <PackageReference Include="NuGet.ProjectModel" Version="7.3.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Contracts\Contracts.csproj">
+      <Project>{07bc6f43-c15f-e0f2-5973-6f32d66d1a14}</Project>
+      <Name>Contracts</Name>
+    </ProjectReference>
+  </ItemGroup>
+
   <Import Project="..\Shared\Shared.projitems" Label="Shared" />
 
 </Project>

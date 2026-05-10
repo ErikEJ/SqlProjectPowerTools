@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using DacFXToolLib.Common;
 
@@ -20,7 +20,7 @@ namespace SqlProjectsPowerTools
             this.databaseType = databaseType;
         }
 
-        public async Task<List<TableModel>> GetTableDefinitionsAsync()
+        public async Task<IList<TableModel>> GetTableDefinitionsAsync()
         {
             var launcher = new ProcessLauncher();
 

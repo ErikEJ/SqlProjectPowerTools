@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -10,7 +11,7 @@ using DacFXToolLib.Common;
 
 namespace SqlProjectsPowerTools
 {
-    public class ProcessLauncher
+    internal class ProcessLauncher
     {
         private readonly string toolFolder;
         private readonly string toolRoot;
@@ -27,7 +28,7 @@ namespace SqlProjectsPowerTools
             toolFolder += versionSuffix;
         }
 
-        public async Task<List<TableModel>> GetTablesAsync(string connectionString, DatabaseType databaseType)
+        public async Task<IList<TableModel>> GetTablesAsync(string connectionString, DatabaseType databaseType)
         {
             string arguments;
 
@@ -63,7 +64,7 @@ namespace SqlProjectsPowerTools
         {
             var option = "import ";
 
-            var arguments = option + fileGenerationMode.ToString() + " \"" + optionsPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\"";
+            var arguments = option + fileGenerationMode.ToString(CultureInfo.InvariantCulture) + " \"" + optionsPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\"";
 
             var filePath = await GetDiagramInternalAsync(arguments);
 
@@ -172,7 +173,7 @@ namespace SqlProjectsPowerTools
             return ResultDeserializer.BuildDiagramResult(standardOutput);
         }
 
-        private async Task<List<TableModel>> GetTablesInternalAsync(string arguments)
+        private async Task<IList<TableModel>> GetTablesInternalAsync(string arguments)
         {
             var startInfo = await CreateStartInfoAsync(arguments);
 
@@ -251,7 +252,7 @@ namespace SqlProjectsPowerTools
 
             var dirs = Directory.GetDirectories(Path.GetTempPath(), toolRoot + "*");
 
-            foreach (var dir in dirs.Where(dir => !dir.Equals(toDir)))
+            foreach (var dir in dirs.Where(dir => !dir.Equals(toDir, StringComparison.Ordinal)))
             {
                 try
                 {

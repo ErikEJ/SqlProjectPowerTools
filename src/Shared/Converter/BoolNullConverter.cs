@@ -3,7 +3,7 @@ using System.Windows.Data;
 
 namespace SqlProjectsPowerTools
 {
-    public class BoolNullConverter : IValueConverter
+    public sealed class BoolNullConverter : IValueConverter
     {
         object IValueConverter.Convert(
             object value,
