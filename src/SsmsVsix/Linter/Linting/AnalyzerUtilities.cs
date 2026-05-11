@@ -83,7 +83,7 @@ internal class AnalyzerUtilities
 
                     try
                     {
-                        analyzer.WaitForExit();
+                        await analyzer.WaitForExitAsync(cancellationToken);
                     }
                     catch (InvalidOperationException)
                     {

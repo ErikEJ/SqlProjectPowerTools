@@ -45,9 +45,10 @@ namespace SqlProjectsPowerTools.Linting
             var text = snapshot.GetText();
 
             // Run analysis on a background thread without debounce delay
-            var pendingAnalysis = new PendingAnalysis(new CancellationTokenSource(), snapshot.Version.VersionNumber);
+            using var cts = new CancellationTokenSource();
+            var pendingAnalysis = new PendingAnalysis(cts, snapshot.Version.VersionNumber);
             buffer.Properties[_pendingAnalysisKey] = pendingAnalysis;
-            PerformAnalysisNowAsync(buffer, filePath, sqlVersion, rules, projectName, pendingAnalysis.CancellationTokenSource.Token, snapshot, text).FireAndForget();
+            PerformAnalysisNowAsync(buffer, filePath, sqlVersion, rules, projectName, snapshot, text, pendingAnalysis.CancellationTokenSource.Token).FireAndForget();
         }
 
         /// <summary>
@@ -59,16 +60,16 @@ namespace SqlProjectsPowerTools.Linting
             // Cancel any pending analysis for this buffer
             CancelPendingAnalysis(buffer);
 
-            var cts = new CancellationTokenSource();
+            using var cts = new CancellationTokenSource();
             ITextSnapshot snapshot = buffer.CurrentSnapshot;
             buffer.Properties[_pendingAnalysisKey] = new PendingAnalysis(cts, snapshot.Version.VersionNumber);
             var text = snapshot.GetText();
 
             // Pass the token, not the CTS, to avoid accessing disposed CTS
-            PerformAnalysisAsync(buffer, filePath, sqlVersion, rules, projectName, cts.Token, snapshot, text).FireAndForget();
+            PerformAnalysisAsync(buffer, filePath, sqlVersion, rules, projectName, snapshot, text, cts.Token).FireAndForget();
         }
 
-        private async Task PerformAnalysisAsync(ITextBuffer buffer, string filePath, string sqlVersion, string rules, string projectName, CancellationToken cancellationToken, ITextSnapshot snapshot, string text)
+        private async Task PerformAnalysisAsync(ITextBuffer buffer, string filePath, string sqlVersion, string rules, string projectName, ITextSnapshot snapshot, string text, CancellationToken cancellationToken)
         {
             try
             {
@@ -89,7 +90,7 @@ namespace SqlProjectsPowerTools.Linting
             }
         }
 
-        private async Task PerformAnalysisNowAsync(ITextBuffer buffer, string filePath, string sqlVersion, string rules, string projectName, CancellationToken cancellationToken, ITextSnapshot snapshot, string text)
+        private async Task PerformAnalysisNowAsync(ITextBuffer buffer, string filePath, string sqlVersion, string rules, string projectName, ITextSnapshot snapshot, string text, CancellationToken cancellationToken)
         {
             try
             {
