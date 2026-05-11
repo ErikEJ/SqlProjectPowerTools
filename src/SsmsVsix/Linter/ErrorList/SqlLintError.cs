@@ -5,7 +5,7 @@ namespace SqlProjectsPowerTools.ErrorList
     /// <summary>
     /// Represents an error in the error list.
     /// </summary>
-    internal class SqlLintError
+    internal sealed class SqlLintError
     {
         public string FilePath { get; }
 

@@ -45,7 +45,9 @@ namespace SqlProjectsPowerTools.Linting
             var text = snapshot.GetText();
 
             // Run analysis on a background thread without debounce delay
+#pragma warning disable CA2000 // Dispose objects before losing scope
             var cts = new CancellationTokenSource();
+#pragma warning restore CA2000 // Dispose objects before losing scope
             var pendingAnalysis = new PendingAnalysis(cts, snapshot.Version.VersionNumber);
             buffer.Properties[_pendingAnalysisKey] = pendingAnalysis;
             PerformAnalysisNowAsync(buffer, filePath, sqlVersion, rules, projectName, snapshot, text, pendingAnalysis.CancellationTokenSource.Token).FireAndForget();
@@ -60,7 +62,9 @@ namespace SqlProjectsPowerTools.Linting
             // Cancel any pending analysis for this buffer
             CancelPendingAnalysis(buffer);
 
+#pragma warning disable CA2000 // Dispose objects before losing scope
             var cts = new CancellationTokenSource();
+#pragma warning restore CA2000 // Dispose objects before losing scope
             ITextSnapshot snapshot = buffer.CurrentSnapshot;
             buffer.Properties[_pendingAnalysisKey] = new PendingAnalysis(cts, snapshot.Version.VersionNumber);
             var text = snapshot.GetText();

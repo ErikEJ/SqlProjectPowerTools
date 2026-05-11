@@ -5,7 +5,7 @@ using DacFXToolLib.Common;
 
 namespace SqlProjectsPowerTools
 {
-    public partial class PickTablesDialog : IPickTablesDialog
+    public sealed partial class PickTablesDialog : IPickTablesDialog
     {
         private readonly Func<SerializationTableModel[]> getDialogResult;
         private readonly Func<Schema[]> getReplacerResult;

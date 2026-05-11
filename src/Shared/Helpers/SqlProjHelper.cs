@@ -56,7 +56,18 @@ namespace SqlProjectsPowerTools
                 if (item.Type == SolutionItemType.PhysicalFile)
                 {
                     var file = item as PhysicalFile;
+
+                    if (file == null)
+                    {
+                        continue;
+                    }
+
                     var fullPath = file.Parent?.FullPath;
+
+                    if (string.IsNullOrEmpty(fullPath))
+                    {
+                        continue;
+                    }
 
                     if (file.Extension == ".dacpac"
                         && !string.IsNullOrEmpty(fullPath)

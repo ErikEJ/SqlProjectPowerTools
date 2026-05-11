@@ -5,7 +5,7 @@ namespace SqlProjectsPowerTools.Linting
     /// <summary>
     /// Cached analysis result for a text buffer.
     /// </summary>
-    internal class CachedAnalysisResult(int snapshotVersion, IReadOnlyList<SqlAnalyzerDiagnosticInfo> violations)
+    internal sealed class CachedAnalysisResult(int snapshotVersion, IReadOnlyList<SqlAnalyzerDiagnosticInfo> violations)
     {
         public int SnapshotVersion { get; } = snapshotVersion;
 

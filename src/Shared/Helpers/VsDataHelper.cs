@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.Data.Services;
 
 namespace SqlProjectsPowerTools
 {
-    internal class VsDataHelper
+    internal sealed class VsDataHelper
     {
         public static string GetSavedConnectionName(string connectionString, DatabaseType dbType)
         {
@@ -46,7 +46,7 @@ namespace SqlProjectsPowerTools
                 result += "." + catalog.ToString();
             }
 
-            if (!string.IsNullOrEmpty(result) && result.Length > 1 && result.StartsWith("."))
+            if (!string.IsNullOrEmpty(result) && result.Length > 1 && result.StartsWith(".", StringComparison.OrdinalIgnoreCase))
             {
                 result = result.Substring(1);
             }
@@ -58,6 +58,12 @@ namespace SqlProjectsPowerTools
         {
             // Show dialog with modern SqlClient selected by default
             var dialogFactory = await VS.GetServiceAsync<IVsDataConnectionDialogFactory, IVsDataConnectionDialogFactory>();
+
+            if (dialogFactory == null)
+            {
+                return new DatabaseConnectionModel { DatabaseType = DatabaseType.Undefined };
+            }
+
             var dialog = dialogFactory.CreateConnectionDialog();
             dialog.AddSources((source, provider) => TryGetEntityFrameworkCoreProvider(provider));
 

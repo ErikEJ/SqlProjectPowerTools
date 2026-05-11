@@ -5,7 +5,7 @@ using DacFXToolLib.Common;
 
 namespace SqlProjectsPowerTools
 {
-    public partial class PickServerDatabaseDialog : IPickServerDatabaseDialog
+    public sealed partial class PickServerDatabaseDialog : IPickServerDatabaseDialog
     {
         private readonly Func<(DatabaseConnectionModel Connection, int CodegenerationMode, SchemaInfo[] Schemas, string UiHint, bool GetDatabaseOptions)> getDialogResult;
         private readonly Action<IEnumerable<DatabaseConnectionModel>> addConnections;

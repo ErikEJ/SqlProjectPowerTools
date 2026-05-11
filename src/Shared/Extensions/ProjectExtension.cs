@@ -209,6 +209,12 @@ namespace SqlProjectsPowerTools
             }
 
             var projectPath = project.FullPath;
+
+            if (projectPath == null)
+            {
+                return "Unable to determine the path of the selected project.";
+            }
+
             var projectDirectory = Path.GetDirectoryName(projectPath);
             if (string.IsNullOrWhiteSpace(projectPath) || string.IsNullOrWhiteSpace(projectDirectory) || !File.Exists(projectPath))
             {
