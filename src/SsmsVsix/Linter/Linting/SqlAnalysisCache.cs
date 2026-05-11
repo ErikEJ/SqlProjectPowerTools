@@ -45,7 +45,7 @@ namespace SqlProjectsPowerTools.Linting
             var text = snapshot.GetText();
 
             // Run analysis on a background thread without debounce delay
-            using var cts = new CancellationTokenSource();
+            var cts = new CancellationTokenSource();
             var pendingAnalysis = new PendingAnalysis(cts, snapshot.Version.VersionNumber);
             buffer.Properties[_pendingAnalysisKey] = pendingAnalysis;
             PerformAnalysisNowAsync(buffer, filePath, sqlVersion, rules, projectName, snapshot, text, pendingAnalysis.CancellationTokenSource.Token).FireAndForget();
@@ -60,7 +60,7 @@ namespace SqlProjectsPowerTools.Linting
             // Cancel any pending analysis for this buffer
             CancelPendingAnalysis(buffer);
 
-            using var cts = new CancellationTokenSource();
+            var cts = new CancellationTokenSource();
             ITextSnapshot snapshot = buffer.CurrentSnapshot;
             buffer.Properties[_pendingAnalysisKey] = new PendingAnalysis(cts, snapshot.Version.VersionNumber);
             var text = snapshot.GetText();
