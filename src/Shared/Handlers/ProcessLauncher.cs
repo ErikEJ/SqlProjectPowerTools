@@ -11,7 +11,7 @@ using DacFXToolLib.Common;
 
 namespace SqlProjectsPowerTools
 {
-    internal class ProcessLauncher
+    internal sealed class ProcessLauncher
     {
         private readonly string toolFolder;
         private readonly string toolRoot;

@@ -8,7 +8,7 @@ using DacFXToolLib.Dab;
 
 namespace SqlProjectsPowerTools
 {
-    internal class SeedHandler
+    internal sealed class SeedHandler
     {
         public async Task GenerateSeedScriptsAsync(Project project)
         {

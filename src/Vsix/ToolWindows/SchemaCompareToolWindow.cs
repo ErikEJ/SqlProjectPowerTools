@@ -18,7 +18,7 @@ namespace SqlProjectsPowerTools
         }
 
         [Guid("a7e3c028-5f2a-4b8e-9c1d-3f6a8b2e4d09")]
-        internal class Pane : ToolkitToolWindowPane
+        internal sealed class Pane : ToolkitToolWindowPane
         {
             public Pane()
             {

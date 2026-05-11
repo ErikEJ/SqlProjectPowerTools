@@ -8,13 +8,13 @@ namespace SqlProjectsPowerTools.Tagging
     /// </summary>
     public class LintResult
     {
-        private readonly ITrackingSpan _trackingSpan;
+        private readonly ITrackingSpan trackingSpan;
 
         public string RuleId { get; }
 
         public string Message { get; }
 
-        public string DocumentationUrl { get; }
+        public string DocumentationLink { get; }
 
         public Linting.DiagnosticSeverity Severity { get; }
 
@@ -22,9 +22,19 @@ namespace SqlProjectsPowerTools.Tagging
 
         public LintResult(SqlAnalyzerDiagnosticInfo violation, ITextSnapshot snapshot)
         {
+            if (violation == null)
+            {
+                throw new ArgumentNullException(nameof(violation));
+            }
+
+            if (snapshot == null)
+            {
+                throw new ArgumentNullException(nameof(snapshot));
+            }
+
             RuleId = violation.ErrorCode;
             Message = violation.Message;
-            DocumentationUrl = violation.HelpLink?.ToString();
+            DocumentationLink = violation.HelpLink?.ToString();
             Severity = DiagnosticSeverity.Warning;
 
             // Calculate span from line/column
@@ -39,14 +49,14 @@ namespace SqlProjectsPowerTools.Tagging
 
             var span = new Span(startIndex, Math.Max(1, endIndex - startIndex));
             Start = span.Start;
-            _trackingSpan = snapshot.CreateTrackingSpan(span, SpanTrackingMode.EdgeExclusive);
+            trackingSpan = snapshot.CreateTrackingSpan(span, SpanTrackingMode.EdgeExclusive);
         }
 
         public SnapshotSpan? GetTranslatedSpan(ITextSnapshot snapshot)
         {
             try
             {
-                return _trackingSpan.GetSpan(snapshot);
+                return trackingSpan.GetSpan(snapshot);
             }
             catch
             {
