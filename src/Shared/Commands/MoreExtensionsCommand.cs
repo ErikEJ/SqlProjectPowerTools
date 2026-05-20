@@ -8,7 +8,7 @@ namespace SqlProjectsPowerTools
     internal sealed class MoreExtensionsCommand : BaseCommand<MoreExtensionsCommand>
     {
 #pragma warning disable S1075 // URIs should not be hardcoded
-        private const string Url = "https://github.com/brink-daniel/ssms-object-explorer-menu/blob/main/SSMSExtensionList.md";
+        private const string Url = "https://erikej.github.io/SsmsExtensions/";
 #pragma warning restore S1075 // URIs should not be hardcoded
         private const string ErrorMessage = "Unable to launch browser for the More extensions link.";
 
