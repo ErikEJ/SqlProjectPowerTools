@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 using DacFXToolLib.Common;
@@ -25,7 +25,7 @@ namespace SqlProjectsPowerTools
 
         ObservableCollection<CodeGenerationItem> CodeGenerationModeList { get; }
 
-        List<SchemaInfo> Schemas { get; }
+        IList<SchemaInfo> Schemas { get; }
 
         DatabaseConnectionModel SelectedDatabaseConnection { get; set; }
 

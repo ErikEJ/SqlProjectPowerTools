@@ -10,7 +10,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 
 namespace SqlProjectsPowerTools
 {
-    internal class ImportHandler
+    internal sealed class ImportHandler
     {
         public async Task GenerateAsync(Project project)
         {

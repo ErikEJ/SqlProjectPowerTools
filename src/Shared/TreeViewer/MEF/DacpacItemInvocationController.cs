@@ -6,7 +6,7 @@ using Microsoft.Internal.VisualStudio.PlatformUI;
 
 namespace SqlProjectsPowerTools.TreeViewer
 {
-    internal class DacpacItemInvocationController : IInvocationController
+    internal sealed class DacpacItemInvocationController : IInvocationController
     {
         // Singleton instance to avoid creating new instances for each node
         public static readonly DacpacItemInvocationController Instance = new();

@@ -62,6 +62,11 @@ namespace SqlProjectsPowerTools
                         continue;
                     }
 
+                    if (file.FullPath == null)
+                    {
+                        continue;
+                    }
+
                     var fullPath = file.Parent?.FullPath;
 
                     if (string.IsNullOrEmpty(fullPath))
