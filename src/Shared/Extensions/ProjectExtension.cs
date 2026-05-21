@@ -24,7 +24,12 @@ namespace SqlProjectsPowerTools
         /// <returns>true if it is a SQL Database Project of any kind</returns>
         public static bool IsAnySqlDatabaseProject(this Project project)
         {
-            if (project == null)
+            if (project is null)
+            {
+                return false;
+            }
+
+            if (project.FullPath is null)
             {
                 return false;
             }

@@ -12,13 +12,13 @@ namespace SqlProjectsPowerTools.Linting
     [Export(typeof(SqlAnalysisCache))]
     public class SqlAnalysisCache
     {
-        private static readonly object _propertyKey = typeof(SqlAnalysisCache);
-        private static readonly object _pendingAnalysisKey = typeof(SqlAnalysisCache).FullName + ".PendingAnalysis";
-
         /// <summary>
         /// Delay in milliseconds before analyzing after the last keystroke.
         /// </summary>
         private const int _debounceDelayMs = 300;
+
+        private static readonly object _propertyKey = typeof(SqlAnalysisCache);
+        private static readonly object _pendingAnalysisKey = typeof(SqlAnalysisCache).FullName + ".PendingAnalysis";
 
         /// <summary>
         /// Event raised when analysis results are updated for a buffer.

@@ -57,7 +57,7 @@ namespace SqlProjectsPowerTools
 
         public ObservableCollection<CodeGenerationItem> CodeGenerationModeList { get; }
 
-        public List<SchemaInfo> Schemas { get; private set; }
+        public IList<SchemaInfo> Schemas { get; private set; }
 
         public int CodeGenerationMode
         {

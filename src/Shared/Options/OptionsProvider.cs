@@ -1,11 +1,11 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 
 namespace SqlProjectsPowerTools
 {
-    internal class OptionsProvider
+    internal sealed class OptionsProvider
     {
         [ComVisible(true)]
-        public class VsixOptions : BaseOptionPage<ToolOptions>
+        public sealed class VsixOptions : BaseOptionPage<ToolOptions>
         {
         }
     }

@@ -3,7 +3,6 @@ using System.ComponentModel.Composition;
 using System.Linq;
 using Microsoft.VisualStudio.Shell.TableControl;
 using Microsoft.VisualStudio.Shell.TableManager;
-using SqlProjectsPowerTools;
 
 namespace SqlProjectsPowerTools.ErrorList
 {
