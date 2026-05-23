@@ -58,7 +58,7 @@ jobs:
       run: msbuild SqlProjectPowerTools.slnx /property:Configuration=Release /p:DeployExtension=false /p:ZipPackageCompressionLevel=normal /v:m
 
     - name: Move build output
-      if: github.ref == 'refs/heads/main' && github.repository_owner == 'erikej' && (github.event_name == 'push' ||  github.event_name == 'workflow_dispatch')
+      if: github.ref == 'refs/heads/main' && github.repository_owner == 'erikej' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
       run: |
         mv src/Vsix/bin/Release/net48/win/Vsix.vsix SqlProjectPowerTools-${{ env.VERSION }}.vsix
         mv src/ExtensionPack/bin/Release/ExtensionPack.vsix SqlProjectExtensionPack-${{ env.VERSION }}.vsix
@@ -110,3 +110,13 @@ jobs:
       uses: timheuer/openvsixpublish@v1
       with:
         vsix-file: SqlProjectExtensionPack-${{ env.VERSION }}.vsix
+
+    - name: Upload to SSMS Gallery
+      if: github.ref == 'refs/heads/main' && github.repository_owner == 'erikej' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+      shell: cmd
+      run: |
+        if not exist "SqlProjectPowerToolsSsms-${{ env.VERSION }}.vsix" (
+          echo ERROR: Expected VSIX not found: SqlProjectPowerToolsSsms-${{ env.VERSION }}.vsix
+          exit /b 1
+        )
+        curl --fail --show-error "https://ssmsgallery.azurewebsites.net/api/upload" -F "file=@SqlProjectPowerToolsSsms-${{ env.VERSION }}.vsix"
