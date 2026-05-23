@@ -114,4 +114,6 @@ jobs:
     - name: Upload to SSMS Gallery
       if: github.ref == 'refs/heads/main' && github.repository_owner == 'erikej' && (github.event_name == 'push' ||  github.event_name == 'workflow_dispatch')
       shell: cmd
-      run: curl "https://ssmsgallery.azurewebsites.net/api/upload" -F "file=@SqlProjectPowerToolsSsms-${{ env.VERSION }}.vsix"
+      run: |
+        if not exist "SqlProjectPowerToolsSsms-${{ env.VERSION }}.vsix" exit /b 1
+        curl --fail --show-error "https://ssmsgallery.azurewebsites.net/api/upload" -F "file=@SqlProjectPowerToolsSsms-${{ env.VERSION }}.vsix"
