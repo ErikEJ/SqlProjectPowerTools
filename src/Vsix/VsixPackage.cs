@@ -45,6 +45,8 @@ namespace SqlProjectsPowerTools
 
             PackageManager.Package = this;
 
+            AutoPublishOnSaveHandler.Initialize();
+
             extensionServices = CreateServiceProvider();
 
             typeof(Microsoft.Xaml.Behaviors.Behavior).ToString();
