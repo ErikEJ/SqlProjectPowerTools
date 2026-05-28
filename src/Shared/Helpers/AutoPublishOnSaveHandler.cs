@@ -27,7 +27,7 @@ namespace SqlProjectsPowerTools
         private static void OnDocumentSaved(string filePath)
         {
             if (string.IsNullOrWhiteSpace(filePath)
-                || !filePath.EndsWith(".sql", StringComparison.OrdinalIgnoreCase))
+                || !string.Equals(Path.GetExtension(filePath), ".sql", StringComparison.OrdinalIgnoreCase))
             {
                 return;
             }
@@ -62,7 +62,7 @@ namespace SqlProjectsPowerTools
                     return;
                 }
 
-                var script = await File.ReadAllTextAsync(filePath);
+                var script = await ReadScriptAsync(filePath);
                 if (!TryCreateAutoPublishScript(script, out var scriptToPublish))
                 {
                     return;
@@ -151,6 +151,30 @@ namespace SqlProjectsPowerTools
             if (string.IsNullOrWhiteSpace(script))
             {
                 return false;
+            }
+
+            private static async Task<string> ReadScriptAsync(string filePath)
+            {
+                IOException lastException = null;
+
+                for (var attempt = 0; attempt < 3; attempt++)
+                {
+                    try
+                    {
+                        using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                        using (var reader = new StreamReader(stream))
+                        {
+                            return await reader.ReadToEndAsync();
+                        }
+                    }
+                    catch (IOException ex)
+                    {
+                        lastException = ex;
+                        await Task.Delay(50);
+                    }
+                }
+
+                throw lastException ?? new IOException($"Failed to read SQL file '{filePath}'.");
             }
 
             var parser = new TSql170Parser(initialQuotedIdentifiers: true);
