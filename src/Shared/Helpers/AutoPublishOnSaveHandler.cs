@@ -216,6 +216,7 @@ namespace SqlProjectsPowerTools
                 }
 
                 rewrittenScript = rewrittenScript.Insert(insertIndex, " OR ALTER");
+            }
 
             scriptToPublish = rewrittenScript;
             return true;
