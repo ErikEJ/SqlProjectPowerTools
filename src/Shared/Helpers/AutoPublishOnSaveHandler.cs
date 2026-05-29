@@ -191,8 +191,31 @@ namespace SqlProjectsPowerTools
                 }
 
                 var insertIndex = createToken.Offset + createToken.Text.Length;
+
+                // Avoid producing "CREATE OR ALTER OR ALTER" when the script already uses CREATE OR ALTER.
+                var lookaheadIndex = insertIndex;
+                while (lookaheadIndex < script.Length && char.IsWhiteSpace(script[lookaheadIndex]))
+                {
+                    lookaheadIndex++;
+                }
+
+                if (lookaheadIndex + 2 <= script.Length
+                    && string.Equals(script.Substring(lookaheadIndex, 2), "OR", StringComparison.OrdinalIgnoreCase))
+                {
+                    lookaheadIndex += 2;
+                    while (lookaheadIndex < script.Length && char.IsWhiteSpace(script[lookaheadIndex]))
+                    {
+                        lookaheadIndex++;
+                    }
+
+                    if (lookaheadIndex + 5 <= script.Length
+                        && string.Equals(script.Substring(lookaheadIndex, 5), "ALTER", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+                }
+
                 rewrittenScript = rewrittenScript.Insert(insertIndex, " OR ALTER");
-            }
 
             scriptToPublish = rewrittenScript;
             return true;
