@@ -5,13 +5,10 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
-using Microsoft.VisualStudio.Shell.Interop;
-
 namespace SqlProjectsPowerTools
 {
     internal static class AutoPublishOnSaveHandler
     {
-        private static readonly Guid OutputPaneGuid = new("DA2D7543-F81F-443B-8743-8C508C5601D9");
         private static int initialized;
 
         public static void Initialize()
@@ -74,7 +71,6 @@ namespace SqlProjectsPowerTools
             catch (Exception ex)
             {
                 await ex.LogAsync();
-                await LogToExtensionsOutputAsync($"Auto publish failed for '{filePath}': {ex}");
                 await VS.StatusBar.ShowMessageAsync($"Auto publish failed: {Path.GetFileName(filePath)}");
             }
         }
@@ -153,30 +149,6 @@ namespace SqlProjectsPowerTools
                 return false;
             }
 
-            private static async Task<string> ReadScriptAsync(string filePath)
-            {
-                IOException lastException = null;
-
-                for (var attempt = 0; attempt < 3; attempt++)
-                {
-                    try
-                    {
-                        using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                        using (var reader = new StreamReader(stream))
-                        {
-                            return await reader.ReadToEndAsync();
-                        }
-                    }
-                    catch (IOException ex)
-                    {
-                        lastException = ex;
-                        await Task.Delay(50);
-                    }
-                }
-
-                throw lastException ?? new IOException($"Failed to read SQL file '{filePath}'.");
-            }
-
             var parser = new TSql170Parser(initialQuotedIdentifiers: true);
             TSqlFragment fragment;
             IList<ParseError> errors;
@@ -191,8 +163,16 @@ namespace SqlProjectsPowerTools
                 return false;
             }
 
-            var createStatements = tsqlScript.Batches
+            var statements = tsqlScript.Batches
                 .SelectMany(b => b.Statements)
+                .ToList();
+
+            if (statements.Any(s => !IsAllowedStatement(s)))
+            {
+                return false;
+            }
+
+            var createStatements = statements
                 .Where(IsSupportedCreateStatement)
                 .ToList();
 
@@ -216,6 +196,36 @@ namespace SqlProjectsPowerTools
 
             scriptToPublish = rewrittenScript;
             return true;
+        }
+
+        private static async Task<string> ReadScriptAsync(string filePath)
+        {
+            IOException lastException = null;
+
+            for (var attempt = 0; attempt < 3; attempt++)
+            {
+                try
+                {
+                    using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    using (var reader = new StreamReader(stream))
+                    {
+                        return await reader.ReadToEndAsync();
+                    }
+                }
+                catch (IOException ex)
+                {
+                    lastException = ex;
+                    await Task.Delay(50);
+                }
+            }
+
+            throw lastException ?? new IOException($"Failed to read SQL file '{filePath}'.");
+        }
+
+        private static bool IsAllowedStatement(TSqlStatement statement)
+        {
+            return IsSupportedCreateStatement(statement)
+                || statement is SetOnOffStatement;
         }
 
         private static bool IsSupportedCreateStatement(TSqlStatement statement)
@@ -264,23 +274,6 @@ namespace SqlProjectsPowerTools
                 .Select(batch => script.Substring(batch.StartOffset, batch.FragmentLength).Trim())
                 .Where(batch => !string.IsNullOrWhiteSpace(batch))
                 .ToList();
-        }
-
-        private static async Task LogToExtensionsOutputAsync(string message)
-        {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            var outputWindow = Package.GetGlobalService(typeof(SVsOutputWindow)) as IVsOutputWindow;
-            if (outputWindow == null)
-            {
-                return;
-            }
-
-            var paneGuid = OutputPaneGuid;
-            outputWindow.CreatePane(ref paneGuid, "SQL Database Project Power Tools", 1, 1);
-            outputWindow.GetPane(ref paneGuid, out var pane);
-            pane?.OutputStringThreadSafe($"{DateTime.Now:HH:mm:ss} {message}{Environment.NewLine}");
-            pane?.Activate();
         }
     }
 }
