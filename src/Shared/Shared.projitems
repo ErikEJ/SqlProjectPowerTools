@@ -73,7 +73,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\UnpackHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\VisualCompareHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\SqlConnectionStringBuilderHelper.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Helpers\AutoPublishOnSaveHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\AutoPublishOnSaveHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\SqlProjHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\SsmsDataHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Helpers\UpdateChecker.cs" />
