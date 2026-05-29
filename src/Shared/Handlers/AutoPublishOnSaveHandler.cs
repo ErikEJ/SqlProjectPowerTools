@@ -68,12 +68,12 @@ internal static class AutoPublishOnSaveHandler
             }
 
             await ExecuteScriptAsync(connectionString, scriptToPublish);
-            await VS.StatusBar.ShowMessageAsync($"Auto publish completed: {Path.GetFileName(filePath)}");
+            await VS.StatusBar.ShowMessageAsync($"Publish completed: {Path.GetFileName(filePath)}");
         }
         catch (Exception ex)
         {
             await ex.LogAsync();
-            await VS.StatusBar.ShowMessageAsync($"Auto publish failed: {Path.GetFileName(filePath)}");
+            await VS.StatusBar.ShowMessageAsync($"Publish failed: {Path.GetFileName(filePath)}");
         }
     }
 
@@ -226,7 +226,7 @@ internal static class AutoPublishOnSaveHandler
 
     private static async Task<string> ReadScriptAsync(string filePath)
     {
-        IOException lastException = null;
+        Exception lastException = null;
 
         for (var attempt = 0; attempt < 3; attempt++)
         {
@@ -238,14 +238,14 @@ internal static class AutoPublishOnSaveHandler
                     return await reader.ReadToEndAsync();
                 }
             }
-            catch (IOException ex)
+            catch (Exception ex)
             {
                 lastException = ex;
                 await Task.Delay(50);
             }
         }
 
-        throw lastException ?? new IOException($"Failed to read SQL file '{filePath}'.");
+        throw lastException ?? new IOException($"Failed to read SQL file '{filePath}'.", lastException);
     }
 
     private static bool IsAllowedStatement(TSqlStatement statement)
@@ -273,7 +273,9 @@ internal static class AutoPublishOnSaveHandler
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandType = CommandType.Text;
+#pragma warning disable CA2100 // Review SQL queries for security vulnerabilities
                     command.CommandText = batch;
+#pragma warning restore CA2100 // Review SQL queries for security vulnerabilities
                     await command.ExecuteNonQueryAsync();
                 }
             }
