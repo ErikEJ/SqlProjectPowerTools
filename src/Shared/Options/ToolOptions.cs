@@ -23,9 +23,9 @@ namespace SqlProjectsPowerTools
         public bool CheckForUpdates { get; set; } = true;
 
         [Category("General")]
-        [DisplayName(@"Enable auto publish on save")]
+        [DisplayName(@"Publish programmability objects on save (preview)")]
         [Description("Automatically publish supported CREATE statements when .sql files are saved")]
         [DefaultValue(false)]
-        public bool EnableAutoPublishOnSave { get; set; }
+        public bool PublishProgrammabilityObjectsOnSave { get; set; }
     }
 }
