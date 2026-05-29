@@ -4,6 +4,7 @@ using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.SqlServer.TransactSql.ScriptDom;
 namespace SqlProjectsPowerTools
 {
