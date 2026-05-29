@@ -21,5 +21,11 @@ namespace SqlProjectsPowerTools
         [Description("Check for updates to the extension on startup")]
         [DefaultValue(true)]
         public bool CheckForUpdates { get; set; } = true;
+
+        [Category("General")]
+        [DisplayName(@"Enable auto publish on save")]
+        [Description("Automatically publish supported CREATE statements when .sql files are saved")]
+        [DefaultValue(false)]
+        public bool EnableAutoPublishOnSave { get; set; }
     }
 }
