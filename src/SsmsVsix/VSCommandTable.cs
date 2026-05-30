@@ -43,5 +43,6 @@ namespace SqlProjectsPowerTools
         public const int cmdidManageRules = 0x0014;
         public const int cmdidGettingStarted = 0x0015;
         public const int cmdidMoreExtensions = 0x0016;
+        public const int cmdidEnablePublishOnSave = 0x0017;
     }
 }
