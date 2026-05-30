@@ -11,6 +11,11 @@ namespace SqlProjectsPowerTools;
 
 internal static class AutoPublishOnSaveHandler
 {
+    private const string AutoPublishConnectionStringKey = "AutoPublish";
+    private const string AutoPublishEnvSampleContents =
+        "# Connection string used by Publish on save" + "\r\n"
+        + AutoPublishConnectionStringKey + "=Server=localhost;Database=YourDatabase;Integrated Security=true;TrustServerCertificate=true;" + "\r\n";
+
     private static int initialized;
 
     public static void Initialize()
@@ -21,6 +26,22 @@ internal static class AutoPublishOnSaveHandler
         }
 
         VS.Events.DocumentEvents.Saved += OnDocumentSaved;
+    }
+
+    public static async Task EnableAsync(Project project)
+    {
+        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+        var options = await ToolOptions.GetLiveInstanceAsync();
+        options.PublishProgrammabilityObjectsOnSave = true;
+        await options.SaveAsync();
+
+        var projectDirectory = Path.GetDirectoryName(project?.FullPath);
+        var createdEnvFile = EnsureSampleEnvFile(projectDirectory);
+
+        await VS.StatusBar.ShowMessageAsync(createdEnvFile
+            ? "Publish on save enabled. Sample .env file created."
+            : "Publish on save enabled.");
     }
 
     private static void OnDocumentSaved(string filePath)
@@ -56,7 +77,7 @@ internal static class AutoPublishOnSaveHandler
                 return;
             }
 
-            if (!TryGetConnectionStringFromEnvFile(projectDirectory, "AutoPublish", out var connectionString))
+            if (!TryGetConnectionStringFromEnvFile(projectDirectory, AutoPublishConnectionStringKey, out var connectionString))
             {
                 return;
             }
@@ -140,6 +161,23 @@ internal static class AutoPublishOnSaveHandler
         }
 
         return false;
+    }
+
+    private static bool EnsureSampleEnvFile(string projectDirectory)
+    {
+        if (string.IsNullOrWhiteSpace(projectDirectory) || !Directory.Exists(projectDirectory))
+        {
+            return false;
+        }
+
+        var envPath = Path.Combine(projectDirectory, ".env");
+        if (File.Exists(envPath))
+        {
+            return false;
+        }
+
+        File.WriteAllText(envPath, AutoPublishEnvSampleContents);
+        return true;
     }
 
     private static bool TryCreateAutoPublishScript(string script, out string scriptToPublish)
