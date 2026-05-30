@@ -188,7 +188,7 @@ AutoPublish=Server=localhost;Database=MyDb;Integrated Security=true;TrustServerC
 ### How it works
 
 - When you save a `.sql` file that belongs to a SQL database project, the extension reads the file and parses the T-SQL.
-- If the file contains only supported `CREATE` (or `CREATE OR ALTER`) statements, the script is rewritten to use `CREATE OR ALTER` and executed against the database specified in the `.env` file.
+- If the file contains only supported `CREATE` (or `CREATE OR ALTER`) statements (plus optional `SET ... ON/OFF` statements like `SET ANSI_NULLS ON`), the script is rewritten to use `CREATE OR ALTER` and executed against the database specified in the `.env` file.
 - The status bar shows `Publish completed: <filename>` on success or `Publish failed: <filename>` if an error occurs.
 - Files that contain unsupported statements (for example `CREATE TABLE`) are silently skipped.
 
