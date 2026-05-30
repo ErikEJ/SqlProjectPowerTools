@@ -147,6 +147,51 @@ To script table data:
 
 This is based on the popular [generate-sql-merge](https://github.com/dnlnln/generate-sql-merge) script.
 
+## Publishing Programmability Objects on Save (preview)
+
+The **Publish programmability objects on save** feature automatically executes supported `CREATE` statements against a target database whenever you save a `.sql` file in your project. This gives you an inner-loop development experience where your stored procedures, views, functions, and triggers are kept in sync with your local database as you work.
+
+**Supported object types:**
+
+- Stored procedures (`CREATE PROCEDURE`)
+- Views (`CREATE VIEW`)
+- Functions (`CREATE FUNCTION`)
+- Triggers (`CREATE TRIGGER`)
+
+When the feature runs, `CREATE` statements are automatically rewritten as `CREATE OR ALTER` before being sent to the database, so the object is created if it does not yet exist or updated if it does.
+
+### Setting up publish on save
+
+1. Right-click on your SQL database project in Solution Explorer
+2. Select **SQL Project Power Tools > Enable publish on save**
+3. If no `.env` file exists in the project directory, a sample file is created automatically:
+
+   ```
+   AutoPublish=Server=localhost;Database=YourDatabase;Integrated Security=true;TrustServerCertificate=true;
+   ```
+
+4. Edit the `.env` file to point to your target database
+5. Save any supported `.sql` file — the object is published immediately and a status message appears in the Visual Studio status bar
+
+> **Note:** Add `.env` to your `.gitignore` so that connection strings are not committed to source control.
+
+### Configuration
+
+You can enable or disable the feature at any time via **Tools > Options > SQL Server Tools > SQL Project Power Tools** and toggling the **Publish programmability objects on save (preview)** option.
+
+The `.env` file must be located in the root directory of your SQL database project and must contain a key named `AutoPublish` with the connection string value, for example:
+
+```
+AutoPublish=Server=localhost;Database=MyDb;Integrated Security=true;TrustServerCertificate=true;
+```
+
+### How it works
+
+- When you save a `.sql` file that belongs to a SQL database project, the extension reads the file and parses the T-SQL.
+- If the file contains only supported `CREATE` (or `CREATE OR ALTER`) statements (plus optional `SET ... ON/OFF` statements like `SET ANSI_NULLS ON`), the script is rewritten to use `CREATE OR ALTER` and executed against the database specified in the `.env` file.
+- The status bar shows `Publish completed: <filename>` on success or `Publish failed: <filename>` if an error occurs.
+- Files that contain unsupported statements (for example `CREATE TABLE`) are silently skipped.
+
 ## Real time code analysis (SSMS)
 
 Live code analysis is available in SQL Server Management Studio (SSMS) when working with SQL database projects. This provides immediate feedback on potential issues as you write your SQL code.
