@@ -7,7 +7,7 @@ namespace SqlProjectsPowerTools
         {
             ThreadHelper.JoinableTaskFactory.Run(async () =>
             {
-                var isEnabled = await Command.IsEnabledForModernSqlProjectAsync();
+                var isEnabled = await Command.IsEnabledForAnySqlProjectAsync();
 
                 if (isEnabled)
                 {

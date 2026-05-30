@@ -13,8 +13,7 @@ internal static class AutoPublishOnSaveHandler
 {
     private const string AutoPublishConnectionStringKey = "AutoPublish";
     private const string AutoPublishEnvSampleContents =
-        "# Connection string used by Publish on save" + "\r\n"
-        + AutoPublishConnectionStringKey + "=Server=localhost;Database=YourDatabase;Integrated Security=true;TrustServerCertificate=true;" + "\r\n";
+        AutoPublishConnectionStringKey + "=Server=localhost;Database=YourDatabase;Integrated Security=true;TrustServerCertificate=true;";
 
     private static int initialized;
 
