@@ -31,6 +31,7 @@ The tool contains the following features.
 - **Script Table Data** - generate insert statements for table data in your database project, based on [generate-sql-merge](https://github.com/dnlnln/generate-sql-merge)
 - **Add new pre- and post-deployment scripts** - easily add new pre- and post-deployment scripts to your database project
 - **Scaffold SQL MCP Server (preview)** - generate a SQL MCP Server configuration file based on your database project, for use with [SQL MCP Server](docs/dab-mcp-readme.md)
+- **Publish programmability objects on save (preview)** - automatically publish supported CREATE statements (stored procedures, views, functions, triggers) to a target database when `.sql` files are saved
 
 ### Power Pack
 
