@@ -14,6 +14,9 @@ namespace DacFXToolLib
             var comparison = databaseIsSource
                 ? new SchemaComparison(database, dacpac)
                 : new SchemaComparison(dacpac, database);
+
+            comparison.Options.IgnorePermissions = true;
+
             var compareResult = comparison.Compare();
 
             if (!compareResult.IsValid)
