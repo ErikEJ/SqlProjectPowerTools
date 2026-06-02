@@ -1,6 +1,7 @@
 [marketplace]: <https://marketplace.visualstudio.com/items?itemName=ErikEJ.SQLProjectPowerTools>
 [vsixgallery]: <https://www.vsixgallery.com/extension/SqlProjectsPowerTools.0e226f35-6d47-4156-88df-f9d40db5e2d1>
-[ssmsgallery]: <https://www.vsixgallery.com/extension/SqlProjectsPowerTools.SSMS.D7DABDC8-FE46-4DA4-BED8-2EAF1A2A578D>
+[ssmsgallery]: <https://ssmsgallery.azurewebsites.net/extension/SqlProjectsPowerTools.SSMS.D7DABDC8-FE46-4DA4-BED8-2EAF1A2A578D>
+
 [repo]: <https://github.com/ErikEJ/SqlProjectPowerTools>
 
 # SQL Database Project Power Tools
@@ -30,8 +31,8 @@ The tool contains the following features.
 - **.dacpac Solution explorer node** - view the contents of a dacpac file in Solution Explorer
 - **Script Table Data** - generate insert statements for table data in your database project, based on [generate-sql-merge](https://github.com/dnlnln/generate-sql-merge)
 - **Add new pre- and post-deployment scripts** - easily add new pre- and post-deployment scripts to your database project
-- **Scaffold SQL MCP Server (preview)** - generate a SQL MCP Server configuration file based on your database project, for use with [SQL MCP Server](docs/dab-mcp-readme.md)
 - **Publish programmability objects on save (preview)** - automatically publish supported CREATE statements (stored procedures, views, functions, triggers) to a target database when `.sql` files are saved
+- **Scaffold SQL MCP Server (preview)** - generate a SQL MCP Server configuration file based on your database project, for use with [SQL MCP Server](docs/dab-mcp-readme.md)
 
 ### Power Pack
 
@@ -42,7 +43,7 @@ I have also published [SQL Project Power Pack](https://marketplace.visualstudio.
 
 ### SSMS Extension
 
-An SSMS extension build is available from [VSIX Gallery][ssmsgallery], bringing similar features to SQL Server Management Studio (SSMS 22+). SDK-style ([Microsoft.Build.Sql](https://learn.microsoft.com/en-us/sql/tools/sql-database-projects/sql-database-projects)) database projects are supported.
+An SSMS extension build is available from [SSMS Gallery][ssmsgallery], bringing similar features to SQL Server Management Studio (SSMS 22+). SDK-style ([Microsoft.Build.Sql](https://learn.microsoft.com/en-us/sql/tools/sql-database-projects/sql-database-projects)) database projects are supported.
 
 - **Import database** - import the schema and database settings from an existing database
 - **Schema compare** - visually compare your database project with a live database and apply changes to the database or your project
@@ -51,6 +52,7 @@ An SSMS extension build is available from [VSIX Gallery][ssmsgallery], bringing 
 - **Create Mermaid E/R diagram** - create an Entity/Relationship diagram of selected tables from your database project
 - **Script Table Data** - generate insert statements for table data in your database project, based on [generate-sql-merge](https://github.com/dnlnln/generate-sql-merge)
 - **Add new pre- and post-deployment scripts** - easily add new pre- and post-deployment scripts to your database project
+- **Publish programmability objects on save (preview)** - automatically publish supported CREATE statements (stored procedures, views, functions, triggers) to a target database when `.sql` files are saved
 - **SQL MCP Server Scaffold (preview)** - generate a SQL MCP Server configuration file based on your database project, for use with [SQL MCP Server](docs/dab-mcp-readme.md)
 
 ## Advanced topics
