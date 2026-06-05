@@ -16,6 +16,7 @@
   <Project Path="src/DacFXToolLib/DacFXToolLib.csproj" />
   <Project Path="src/ExtensionPack/ExtensionPack.csproj" Id="5f2d0f07-f822-4c9d-88cf-dbf0c0199b4f">
     <Platform Solution="*|arm64" Project="arm64" />
+    <Deploy Solution="Debug|Any CPU" />
   </Project>
   <Project Path="src/Shared/Shared.shproj" />
   <Project Path="src/SqlServer.Rules.Report/SqlServer.Rules.Report.csproj" />
