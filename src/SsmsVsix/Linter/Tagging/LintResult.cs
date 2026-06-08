@@ -44,7 +44,18 @@ namespace SqlProjectsPowerTools.Tagging
 
             if (endIndex <= startIndex)
             {
-                endIndex = Math.Min(startIndex + 1, line.End.Position);
+                if (startIndex < line.End.Position && IsWordChar(snapshot[startIndex]))
+                {
+                    endIndex = startIndex + 1;
+                    while (endIndex < line.End.Position && IsWordChar(snapshot[endIndex]))
+                    {
+                        endIndex++;
+                    }
+                }
+                else
+                {
+                    endIndex = Math.Min(startIndex + 1, line.End.Position);
+                }
             }
 
             var span = new Span(startIndex, Math.Max(1, endIndex - startIndex));
@@ -63,5 +74,7 @@ namespace SqlProjectsPowerTools.Tagging
                 return null;
             }
         }
+
+        private static bool IsWordChar(char c) => char.IsLetterOrDigit(c) || c == '_';
     }
 }
