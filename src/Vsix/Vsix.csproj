@@ -5,7 +5,7 @@
     <RootNamespace>SqlProjectsPowerTools</RootNamespace>
     <RuntimeIdentifier>win</RuntimeIdentifier>
     <Nullable>warnings</Nullable>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>14</LangVersion>
     <UseWPF>true</UseWPF>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 
