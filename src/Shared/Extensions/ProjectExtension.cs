@@ -12,7 +12,6 @@ namespace SqlProjectsPowerTools
     internal static class ProjectExtension
     {
         private const string SqlServerRulesPackageId = "ErikEJ.DacFX.SqlServer.Rules";
-        private const string TSqlSmellRulesPackageId = "ErikEJ.DacFX.TSQLSmellSCA";
         private const string Indent = "\n    ";
         private const string EndElementIndent = "\n  ";
         private const string NewLine = "\n";
@@ -200,8 +199,7 @@ namespace SqlProjectsPowerTools
                 return false;
             }
 
-            return await project.IsInstalledAsync(SqlServerRulesPackageId)
-                || await project.IsInstalledAsync(TSqlSmellRulesPackageId);
+            return await project.IsInstalledAsync(SqlServerRulesPackageId);
         }
 
         public static async Task<string> AddRulesPackagesAsync(this Project project)
@@ -226,7 +224,7 @@ namespace SqlProjectsPowerTools
                 return "Unable to locate the selected project file.";
             }
 
-            foreach (var packageId in new[] { SqlServerRulesPackageId, TSqlSmellRulesPackageId })
+            foreach (var packageId in new[] { SqlServerRulesPackageId })
             {
                 if (await project.IsInstalledAsync(packageId))
                 {
