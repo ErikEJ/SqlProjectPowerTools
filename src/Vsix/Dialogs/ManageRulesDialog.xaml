@@ -47,9 +47,9 @@
                   IsEnabled="{Binding CanInstallRulesPackages}"
                   Margin="0,4,0,8"
                   VerticalAlignment="Center"
-                  ToolTip="Install community code analyzers (ErikEJ.DacFX.SqlServer.Rules and ErikEJ.DacFX.TSQLSmellSCA)">
+                  ToolTip="Install community code analyzers (ErikEJ.DacFX.SqlServer.Rules)">
             <TextBlock TextWrapping="Wrap"
-                       Text="Install community code analyzers (ErikEJ.DacFX.SqlServer.Rules and ErikEJ.DacFX.TSQLSmellSCA)" />
+                       Text="Install community code analyzers (ErikEJ.DacFX.SqlServer.Rules)" />
         </CheckBox>
 
         <!-- Enable Code Analysis checkbox -->
@@ -68,7 +68,7 @@
                 Visibility="{Binding ShowNoRulesPackageWarning, Converter={StaticResource BoolToVisibility}}">
             <TextBlock TextWrapping="Wrap"
                        Foreground="#FF000000"
-                       Text="No code analysis rules packages are referenced in this project. Consider adding NuGet packages such as 'ErikEJ.DacFX.TSQLSmellSCA' or 'ErikEJ.DacFX.SqlServer.Rules' to get additional rules." />
+                       Text="No code analysis rules packages are referenced in this project. Consider adding NuGet packages such as 'ErikEJ.DacFX.SqlServer.Rules' to get additional rules." />
         </Border>
 
         <!-- Search and Severity filter row -->
