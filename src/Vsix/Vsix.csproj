@@ -1,3 +1,4 @@
+
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
@@ -166,16 +167,16 @@
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="DiffPlex" Version="1.9.0" />
-    <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
+    <PackageReference Include="JetBrains.Annotations" Version="2026.2.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
-    <PackageReference Include="Microsoft.SqlServer.TransactSql.ScriptDom" Version="170.128.0" />
+    <PackageReference Include="Microsoft.SqlServer.TransactSql.ScriptDom" Version="170.191.0" />
     <PackageReference Include="Microsoft.VisualStudio.Data.Framework" Version="17.5.33428.388" />
     <PackageReference Include="Microsoft.VSSDK.BuildTools" Version="18.5.40034">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.142" />
     <PackageReference Include="MvvmLight" Version="5.4.1.1" />
-    <PackageReference Include="NuGet.ProjectModel" Version="7.3.1" />
+    <PackageReference Include="NuGet.ProjectModel" Version="7.6.0" />
   </ItemGroup>
 
   <ItemGroup>
