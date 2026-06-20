@@ -11,7 +11,7 @@ namespace SqlProjectsPowerTools
     {
         private static readonly XNamespace AtomNamespace = "http://www.w3.org/2005/Atom";
         private static readonly XNamespace VsixNamespace = "http://schemas.microsoft.com/developer/vsx-syndication-schema/2010";
-        private static readonly HttpClient HttpClient = new() { Timeout = TimeSpan.FromSeconds(10) };
+        private static readonly HttpClient httpClient = new() { Timeout = TimeSpan.FromSeconds(10) };
 
         private static string GetLastCheckFilePath(string extensionId)
         {
@@ -73,7 +73,7 @@ namespace SqlProjectsPowerTools
                 SaveLastCheckDate(extensionId);
 
                 var feedUrl = $"https://www.vsixgallery.com/feed/extension/{extensionId}";
-                var feedContent = await HttpClient.GetStringAsync(feedUrl).ConfigureAwait(false);
+                var feedContent = await httpClient.GetStringAsync(feedUrl).ConfigureAwait(false);
 
                 var latestVersion = ParseVersionFromFeed(feedContent);
                 if (latestVersion != null && IsNewerVersion(latestVersion, currentVersion))
