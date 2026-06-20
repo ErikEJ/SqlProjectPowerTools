@@ -11,7 +11,39 @@ namespace SqlProjectsPowerTools
     {
         private static readonly XNamespace AtomNamespace = "http://www.w3.org/2005/Atom";
         private static readonly XNamespace VsixNamespace = "http://schemas.microsoft.com/developer/vsx-syndication-schema/2010";
-        private static readonly HttpClient httpClient = new() { Timeout = TimeSpan.FromSeconds(10) };
+        private static readonly HttpClient HttpClient = new() { Timeout = TimeSpan.FromSeconds(10) };
+
+        public static async Task CheckForUpdatesAsync(string extensionId, string currentVersion, string extensionName)
+        {
+            try
+            {
+                var options = await ToolOptions.GetLiveInstanceAsync();
+                if (!options.CheckForUpdates)
+                {
+                    return;
+                }
+
+                if (HasCheckedToday(extensionId))
+                {
+                    return;
+                }
+
+                SaveLastCheckDate(extensionId);
+
+                var feedUrl = new Uri($"https://www.vsixgallery.com/feed/extension/{extensionId}");
+                var feedContent = await HttpClient.GetStringAsync(feedUrl).ConfigureAwait(false);
+
+                var latestVersion = ParseVersionFromFeed(feedContent);
+                if (latestVersion != null && IsNewerVersion(latestVersion, currentVersion))
+                {
+                    await ShowUpdateNotificationAsync(extensionId, extensionName, latestVersion);
+                }
+            }
+            catch (Exception ex)
+            {
+                await ex.LogAsync();
+            }
+        }
 
         private static string GetLastCheckFilePath(string extensionId)
         {
@@ -52,38 +84,6 @@ namespace SqlProjectsPowerTools
             catch (Exception ex)
             {
                 ex.Log();
-            }
-        }
-
-        public static async Task CheckForUpdatesAsync(string extensionId, string currentVersion, string extensionName)
-        {
-            try
-            {
-                var options = await ToolOptions.GetLiveInstanceAsync();
-                if (!options.CheckForUpdates)
-                {
-                    return;
-                }
-
-                if (HasCheckedToday(extensionId))
-                {
-                    return;
-                }
-
-                SaveLastCheckDate(extensionId);
-
-                var feedUrl = $"https://www.vsixgallery.com/feed/extension/{extensionId}";
-                var feedContent = await httpClient.GetStringAsync(feedUrl).ConfigureAwait(false);
-
-                var latestVersion = ParseVersionFromFeed(feedContent);
-                if (latestVersion != null && IsNewerVersion(latestVersion, currentVersion))
-                {
-                    await ShowUpdateNotificationAsync(extensionId, extensionName, latestVersion);
-                }
-            }
-            catch (Exception ex)
-            {
-                await ex.LogAsync();
             }
         }
 
