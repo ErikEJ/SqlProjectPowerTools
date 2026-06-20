@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
-using System.Net;
+using System.Net.Http;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.Imaging;
 
@@ -32,8 +32,8 @@ namespace SqlProjectsPowerTools
                 }
 
                 var content = File.ReadAllText(filePath).Trim();
-                return DateTime.TryParse(content, CultureInfo.InvariantCulture, DateTimeStyles.None, out var lastCheck) &&
-                       lastCheck.ToUniversalTime().Date == DateTime.UtcNow.Date;
+                return DateTime.TryParseExact(content, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var lastCheck) &&
+                       lastCheck.Date == DateTime.UtcNow.Date;
             }
             catch (Exception ex)
             {
@@ -46,7 +46,7 @@ namespace SqlProjectsPowerTools
         {
             try
             {
-                File.WriteAllText(GetLastCheckFilePath(extensionId), DateTime.UtcNow.Date.ToString("O"));
+                File.WriteAllText(GetLastCheckFilePath(extensionId), DateTime.UtcNow.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
             }
             catch (Exception ex)
             {
@@ -69,16 +69,17 @@ namespace SqlProjectsPowerTools
                     return;
                 }
 
+                SaveLastCheckDate(extensionId);
+
                 var feedUrl = $"https://www.vsixgallery.com/feed/extension/{extensionId}";
                 string feedContent;
 
-                using (var webClient = new WebClient())
+                using (var httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(10) })
                 {
-                    feedContent = await webClient.DownloadStringTaskAsync(feedUrl);
+                    feedContent = await httpClient.GetStringAsync(feedUrl).ConfigureAwait(false);
                 }
 
                 var latestVersion = ParseVersionFromFeed(feedContent);
-                SaveLastCheckDate(extensionId);
                 if (latestVersion != null && IsNewerVersion(latestVersion, currentVersion))
                 {
                     await ShowUpdateNotificationAsync(extensionId, extensionName, latestVersion);
