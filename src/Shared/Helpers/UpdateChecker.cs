@@ -123,7 +123,7 @@ namespace SqlProjectsPowerTools
         {
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            var downloadUrl = $"https://www.vsixgallery.com/extensions/{extensionId}/extension.vsix";
+            var downloadUrl = $"https://www.vsixgallery.com/extension/{extensionId}";
 
             var model = new InfoBarModel(
                 $"{extensionName} {newVersion} is available.",
