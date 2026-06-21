@@ -11,12 +11,6 @@ namespace SqlProjectsPowerTools
         public bool MergeDacpacs { get; set; }
 
         [Category("General")]
-        [DisplayName(@"Disable live code analysis")]
-        [Description("Disable live static SQL code analysis")]
-        [DefaultValue(true)]
-        public bool DisableCodeAnalysis { get; set; } = true;
-
-        [Category("General")]
         [DisplayName(@"Check for updates")]
         [Description("Check for updates to the extension on startup")]
         [DefaultValue(true)]
