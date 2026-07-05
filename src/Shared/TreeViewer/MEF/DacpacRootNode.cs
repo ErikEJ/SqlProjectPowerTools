@@ -163,6 +163,13 @@ namespace SqlProjectsPowerTools.TreeViewer
             string[] candidates = Directory.GetFiles(outputDirectory, "*.dacpac", SearchOption.TopDirectoryOnly);
             if (candidates.Length == 0)
             {
+                // SDK-style projects may emit the .dacpac into a target-framework subfolder
+                // while DTE reports the OutputPath as the parent directory.
+                candidates = Directory.GetFiles(outputDirectory, "*.dacpac", SearchOption.AllDirectories);
+            }
+
+            if (candidates.Length == 0)
+            {
                 return null;
             }
 
@@ -254,7 +261,7 @@ namespace SqlProjectsPowerTools.TreeViewer
 
             var watcher = new FileSystemWatcher(outputDirectory, "*.dacpac")
             {
-                IncludeSubdirectories = false,
+                IncludeSubdirectories = true,
                 NotifyFilter = NotifyFilters.FileName | NotifyFilters.Size | NotifyFilters.LastWrite | NotifyFilters.CreationTime,
             };
 
@@ -448,21 +455,80 @@ namespace SqlProjectsPowerTools.TreeViewer
                 }
             }
 
+            // The file watcher can fire while MSBuild is still writing the .dacpac, so the
+            // file may be locked by another process. Wait for the lock to be released
+            // before attempting to extract it.
+            WaitForFileReady(dacpacPath);
+
+            const int maxAttempts = 10;
+            for (int attempt = 1; ; attempt++)
+            {
+                try
+                {
+                    System.IO.Compression.ZipFile.ExtractToDirectory(dacpacPath, path);
+                    WriteExtractionStamp(path, currentStamp);
+                    return path;
+                }
+                catch (IOException ex)
+                {
+                    if (attempt >= maxAttempts)
+                    {
+                        ex.Log();
+                        return null;
+                    }
+
+                    // The .dacpac (or a partially extracted file) is still locked. Clean up any
+                    // partial extraction and retry after a short delay.
+                    TryDeleteDirectory(path);
+                    System.Threading.Thread.Sleep(250);
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    ex.Log();
+                    return null;
+                }
+            }
+        }
+
+        private static void WaitForFileReady(string filePath)
+        {
+            const int maxAttempts = 20;
+
+            for (int attempt = 1; attempt <= maxAttempts; attempt++)
+            {
+                try
+                {
+                    using (FileStream stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    {
+                        return;
+                    }
+                }
+                catch (IOException)
+                {
+                    if (attempt >= maxAttempts)
+                    {
+                        return;
+                    }
+
+                    System.Threading.Thread.Sleep(250);
+                }
+            }
+        }
+
+        private static void TryDeleteDirectory(string path)
+        {
             try
             {
-                System.IO.Compression.ZipFile.ExtractToDirectory(dacpacPath, path);
-                WriteExtractionStamp(path, currentStamp);
-                return path;
+                if (Directory.Exists(path))
+                {
+                    Directory.Delete(path, true);
+                }
             }
-            catch (IOException ex)
+            catch (IOException)
             {
-                ex.Log();
-                return null;
             }
-            catch (UnauthorizedAccessException ex)
+            catch (UnauthorizedAccessException)
             {
-                ex.Log();
-                return null;
             }
         }
 
