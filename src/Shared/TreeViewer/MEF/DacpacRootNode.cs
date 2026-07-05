@@ -103,12 +103,10 @@ namespace SqlProjectsPowerTools.TreeViewer
                     await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
                     string outputDirectory = GetOutputDirectory();
                     UpdateDacpacWatcher(outputDirectory);
-
-                    await TaskScheduler.Default;
-
-                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
                     string dacpacPath = GetDacpacPath(outputDirectory);
+
+                    // Continue on a background thread for file discovery, extraction, and retries.
+                    await TaskScheduler.Default;
 
                     if (!string.IsNullOrEmpty(dacpacPath))
                     {
@@ -461,7 +459,7 @@ namespace SqlProjectsPowerTools.TreeViewer
             WaitForFileReady(dacpacPath);
 
             const int maxAttempts = 10;
-            for (int attempt = 1; ; attempt++)
+            for (int attempt = 1; attempt <= maxAttempts; attempt++)
             {
                 try
                 {
@@ -471,7 +469,7 @@ namespace SqlProjectsPowerTools.TreeViewer
                 }
                 catch (IOException ex)
                 {
-                    if (attempt >= maxAttempts)
+                    if (attempt == maxAttempts)
                     {
                         ex.Log();
                         return null;
@@ -498,7 +496,7 @@ namespace SqlProjectsPowerTools.TreeViewer
             {
                 try
                 {
-                    using (FileStream stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    using (FileStream stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                     {
                         return;
                     }
@@ -524,11 +522,13 @@ namespace SqlProjectsPowerTools.TreeViewer
                     Directory.Delete(path, true);
                 }
             }
-            catch (IOException)
+            catch (IOException ex)
             {
+                Debug.WriteLine("Failed to delete partial DACPAC extraction due to I/O error: " + ex);
             }
-            catch (UnauthorizedAccessException)
+            catch (UnauthorizedAccessException ex)
             {
+                Debug.WriteLine("Failed to delete partial DACPAC extraction due to unauthorized access: " + ex);
             }
         }
 
