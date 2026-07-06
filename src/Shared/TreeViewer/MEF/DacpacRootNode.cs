@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -103,12 +102,11 @@ namespace SqlProjectsPowerTools.TreeViewer
                     await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
                     string outputDirectory = GetOutputDirectory();
                     UpdateDacpacWatcher(outputDirectory);
+                    HashSet<string> preferredNames = GetPreferredDacpacFileNames();
 
+                    // Continue on a background thread for file discovery, extraction, and retries.
                     await TaskScheduler.Default;
-
-                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-                    string dacpacPath = GetDacpacPath(outputDirectory);
+                    string dacpacPath = GetDacpacPath(outputDirectory, preferredNames);
 
                     if (!string.IsNullOrEmpty(dacpacPath))
                     {
@@ -151,22 +149,34 @@ namespace SqlProjectsPowerTools.TreeViewer
             return Path.GetFullPath(Path.Combine(projectDirectory, outputPath));
         }
 
-        private string GetDacpacPath(string outputDirectory)
+        private static string GetDacpacPath(string outputDirectory, ISet<string> preferredNames)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
             if (string.IsNullOrWhiteSpace(outputDirectory) || !Directory.Exists(outputDirectory))
             {
                 return null;
             }
 
-            string[] candidates = Directory.GetFiles(outputDirectory, "*.dacpac", SearchOption.TopDirectoryOnly);
-            if (candidates.Length == 0)
+            string[] candidates;
+
+            try
+            {
+                candidates = Directory.GetFiles(outputDirectory, "*.dacpac", SearchOption.TopDirectoryOnly);
+                if (candidates.Length == 0)
+                {
+                    // SDK-style projects may emit the .dacpac into a target-framework subfolder
+                    // while DTE reports the OutputPath as the parent directory.
+                    candidates = Directory.GetFiles(outputDirectory, "*.dacpac", SearchOption.AllDirectories);
+                }
+            }
+            catch (Exception)
             {
                 return null;
             }
 
-            HashSet<string> preferredNames = GetPreferredDacpacFileNames();
+            if (candidates.Length == 0)
+            {
+                return null;
+            }
 
             return candidates
                 .OrderByDescending(path => preferredNames.Contains(Path.GetFileName(path)))
@@ -254,7 +264,7 @@ namespace SqlProjectsPowerTools.TreeViewer
 
             var watcher = new FileSystemWatcher(outputDirectory, "*.dacpac")
             {
-                IncludeSubdirectories = false,
+                IncludeSubdirectories = true,
                 NotifyFilter = NotifyFilters.FileName | NotifyFilters.Size | NotifyFilters.LastWrite | NotifyFilters.CreationTime,
             };
 
@@ -448,21 +458,101 @@ namespace SqlProjectsPowerTools.TreeViewer
                 }
             }
 
+            // The file watcher can fire while MSBuild is still writing the .dacpac, so the
+            // file may be locked by another process. Wait for the lock to be released
+            // before attempting to extract it.
+            WaitForFileReady(dacpacPath);
+
+            const int maxAttempts = 10;
+            for (int attempt = 1; attempt <= maxAttempts; attempt++)
+            {
+                try
+                {
+                    System.IO.Compression.ZipFile.ExtractToDirectory(dacpacPath, path);
+                    WriteExtractionStamp(path, currentStamp);
+                    return path;
+                }
+                catch (InvalidDataException ex)
+                {
+                    if (attempt == maxAttempts)
+                    {
+                        ex.Log();
+                        return null;
+                    }
+
+                    // The .dacpac may be incomplete while MSBuild is still writing it. Clean up any
+                    // partial extraction and retry after a short delay.
+                    TryDeleteDirectory(path);
+                    System.Threading.Thread.Sleep(250);
+                }
+                catch (IOException ex)
+                {
+                    if (attempt == maxAttempts)
+                    {
+                        ex.Log();
+                        return null;
+                    }
+
+                    // The .dacpac (or a partially extracted file) is still locked. Clean up any
+                    // partial extraction and retry after a short delay.
+                    TryDeleteDirectory(path);
+                    System.Threading.Thread.Sleep(250);
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    ex.Log();
+                    return null;
+                }
+            }
+
+            return null;
+        }
+
+        private static void WaitForFileReady(string filePath)
+        {
+            const int maxAttempts = 20;
+
+            for (int attempt = 1; attempt <= maxAttempts; attempt++)
+            {
+                try
+                {
+                    using (FileStream stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
+                    {
+                        return;
+                    }
+                }
+                catch (UnauthorizedAccessException)
+                {
+                    return;
+                }
+                catch (IOException)
+                {
+                    if (attempt >= maxAttempts)
+                    {
+                        return;
+                    }
+
+                    System.Threading.Thread.Sleep(250);
+                }
+            }
+        }
+
+        private static void TryDeleteDirectory(string path)
+        {
             try
             {
-                System.IO.Compression.ZipFile.ExtractToDirectory(dacpacPath, path);
-                WriteExtractionStamp(path, currentStamp);
-                return path;
+                if (Directory.Exists(path))
+                {
+                    Directory.Delete(path, true);
+                }
             }
             catch (IOException ex)
             {
                 ex.Log();
-                return null;
             }
             catch (UnauthorizedAccessException ex)
             {
                 ex.Log();
-                return null;
             }
         }
 
@@ -533,17 +623,17 @@ namespace SqlProjectsPowerTools.TreeViewer
             catch (UnauthorizedAccessException ex)
             {
                 // Writing the stamp is a best-effort optimization; failures should not break extraction.
-                Debug.WriteLine("Failed to write extraction stamp due to unauthorized access: " + ex);
+                ex.Log();
             }
             catch (IOException ex)
             {
                 // Writing the stamp is a best-effort optimization; failures should not break extraction.
-                Debug.WriteLine("Failed to write extraction stamp due to I/O error: " + ex);
+                ex.Log();
             }
             catch (Exception ex)
             {
                 // Swallow any unexpected errors to avoid failing otherwise successful extraction.
-                Debug.WriteLine("Failed to write extraction stamp due to unexpected error: " + ex);
+                ex.Log();
             }
         }
 
