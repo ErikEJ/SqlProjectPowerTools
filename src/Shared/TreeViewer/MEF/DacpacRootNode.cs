@@ -521,6 +521,10 @@ namespace SqlProjectsPowerTools.TreeViewer
                         return;
                     }
                 }
+                catch (UnauthorizedAccessException)
+                {
+                    return;
+                }
                 catch (IOException)
                 {
                     if (attempt >= maxAttempts)
