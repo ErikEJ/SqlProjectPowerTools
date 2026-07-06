@@ -623,17 +623,17 @@ namespace SqlProjectsPowerTools.TreeViewer
             catch (UnauthorizedAccessException ex)
             {
                 // Writing the stamp is a best-effort optimization; failures should not break extraction.
-                Debug.WriteLine("Failed to write extraction stamp due to unauthorized access: " + ex);
+                ex.Log();
             }
             catch (IOException ex)
             {
                 // Writing the stamp is a best-effort optimization; failures should not break extraction.
-                Debug.WriteLine("Failed to write extraction stamp due to I/O error: " + ex);
+                ex.Log();
             }
             catch (Exception ex)
             {
                 // Swallow any unexpected errors to avoid failing otherwise successful extraction.
-                Debug.WriteLine("Failed to write extraction stamp due to unexpected error: " + ex);
+                ex.Log();
             }
         }
 
