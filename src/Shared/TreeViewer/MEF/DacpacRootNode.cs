@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -103,10 +102,11 @@ namespace SqlProjectsPowerTools.TreeViewer
                     await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
                     string outputDirectory = GetOutputDirectory();
                     UpdateDacpacWatcher(outputDirectory);
-                    string dacpacPath = GetDacpacPath(outputDirectory);
+                    HashSet<string> preferredNames = GetPreferredDacpacFileNames();
 
                     // Continue on a background thread for file discovery, extraction, and retries.
                     await TaskScheduler.Default;
+                    string dacpacPath = GetDacpacPath(outputDirectory, preferredNames);
 
                     if (!string.IsNullOrEmpty(dacpacPath))
                     {
@@ -149,10 +149,8 @@ namespace SqlProjectsPowerTools.TreeViewer
             return Path.GetFullPath(Path.Combine(projectDirectory, outputPath));
         }
 
-        private string GetDacpacPath(string outputDirectory)
+        private static string GetDacpacPath(string outputDirectory, ISet<string> preferredNames)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
             if (string.IsNullOrWhiteSpace(outputDirectory) || !Directory.Exists(outputDirectory))
             {
                 return null;
@@ -179,8 +177,6 @@ namespace SqlProjectsPowerTools.TreeViewer
             {
                 return null;
             }
-
-            HashSet<string> preferredNames = GetPreferredDacpacFileNames();
 
             return candidates
                 .OrderByDescending(path => preferredNames.Contains(Path.GetFileName(path)))
@@ -476,19 +472,19 @@ namespace SqlProjectsPowerTools.TreeViewer
                     WriteExtractionStamp(path, currentStamp);
                     return path;
                 }
-catch (InvalidDataException ex)
-{
-    if (attempt == maxAttempts)
-    {
-        ex.Log();
-        return null;
-    }
+                catch (InvalidDataException ex)
+                {
+                    if (attempt == maxAttempts)
+                    {
+                        ex.Log();
+                        return null;
+                    }
 
-    // The .dacpac may be incomplete while MSBuild is still writing it. Clean up any
-    // partial extraction and retry after a short delay.
-    TryDeleteDirectory(path);
-    System.Threading.Thread.Sleep(250);
-}
+                    // The .dacpac may be incomplete while MSBuild is still writing it. Clean up any
+                    // partial extraction and retry after a short delay.
+                    TryDeleteDirectory(path);
+                    System.Threading.Thread.Sleep(250);
+                }
                 catch (IOException ex)
                 {
                     if (attempt == maxAttempts)
@@ -548,11 +544,11 @@ catch (InvalidDataException ex)
             }
             catch (IOException ex)
             {
-                Debug.WriteLine("Failed to delete partial DACPAC extraction due to I/O error: " + ex);
+                ex.Log();
             }
             catch (UnauthorizedAccessException ex)
             {
-                Debug.WriteLine("Failed to delete partial DACPAC extraction due to unauthorized access: " + ex);
+                ex.Log();
             }
         }
 
