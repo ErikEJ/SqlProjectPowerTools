@@ -158,13 +158,22 @@ namespace SqlProjectsPowerTools.TreeViewer
                 return null;
             }
 
-            string[] candidates = Directory.GetFiles(outputDirectory, "*.dacpac", SearchOption.TopDirectoryOnly);
-            if (candidates.Length == 0)
-            {
-                // SDK-style projects may emit the .dacpac into a target-framework subfolder
-                // while DTE reports the OutputPath as the parent directory.
-                candidates = Directory.GetFiles(outputDirectory, "*.dacpac", SearchOption.AllDirectories);
-            }
+string[] candidates;
+
+try
+{
+    candidates = Directory.GetFiles(outputDirectory, "*.dacpac", SearchOption.TopDirectoryOnly);
+    if (candidates.Length == 0)
+    {
+        // SDK-style projects may emit the .dacpac into a target-framework subfolder
+        // while DTE reports the OutputPath as the parent directory.
+        candidates = Directory.GetFiles(outputDirectory, "*.dacpac", SearchOption.AllDirectories);
+    }
+}
+catch (Exception)
+{
+    return null;
+}
 
             if (candidates.Length == 0)
             {
