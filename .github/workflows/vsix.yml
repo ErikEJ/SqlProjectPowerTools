@@ -93,30 +93,27 @@ jobs:
         path: |
           *.vsix
 
-    - name: Upload to Open VSIX
+    - name: Upload to Open VSIX - SSMS
       if: github.ref == 'refs/heads/main' && github.repository_owner == 'erikej' && (github.event_name == 'push' ||  github.event_name == 'workflow_dispatch')
-      uses: timheuer/openvsixpublish@v1
+      uses: madskristensen/publish-vsixgallery@v1
       with:
         vsix-file: SqlProjectPowerToolsSsms-${{ env.VERSION }}.vsix
 
-    - name: Upload to Open VSIX SSMS
+    - name: Upload to Open VSIX - Visual Studio
       if: github.ref == 'refs/heads/main' && github.repository_owner == 'erikej' && (github.event_name == 'push' ||  github.event_name == 'workflow_dispatch')
-      uses: timheuer/openvsixpublish@v1
+      uses: madskristensen/publish-vsixgallery@v1
       with:
         vsix-file: SqlProjectPowerTools-${{ env.VERSION }}.vsix
 
     - name: Upload to Open VSIX - ExtensionPack
       if: github.ref == 'refs/heads/main' && github.repository_owner == 'erikej' && (github.event_name == 'push' ||  github.event_name == 'workflow_dispatch')
-      uses: timheuer/openvsixpublish@v1
+      uses: madskristensen/publish-vsixgallery@v1
       with:
         vsix-file: SqlProjectExtensionPack-${{ env.VERSION }}.vsix
 
     - name: Upload to SSMS Gallery
       if: github.ref == 'refs/heads/main' && github.repository_owner == 'erikej' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-      shell: cmd
-      run: |
-        if not exist "SqlProjectPowerToolsSsms-${{ env.VERSION }}.vsix" (
-          echo ERROR: Expected VSIX not found: SqlProjectPowerToolsSsms-${{ env.VERSION }}.vsix
-          exit /b 1
-        )
-        curl --fail --show-error "https://ssmsgallery.azurewebsites.net/api/upload" -F "file=@SqlProjectPowerToolsSsms-${{ env.VERSION }}.vsix"
+      uses: madskristensen/publish-vsixgallery@v1
+      with:
+        vsix-file: SqlProjectPowerToolsSsms-${{ env.VERSION }}.vsix
+        gallery-url: https://ssmsgallery.azurewebsites.net
