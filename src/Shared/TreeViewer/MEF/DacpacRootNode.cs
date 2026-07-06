@@ -476,24 +476,37 @@ catch (Exception)
                     WriteExtractionStamp(path, currentStamp);
                     return path;
                 }
-                catch (IOException ex)
-                {
-                    if (attempt == maxAttempts)
-                    {
-                        ex.Log();
-                        return null;
-                    }
+catch (InvalidDataException ex)
+{
+    if (attempt == maxAttempts)
+    {
+        ex.Log();
+        return null;
+    }
 
-                    // The .dacpac (or a partially extracted file) is still locked. Clean up any
-                    // partial extraction and retry after a short delay.
-                    TryDeleteDirectory(path);
-                    System.Threading.Thread.Sleep(250);
-                }
-                catch (UnauthorizedAccessException ex)
-                {
-                    ex.Log();
-                    return null;
-                }
+    // The .dacpac may be incomplete while MSBuild is still writing it. Clean up any
+    // partial extraction and retry after a short delay.
+    TryDeleteDirectory(path);
+    System.Threading.Thread.Sleep(250);
+}
+catch (IOException ex)
+{
+    if (attempt == maxAttempts)
+    {
+        ex.Log();
+        return null;
+    }
+
+    // The .dacpac (or a partially extracted file) is still locked. Clean up any
+    // partial extraction and retry after a short delay.
+    TryDeleteDirectory(path);
+    System.Threading.Thread.Sleep(250);
+}
+catch (UnauthorizedAccessException ex)
+{
+    ex.Log();
+    return null;
+}
             }
         }
 
