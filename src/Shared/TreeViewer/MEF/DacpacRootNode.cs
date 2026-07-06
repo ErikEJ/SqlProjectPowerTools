@@ -508,6 +508,8 @@ catch (UnauthorizedAccessException ex)
     return null;
 }
             }
+
+            return null;
         }
 
         private static void WaitForFileReady(string filePath)
