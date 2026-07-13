@@ -1,3 +1,4 @@
+#if !SSMS
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -149,3 +150,4 @@ namespace SqlProjectsPowerTools
         }
     }
 }
+#endif

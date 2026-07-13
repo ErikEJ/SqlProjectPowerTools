@@ -1,3 +1,4 @@
+#if !SSMS
 namespace SqlProjectsPowerTools
 {
     [Command(PackageIds.cmdidVisualCompare)]
@@ -21,3 +22,4 @@ namespace SqlProjectsPowerTools
         }
     }
 }
+#endif
