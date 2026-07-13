@@ -31,7 +31,7 @@ The tool contains the following features.
 - **.dacpac Solution explorer node** - view the contents of a dacpac file in Solution Explorer
 - **Script Table Data** - generate insert statements for table data in your database project, based on [generate-sql-merge](https://github.com/dnlnln/generate-sql-merge)
 - **Add new pre- and post-deployment scripts** - easily add new pre- and post-deployment scripts to your database project
-- **Publish programmability objects on save (preview)** - automatically publish supported CREATE statements (stored procedures, views, functions, triggers) to a target database when `.sql` files are saved
+- **Publish programmability objects on save (preview)** - automatically publish supported CREATE statements (stored procedures, views, functions, triggers) to a target database when `.sql` files are saved. [Blog post](https://erikej.github.io/dotnet/dacfx/sqlserver/visualstudio/ssms/2026/06/01/sqlprojects-dacfx.html)
 - **Scaffold SQL MCP Server (preview)** - generate a SQL MCP Server configuration file based on your database project, for use with [SQL MCP Server](docs/dab-mcp-readme.md)
 
 ### Power Pack
@@ -51,7 +51,7 @@ An SSMS extension build is available from [SSMS Gallery][ssmsgallery], bringing 
 - **Create Mermaid E/R diagram** - create an Entity/Relationship diagram of selected tables from your database project
 - **Script Table Data** - generate insert statements for table data in your database project, based on [generate-sql-merge](https://github.com/dnlnln/generate-sql-merge)
 - **Add new pre- and post-deployment scripts** - easily add new pre- and post-deployment scripts to your database project
-- **Publish programmability objects on save (preview)** - automatically publish supported CREATE statements (stored procedures, views, functions, triggers) to a target database when `.sql` files are saved
+- **Publish programmability objects on save (preview)** - automatically publish supported CREATE statements (stored procedures, views, functions, triggers) to a target database when `.sql` files are saved. [Blog post](https://erikej.github.io/dotnet/dacfx/sqlserver/visualstudio/ssms/2026/06/01/sqlprojects-dacfx.html)
 - **SQL MCP Server Scaffold (preview)** - generate a SQL MCP Server configuration file based on your database project, for use with [SQL MCP Server](docs/dab-mcp-readme.md)
 
 ## Advanced topics
