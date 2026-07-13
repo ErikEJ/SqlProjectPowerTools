@@ -151,6 +151,8 @@ This is based on the popular [generate-sql-merge](https://github.com/dnlnln/gene
 
 The **Publish programmability objects on save** feature automatically executes supported `CREATE` statements against a target database whenever you save a `.sql` file in your project. This gives you an inner-loop development experience where your stored procedures, views, functions, and triggers are kept in sync with your local database as you work.
 
+Read more in the [blog post](https://erikej.github.io/dotnet/dacfx/sqlserver/visualstudio/ssms/2026/06/01/sqlprojects-dacfx.html).
+
 **Supported object types:**
 
 - Stored procedures (`CREATE PROCEDURE`)
