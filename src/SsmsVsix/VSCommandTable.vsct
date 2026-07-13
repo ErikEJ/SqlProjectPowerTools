@@ -108,17 +108,6 @@
       </Button>
 
       
-      <Button guid="Vsix" id="cmdidVisualCompare" priority="0x0106" type="Button">
-        <Parent guid="Vsix" id="cmdidSqlProjectOtherMenuItemsGroup" />
-        <Icon guid="ImageCatalogGuid" id="CompareSchemas" />
-        <CommandFlag>IconIsMoniker</CommandFlag>
-        <CommandFlag>DynamicVisibility</CommandFlag>
-        <CommandFlag>TextChanges</CommandFlag>
-        <Strings>
-          <ButtonText>Visual Schema Compare (preview)...</ButtonText>
-        </Strings>
-      </Button>
-
       <Button guid="Vsix" id="cmdidAnalyze" priority="0x0110" type="Button">
         <Parent guid="Vsix" id="cmdidSqlProjectOtherMenuItemsGroup" />
         <Icon guid="ImageCatalogGuid" id="CodeAnalysisWindow" />
@@ -239,7 +228,6 @@
       <IDSymbol name="cmdidOptions" value="0x0010" />
       <IDSymbol name="cmdidDeployScript" value="0x0008" />
       <IDSymbol name="cmdidSeed" value="0x0009" />
-      <IDSymbol name="cmdidVisualCompare" value="0x0013" />
       <IDSymbol name="cmdidManageRules" value="0x0014" />
       <IDSymbol name="cmdidGettingStarted" value="0x0015" />
       <IDSymbol name="cmdidMoreExtensions" value="0x0016" />

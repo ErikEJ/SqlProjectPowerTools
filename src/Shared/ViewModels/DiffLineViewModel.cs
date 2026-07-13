@@ -1,3 +1,4 @@
+#if !SSMS
 using System.Globalization;
 using DiffPlex.DiffBuilder.Model;
 
@@ -40,3 +41,4 @@ namespace SqlProjectsPowerTools
         }
     }
 }
+#endif

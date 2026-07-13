@@ -46,7 +46,6 @@ I have also published [SQL Project Power Pack](https://marketplace.visualstudio.
 An SSMS extension build is available from [SSMS Gallery][ssmsgallery], bringing similar features to SQL Server Management Studio (SSMS 22+). SDK-style ([Microsoft.Build.Sql](https://learn.microsoft.com/en-us/sql/tools/sql-database-projects/sql-database-projects)) database projects are supported.
 
 - **Import database** - import the schema and database settings from an existing database
-- **Schema compare** - visually compare your database project with a live database and apply changes to the database or your project
 - **Analyze** - report with static code analysis result of your database project
 - **Manage code analysis rules** - visually enable/disable static code analysis rules and set rule severity for your database project
 - **Create Mermaid E/R diagram** - create an Entity/Relationship diagram of selected tables from your database project

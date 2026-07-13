@@ -41,10 +41,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Update="ToolWindows\SchemaCompareWindowControl.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Update="Dialogs\Style.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -61,9 +57,6 @@
     </Compile>
     <Compile Update="Dialogs\PickTablesDialog.xaml.cs">
       <DependentUpon>PickTablesDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Update="ToolWindows\SchemaCompareWindowControl.xaml.cs">
-      <DependentUpon>SchemaCompareWindowControl.xaml</DependentUpon>
     </Compile>
     <Compile Update="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
