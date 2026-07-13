@@ -86,6 +86,8 @@ The analysis includes checks for design issues, naming conventions, performance 
 
 The rule manager lets you visually control which static code analysis rules are active for your database project and how violations are reported. This is available for SDK-style SQL database projects.
 
+Read more in the [blog post](https://erikej.github.io/dacfx/dotnet/sqlserver/ssms/visualstudio/2026/04/13/sqlprojects-rule-manager.html).
+
 ![Rule Manager](../img/rulemanager.png)
 
 To manage code analysis rules:

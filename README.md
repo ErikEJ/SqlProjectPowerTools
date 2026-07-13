@@ -26,7 +26,7 @@ The tool contains the following features.
 - **Import database** - import the schema and database settings from an existing database
 - **Schema compare** - visually compare your database project with a live database and apply changes to the database or your project
 - **Analyze** - report with static code analysis result of your database project
-- **Manage code analysis rules** - visually enable/disable static code analysis rules and set rule severity for your database project
+- **Manage code analysis rules** - visually enable/disable static code analysis rules and set rule severity for your database project. [Blog post](https://erikej.github.io/dacfx/dotnet/sqlserver/ssms/visualstudio/2026/04/13/sqlprojects-rule-manager.html)
 - **Create Mermaid E/R diagram** - create an Entity/Relationship diagram of selected tables from your database project
 - **.dacpac Solution explorer node** - view the contents of a dacpac file in Solution Explorer
 - **Script Table Data** - generate insert statements for table data in your database project, based on [generate-sql-merge](https://github.com/dnlnln/generate-sql-merge)
@@ -47,7 +47,7 @@ An SSMS extension build is available from [SSMS Gallery][ssmsgallery], bringing 
 
 - **Import database** - import the schema and database settings from an existing database
 - **Analyze** - report with static code analysis result of your database project
-- **Manage code analysis rules** - visually enable/disable static code analysis rules and set rule severity for your database project
+- **Manage code analysis rules** - visually enable/disable static code analysis rules and set rule severity for your database project. [Blog post](https://erikej.github.io/dacfx/dotnet/sqlserver/ssms/visualstudio/2026/04/13/sqlprojects-rule-manager.html)
 - **Create Mermaid E/R diagram** - create an Entity/Relationship diagram of selected tables from your database project
 - **Script Table Data** - generate insert statements for table data in your database project, based on [generate-sql-merge](https://github.com/dnlnln/generate-sql-merge)
 - **Add new pre- and post-deployment scripts** - easily add new pre- and post-deployment scripts to your database project
