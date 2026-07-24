@@ -24,9 +24,11 @@ namespace SqlProjectsPowerTools.TreeViewer
         private readonly DTE dte;
         private readonly string defaultName;
         private readonly object watcherLock = new();
+        private readonly TimeSpan onDemandRefreshInterval = TimeSpan.FromSeconds(3);
         private EnvDTE.Project dteProject;
         private FileSystemWatcher dacpacWatcher;
         private string watchedDirectory;
+        private DateTime lastOnDemandRefreshUtc = DateTime.MinValue;
 
         public DacpacRootNode(IVsHierarchyItem hierarchyItem)
         {
@@ -55,6 +57,20 @@ namespace SqlProjectsPowerTools.TreeViewer
         private void ScheduleRebuild(bool force)
         {
             Debouncer.Debounce(projectPath, () => Rebuild(force), 500);
+        }
+
+        internal void Refresh()
+        {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
+            DateTime now = DateTime.UtcNow;
+            if ((now - lastOnDemandRefreshUtc) < onDemandRefreshInterval)
+            {
+                return;
+            }
+
+            lastOnDemandRefreshUtc = now;
+            ScheduleRebuild(force: false);
         }
 
         private bool IsMatchingProject(string projectFromEvent)
