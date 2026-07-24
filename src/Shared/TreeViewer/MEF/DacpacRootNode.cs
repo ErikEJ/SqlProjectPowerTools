@@ -57,6 +57,11 @@ namespace SqlProjectsPowerTools.TreeViewer
             Debouncer.Debounce(projectPath, () => Rebuild(force), 500);
         }
 
+        internal void Refresh()
+        {
+            ScheduleRebuild(force: false);
+        }
+
         private bool IsMatchingProject(string projectFromEvent)
         {
             if (string.IsNullOrWhiteSpace(projectFromEvent))

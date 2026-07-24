@@ -52,6 +52,7 @@ namespace SqlProjectsPowerTools.TreeViewer
                             rootNodes[projectPath] = rootNode;
                         }
 
+                        rootNode.Refresh();
                         return rootNode;
                     }
                 }
