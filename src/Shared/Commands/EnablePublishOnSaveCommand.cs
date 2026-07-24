@@ -12,7 +12,7 @@ namespace SqlProjectsPowerTools
                 if (isEnabled)
                 {
                     var options = await ToolOptions.GetLiveInstanceAsync();
-                    isEnabled = !options.PublishProgrammabilityObjectsOnSave;
+                    isEnabled = options.PublishProgrammabilityObjectsOnSave;
                 }
 
                 Command.Enabled = isEnabled;
