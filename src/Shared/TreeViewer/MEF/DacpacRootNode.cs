@@ -61,6 +61,8 @@ namespace SqlProjectsPowerTools.TreeViewer
 
         internal void Refresh()
         {
+            ThreadHelper.ThrowIfNotOnUIThread();
+
             DateTime now = DateTime.UtcNow;
             if ((now - lastOnDemandRefreshUtc) < onDemandRefreshInterval)
             {
