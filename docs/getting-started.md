@@ -196,14 +196,6 @@ AutoPublish=Server=localhost;Database=MyDb;Integrated Security=true;TrustServerC
 - The status bar shows `Publish completed: <filename>` on success or `Publish failed: <filename>` if an error occurs.
 - Files that contain unsupported statements (for example `CREATE TABLE`) are silently skipped.
 
-## Real time code analysis (SSMS)
-
-Live code analysis is available in SQL Server Management Studio (SSMS) when working with SQL database projects. This provides immediate feedback on potential issues as you write your SQL code.
-
-You can enable or disable live code analysis in SSMS using the same rule manager as in Visual Studio. This allows you to maintain consistent code quality standards across both environments.
-
-In addition, you can disable the live code analysis via Tools > Options > SQL Server Tools > SQL Project Power Tools and uncheck "Enable live code analysis". This will turn off the real-time analysis feature if you prefer to run it manually.
-
 ## Accessing the Tools
 
 All SQL Database Project Power Tools features are accessible from the context menu in Solution Explorer:
