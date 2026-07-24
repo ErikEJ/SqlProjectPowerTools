@@ -4,7 +4,7 @@ SQL Database Project Power Tools is a Visual Studio extension that makes working
 
 ## What is SQL Database Project Power Tools?
 
-SQL Database Project Power Tools enhances your Visual Studio experience when working with SQL Server database projects. It provides a collection of useful tools for importing databases, comparing schemas, creating diagrams, and more.
+SQL Database Project Power Tools enhances your Visual Studio experience when working with SQL Server database projects. It provides a collection of useful tools for importing databases, comparing schemas, analyzing code, creating diagrams, and more.
 
 ## Installation
 
@@ -68,6 +68,43 @@ To use visual schema compare:
 5. Apply the changes as needed
 
 This is especially useful when working in teams or managing multiple environments.
+
+## Analyzing Your Code
+
+Static code analysis helps you find potential issues in your database code before deployment. The analyze feature checks your SQL scripts against best practices and common pitfalls.
+
+To analyze your project:
+
+1. Right-click on your SQL database project in Solution Explorer
+2. Select **SQL Project Power Tools > Analyze**
+3. Review the analysis report
+4. Address any issues found and improve your code quality
+
+The analysis includes checks for design issues, naming conventions, performance concerns, and more. Consider adding this step to your regular development workflow.
+
+## Managing Code Analysis Rules
+
+The rule manager lets you visually control which static code analysis rules are active for your database project and how violations are reported. This is available for SDK-style SQL database projects.
+
+Read more in the [blog post](https://erikej.github.io/dacfx/dotnet/sqlserver/ssms/visualstudio/2026/04/13/sqlprojects-rule-manager.html).
+
+![Rule Manager](../img/rulemanager.png)
+
+To manage code analysis rules:
+
+1. Right-click on your SQL database project in Solution Explorer
+2. Select **SQL Project Power Tools > Manage code analysis rules**
+3. In the dialog, check or uncheck **Enable Code Analysis on Build** to turn code analysis on or off
+4. Browse or search for rules by ID, description, or category using the search box
+5. Use the ? link to open detailed rule documentation
+6. Use the severity filter drop-down to show only rules of a specific severity
+7. Enable or disable individual rules using the checkboxes
+8. For enabled rules, choose the severity (**Warning** or **Error**) using the drop-down
+9. Click **OK** to save your changes to the project file
+
+You can also reset all rule settings to their default values with the **Reset** button
+
+Rules are organized by category and can be enabled or disabled at the group level using the group checkbox. Your selections are saved to the `RunSqlCodeAnalysis` and `SqlCodeAnalysisRules` (or `CodeAnalysisRules`) properties in your project file.
 
 ## Creating Entity/Relationship Diagrams
 
@@ -178,6 +215,7 @@ For even more features, consider installing the [SQL Project Power Pack](https:/
 
 - **Start with Import**: If you have an existing database, use the import feature to get started quickly
 - **Regular Schema Compares**: Keep your project and database in sync by comparing regularly
+- **Use Analysis**: Run the analyzer before deploying to catch issues early, or integrate static code analysis into your CI/CD pipeline
 - **Document with Diagrams**: Create E/R diagrams to help your team understand the database structure
 - **Version Control**: Keep your database project in source control to track changes over time
 
