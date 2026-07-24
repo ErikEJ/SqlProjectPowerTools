@@ -51,8 +51,11 @@ namespace SqlProjectsPowerTools.TreeViewer
                             rootNode = new DacpacRootNode(hierarchyItem);
                             rootNodes[projectPath] = rootNode;
                         }
+                        else
+                        {
+                            rootNode.Refresh();
+                        }
 
-                        rootNode.Refresh();
                         return rootNode;
                     }
                 }

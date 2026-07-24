@@ -24,9 +24,11 @@ namespace SqlProjectsPowerTools.TreeViewer
         private readonly DTE dte;
         private readonly string defaultName;
         private readonly object watcherLock = new();
+        private readonly TimeSpan onDemandRefreshInterval = TimeSpan.FromSeconds(3);
         private EnvDTE.Project dteProject;
         private FileSystemWatcher dacpacWatcher;
         private string watchedDirectory;
+        private DateTime lastOnDemandRefreshUtc = DateTime.MinValue;
 
         public DacpacRootNode(IVsHierarchyItem hierarchyItem)
         {
@@ -59,6 +61,13 @@ namespace SqlProjectsPowerTools.TreeViewer
 
         internal void Refresh()
         {
+            DateTime now = DateTime.UtcNow;
+            if ((now - lastOnDemandRefreshUtc) < onDemandRefreshInterval)
+            {
+                return;
+            }
+
+            lastOnDemandRefreshUtc = now;
             ScheduleRebuild(force: false);
         }
 
