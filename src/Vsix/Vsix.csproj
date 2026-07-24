@@ -125,7 +125,7 @@
     <Content Include="Templates.pkgdef">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="msbuild.sdk.sqlproj.templates.4.1.1.nupkg">
+    <Content Include="msbuild.sdk.sqlproj.templates.4.3.0.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
   </ItemGroup>
