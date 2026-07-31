@@ -1,7 +1,7 @@
-﻿<Project Sdk="MSBuild.Sdk.SqlProj/4.1.1">
+﻿<Project Sdk="MSBuild.Sdk.SqlProj/4.3.0">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <SqlServerVersion>Sql160</SqlServerVersion>
+    <TargetFramework>net10.0</TargetFramework>
+    <SqlServerVersion>Sql170</SqlServerVersion>
     <RunSqlCodeAnalysis>True</RunSqlCodeAnalysis>
     <GenerateEntityRelationshipDiagram>true</GenerateEntityRelationshipDiagram>
     <CodeAnalysisRules>-Microsoft.Rules.Data.SR0001;-Microsoft.Rules.Data.SR0008</CodeAnalysisRules>
@@ -11,11 +11,7 @@
   <ItemGroup>
     <!-- These packages adds additional code analysis rules -->
     <!-- We recommend using these, but they can be removed if desired -->
-    <PackageReference Include="ErikEJ.DacFX.SqlServer.Rules" Version="4.2.0-preview.4">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="ErikEJ.DacFX.TSQLSmellSCA" Version="4.2.0-preview.3">
+    <PackageReference Include="ErikEJ.DacFX.SqlServer.Rules" Version="5.1.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
