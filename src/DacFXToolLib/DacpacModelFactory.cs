@@ -307,10 +307,11 @@ namespace DacFXToolLib
                     && string.Equals(parts[0], "SqlTableBase", StringComparison.OrdinalIgnoreCase)
                     && string.Equals(parts[3], "MS_Description", StringComparison.OrdinalIgnoreCase))
                 {
-                    var value = ep.GetProperty<string>(ExtendedProperty.Value);
-                    if (!string.IsNullOrEmpty(value))
+                    var value = ep.GetProperty(ExtendedProperty.Value);
+
+                    if (value is string strValue && !string.IsNullOrEmpty(strValue))
                     {
-                        result[$"{parts[1]}.{parts[2]}"] = FixExtendedPropertyValue(value) ?? value;
+                        result[$"{parts[1]}.{parts[2]}"] = FixExtendedPropertyValue(strValue) ?? strValue;
                     }
                 }
             }
@@ -329,10 +330,11 @@ namespace DacFXToolLib
                     && string.Equals(parts[0], "SqlColumn", StringComparison.OrdinalIgnoreCase)
                     && string.Equals(parts[4], "MS_Description", StringComparison.OrdinalIgnoreCase))
                 {
-                    var value = ep.GetProperty<string>(ExtendedProperty.Value);
-                    if (!string.IsNullOrEmpty(value))
+                    var value = ep.GetProperty(ExtendedProperty.Value);
+
+                    if (value is string strValue && !string.IsNullOrEmpty(strValue))
                     {
-                        result[$"{parts[1]}.{parts[2]}.{parts[3]}"] = FixExtendedPropertyValue(value) ?? value;
+                        result[$"{parts[1]}.{parts[2]}.{parts[3]}"] = FixExtendedPropertyValue(strValue) ?? strValue;
                     }
                 }
             }
