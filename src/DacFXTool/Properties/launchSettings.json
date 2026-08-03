@@ -2,7 +2,7 @@
   "profiles": {
     "DacFXTool": {
       "commandName": "Project",
-      "commandLineArgs": "getdboptions \"Data Source=.\\SQLEXPRESS2025;Initial catalog=Chinook;Trusted_Connection=true;Encrypt=false\""
+      "commandLineArgs": "getobjects \"C:\\temp\\Chinook.dacpac\""
     }
   }
 }
