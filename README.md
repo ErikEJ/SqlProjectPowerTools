@@ -33,6 +33,7 @@ The tool contains the following features.
 - **Add new pre- and post-deployment scripts** - easily add new pre- and post-deployment scripts to your database project
 - **Publish programmability objects on save (preview)** - automatically publish supported CREATE statements (stored procedures, views, functions, triggers) to a target database when `.sql` files are saved. [Blog post](https://erikej.github.io/dotnet/dacfx/sqlserver/visualstudio/ssms/2026/06/01/sqlprojects-dacfx.html)
 - **Scaffold SQL MCP Server (preview)** - generate a SQL MCP Server configuration file based on your database project, for use with [SQL MCP Server](docs/dab-mcp-readme.md)
+- **Add Azure DevOps Pipeline (preview)** - generate a commented starter pipeline with passwordless deployment, firewall handling, the latest SqlPackage and plan/approve stages. [Guide](docs/azure-devops-pipelines.md)
 
 ### Power Pack
 
@@ -53,6 +54,7 @@ An SSMS extension build is available from [SSMS Gallery][ssmsgallery], bringing 
 - **Add new pre- and post-deployment scripts** - easily add new pre- and post-deployment scripts to your database project
 - **Publish programmability objects on save (preview)** - automatically publish supported CREATE statements (stored procedures, views, functions, triggers) to a target database when `.sql` files are saved. [Blog post](https://erikej.github.io/dotnet/dacfx/sqlserver/visualstudio/ssms/2026/06/01/sqlprojects-dacfx.html)
 - **SQL MCP Server Scaffold (preview)** - generate a SQL MCP Server configuration file based on your database project, for use with [SQL MCP Server](docs/dab-mcp-readme.md)
+- **Add Azure DevOps Pipeline (preview)** - generate a commented starter pipeline with passwordless deployment, firewall handling, the latest SqlPackage and plan/approve stages. [Guide](docs/azure-devops-pipelines.md)
 
 ## Advanced topics
 

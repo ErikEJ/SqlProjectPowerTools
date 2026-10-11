@@ -107,6 +107,17 @@
         </Strings>
       </Button>
 
+      <Button guid="Vsix" id="cmdidAddPipeline" priority="0x0117" type="Button">
+        <Parent guid="Vsix" id="cmdidSqlProjectMenuItemsGroup" />
+        <Icon guid="ImageCatalogGuid" id="BuildDefinition" />
+        <CommandFlag>IconIsMoniker</CommandFlag>
+        <CommandFlag>DynamicVisibility</CommandFlag>
+        <CommandFlag>TextChanges</CommandFlag>
+        <Strings>
+          <ButtonText>Add Azure DevOps Pipeline...</ButtonText>
+        </Strings>
+      </Button>
+
 
 
       <Button guid="Vsix" id="cmdidVisualCompare" priority="0x0106" type="Button">
@@ -233,6 +244,7 @@
       <IDSymbol name="cmdidManageRules" value="0x0014" />
       <IDSymbol name="cmdidGettingStarted" value="0x0015" />
       <IDSymbol name="cmdidEnablePublishOnSave" value="0x0017" />
+      <IDSymbol name="cmdidAddPipeline" value="0x0018" />
     </GuidSymbol>
 
   </Symbols>

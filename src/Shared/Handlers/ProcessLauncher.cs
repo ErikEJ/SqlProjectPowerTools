@@ -131,6 +131,14 @@ namespace SqlProjectsPowerTools
             return filePath;
         }
 
+        // pipeline "<options path>" "<project file path>" "<dacpac path>" "<output root>" <overwrite>
+        public async Task<string> GeneratePipelineAsync(string optionsPath, string projectFilePath, string dacpacPath, string outputRoot, bool overwrite)
+        {
+            var arguments = "pipeline " + Quote(optionsPath) + " " + Quote(projectFilePath) + " " + Quote(dacpacPath ?? string.Empty) + " " + Quote(outputRoot) + " " + overwrite.ToString();
+
+            return await GetDiagramInternalAsync(arguments);
+        }
+
         public async Task<string> GetRulesPathAsync(string sqlServerVersion, string rulesExpression)
         {
             var arguments = string.IsNullOrEmpty(rulesExpression)
@@ -148,6 +156,19 @@ namespace SqlProjectsPowerTools
             var result = await GetDiagramInternalAsync(arguments);
 
             return result;
+        }
+
+        private static string Quote(string value)
+        {
+            var escaped = value.Replace("\"", "\\\"");
+
+            // A trailing backslash would escape the closing quote
+            if (escaped.EndsWith("\\", StringComparison.Ordinal))
+            {
+                escaped += "\\";
+            }
+
+            return "\"" + escaped + "\"";
         }
 
         private static async Task<string> RunProcessAsync(ProcessStartInfo startInfo)

@@ -30,6 +30,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Update="Dialogs\PipelineWizardDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Dialogs\PickServerDatabaseDialog.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -52,6 +56,9 @@
   <ItemGroup>
     <Compile Update="Dialogs\PickServerDatabaseDialog.xaml.cs">
       <DependentUpon>PickServerDatabaseDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Dialogs\PipelineWizardDialog.xaml.cs">
+      <DependentUpon>PipelineWizardDialog.xaml</DependentUpon>
     </Compile>
     <Compile Update="Dialogs\PickTablesDialog.xaml.cs">
       <DependentUpon>PickTablesDialog.xaml</DependentUpon>
