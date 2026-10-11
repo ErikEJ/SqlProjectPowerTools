@@ -5,6 +5,7 @@ using System.Text.Json;
 using DacFXToolLib;
 using DacFXToolLib.Common;
 using DacFXToolLib.Dab;
+using DacFXToolLib.Pipelines;
 using Microsoft.SqlServer.Dac;
 
 [assembly: CLSCompliant(true)]
@@ -261,6 +262,33 @@ namespace DacFXTool
                             await Console.Out.WriteLineAsync(ex.Message);
                             return 1;
                         }
+                    }
+
+                    // pipeline "<options path>" "<project file path>" "<dacpac path>" "<output root>" <overwrite>
+                    if (args.Length == 6
+                        && args[0] == "pipeline"
+                        && bool.TryParse(args[5], out bool overwritePipeline))
+                    {
+                        var pipelineOptions = PipelineOptionsExtensions.TryRead(args[1]);
+
+                        if (pipelineOptions == null)
+                        {
+                            await Console.Out.WriteLineAsync("Error:");
+                            await Console.Out.WriteLineAsync("Could not read options");
+                            return 1;
+                        }
+
+                        pipelineOptions.ProjectFilePath = args[2];
+                        pipelineOptions.DacpacPath = args[3];
+                        pipelineOptions.OutputRoot = args[4];
+                        pipelineOptions.Overwrite = overwritePipeline;
+
+                        var written = new PipelineGenerator(pipelineOptions).Generate();
+
+                        await Console.Out.WriteLineAsync("Result:");
+                        await Console.Out.WriteLineAsync(string.Join("|", written));
+
+                        return 0;
                     }
 
                     // merge "projectpath" "connectionString" "tableName" "schema"

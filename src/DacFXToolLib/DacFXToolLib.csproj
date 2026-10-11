@@ -8,10 +8,12 @@
 
   <ItemGroup>
     <None Remove="sp_generate_merge.sql" />
+    <None Remove="Pipelines\Templates\*.*" />
   </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Include="sp_generate_merge.sql" />
+    <EmbeddedResource Include="Pipelines\Templates\*.*" LogicalName="DacFXToolLib.Pipelines.Templates.%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
