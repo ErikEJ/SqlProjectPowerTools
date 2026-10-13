@@ -176,7 +176,8 @@ namespace SqlProjectsPowerTools
             {
                 // Build to read the SQLCMD variables from the .dacpac
                 var dacpacPath = await SqlProjHelper.BuildSqlProjectAsync(project.FullPath);
-                return (File.Exists(dacpacPath) ? dacpacPath : null, false);
+                var dacpacExists = !string.IsNullOrEmpty(dacpacPath) && File.Exists(dacpacPath);
+                return (dacpacExists ? dacpacPath : null, !dacpacExists);
             }
             catch (InvalidOperationException)
             {

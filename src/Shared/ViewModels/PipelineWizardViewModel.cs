@@ -24,7 +24,12 @@ namespace SqlProjectsPowerTools
 
         public PipelineWizardViewModel()
         {
-            OkCommand = new RelayCommand(OkExecuted, () => Environments.Count > 0 && !IsAzureSqlWindowsAuthentication);
+            OkCommand = new RelayCommand(
+                OkExecuted,
+                () => Environments.Count > 0
+                    && !IsAzureSqlWindowsAuthentication
+                    && !IsMicrosoftHostedWindowsAuthentication
+                    && !IsMicrosoftHostedPrivateNetwork);
             CancelCommand = new RelayCommand(CancelExecuted);
         }
 
@@ -196,6 +201,14 @@ namespace SqlProjectsPowerTools
         private bool IsAzureSqlWindowsAuthentication =>
             TargetPlatformIndex == (int)PipelineTargetPlatform.AzureSqlDatabase
             && AuthenticationIndex == (int)PipelineAuthentication.WindowsAuthentication;
+
+        private bool IsMicrosoftHostedWindowsAuthentication =>
+            AgentPoolIndex == (int)PipelineAgentPool.MicrosoftHosted
+            && AuthenticationIndex == (int)PipelineAuthentication.WindowsAuthentication;
+
+        private bool IsMicrosoftHostedPrivateNetwork =>
+            AgentPoolIndex == (int)PipelineAgentPool.MicrosoftHosted
+            && FirewallStrategyIndex == (int)PipelineFirewallStrategy.PrivateNetwork;
 
         public void Load(PipelineOptions options)
         {
