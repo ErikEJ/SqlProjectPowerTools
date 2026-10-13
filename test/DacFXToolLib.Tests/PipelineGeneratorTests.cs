@@ -115,6 +115,30 @@ namespace DacFXToolLib.Tests
         }
 
         [Fact]
+        public void Render_DoesNotIncludeSqlCmdDefaults()
+        {
+            var files = new PipelineGenerator(CreateOptions()).Render();
+            var generatedContent = string.Join("\n", files.Select(file => file.Content));
+
+            Assert.Contains("`StorageAccount` - SQLCMD variable", generatedContent, StringComparison.Ordinal);
+            Assert.DoesNotContain("devstorage", generatedContent, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Render_PrefixesDigitLeadingStageName()
+        {
+            var options = CreateOptions();
+            options.Environments = new List<PipelineEnvironment>
+            {
+                PipelineEnvironment.Create("1prod"),
+            };
+
+            var pipeline = GetFile(new PipelineGenerator(options).Render(), "azure-pipelines.yml");
+
+            Assert.Contains("stageName: _1prod\n", pipeline, StringComparison.Ordinal);
+        }
+
+        [Fact]
         public void Render_AlwaysInstallsLatestSqlPackage()
         {
             var steps = GetFile(new PipelineGenerator(CreateOptions()).Render(), "sqlpackage-steps.yml");

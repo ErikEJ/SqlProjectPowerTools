@@ -675,7 +675,7 @@ if (!usedStageNames.Add(stageName))
 
             foreach (var variable in sqlCmdVariables)
             {
-                variables.Add($"`{variable.Key}` - SQLCMD variable" + (string.IsNullOrEmpty(variable.Value) ? string.Empty : $" (project default: `{variable.Value}`)"));
+                variables.Add($"`{variable.Key}` - SQLCMD variable");
             }
 
             var authenticationSteps = new List<string>();
