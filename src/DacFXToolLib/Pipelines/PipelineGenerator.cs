@@ -501,7 +501,7 @@ namespace DacFXToolLib.Pipelines
 
             foreach (var variable in sqlCmdVariables)
             {
-                requiredVariables.Add($"{variable.Key} - SQLCMD variable" + (string.IsNullOrEmpty(variable.Value) ? string.Empty : $" (project default: {variable.Value})"));
+                requiredVariables.Add($"{variable.Key} - SQLCMD variable");
                 envMappings.Add($"SQLCMD_{variable.Key}: $({variable.Key})");
                 sqlCmdArguments.Add($"$arguments += \"/Variables:{variable.Key}=${{env:SQLCMD_{variable.Key}}}\"");
             }
