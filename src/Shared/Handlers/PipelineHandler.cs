@@ -41,7 +41,7 @@ namespace SqlProjectsPowerTools
 
                 viewModel.ApplyTo(options);
 
-                var dacpacPath = await TryGetDacpacPathAsync(project);
+                var (dacpacPath, dacpacBuildFailed) = await TryGetDacpacPathAsync(project);
 
                 var outputRoot = FindRepositoryRoot(projectDirectory) ?? projectDirectory;
 
@@ -98,9 +98,15 @@ namespace SqlProjectsPowerTools
                     }
                 }
 
-                await VS.StatusBar.ShowMessageAsync(written.Count == 0
+                var statusMessage = written.Count == 0
                     ? "No pipeline files created - all files already exist."
-                    : $"Azure DevOps pipeline created ({written.Count} files). Follow the checklist in {PipelineOptions.SetupGuideFileName}.");
+                    : $"Azure DevOps pipeline created ({written.Count} files). Follow the checklist in {PipelineOptions.SetupGuideFileName}.";
+                if (dacpacBuildFailed)
+                {
+                    statusMessage += " Warning: Project build failed, SQLCMD variables are not included in the pipeline.";
+                }
+
+                await VS.StatusBar.ShowMessageAsync(statusMessage);
             }
             catch (AggregateException ae)
             {
@@ -164,18 +170,17 @@ namespace SqlProjectsPowerTools
             }
         }
 
-        private static async Task<string> TryGetDacpacPathAsync(Project project)
+        private static async Task<(string DacpacPath, bool BuildFailed)> TryGetDacpacPathAsync(Project project)
         {
             try
             {
                 // Build to read the SQLCMD variables from the .dacpac
                 var dacpacPath = await SqlProjHelper.BuildSqlProjectAsync(project.FullPath);
-                return File.Exists(dacpacPath) ? dacpacPath : null;
+                return (File.Exists(dacpacPath) ? dacpacPath : null, false);
             }
             catch (InvalidOperationException)
             {
-                await VS.StatusBar.ShowMessageAsync("Project build failed, SQLCMD variables are not included in the pipeline.");
-                return null;
+                return (null, true);
             }
         }
 

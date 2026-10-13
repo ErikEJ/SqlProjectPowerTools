@@ -46,8 +46,8 @@ steps:
         $ErrorActionPreference = 'Stop'
         $mode = '${{ parameters.mode }}'
         $dacpacFolder = Join-Path $env:PIPELINE_WORKSPACE 'dacpac'
-        $dacpac = Join-Path $dacpacFolder '${{ parameters.dacpacName }}.dacpac'
-        $publishProfile = Join-Path $dacpacFolder '${{ parameters.publishProfile }}'
+        $dacpac = Join-Path $dacpacFolder ($env:DACPAC_NAME + '.dacpac')
+        $publishProfile = Join-Path $dacpacFolder $env:PUBLISH_PROFILE
         $outFolder = Join-Path $env:BUILD_ARTIFACTSTAGINGDIRECTORY 'plan'
         New-Item -ItemType Directory -Force -Path $outFolder | Out-Null
 
@@ -119,4 +119,6 @@ steps:
     env:
       SQL_SERVER: $(SqlServerName)
       SQL_DATABASE: $(DatabaseName)
+      DACPAC_NAME: ${{ parameters.dacpacName }}
+      PUBLISH_PROFILE: ${{ parameters.publishProfile }}
 {{EnvMappings}}{{FirewallClose}}

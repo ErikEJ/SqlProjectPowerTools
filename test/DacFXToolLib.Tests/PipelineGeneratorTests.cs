@@ -103,6 +103,20 @@ namespace DacFXToolLib.Tests
         }
 
         [Fact]
+        public void Render_PassesNamesToPowerShellThroughEnvironmentVariables()
+        {
+            var options = CreateOptions();
+            options.DacpacName = "Sales Database's";
+
+            var steps = GetFile(new PipelineGenerator(options).Render(), "sqlpackage-steps.yml");
+
+            Assert.Contains("$dacpac = Join-Path $dacpacFolder ($env:DACPAC_NAME + '.dacpac')", steps, StringComparison.Ordinal);
+            Assert.Contains("$publishProfile = Join-Path $dacpacFolder $env:PUBLISH_PROFILE", steps, StringComparison.Ordinal);
+            Assert.Contains("DACPAC_NAME: ${{ parameters.dacpacName }}", steps, StringComparison.Ordinal);
+            Assert.Contains("PUBLISH_PROFILE: ${{ parameters.publishProfile }}", steps, StringComparison.Ordinal);
+        }
+
+        [Fact]
         public void Render_PlanStageOnlyForStagingAndProduction()
         {
             var pipeline = GetFile(new PipelineGenerator(CreateOptions()).Render(), "azure-pipelines.yml");
