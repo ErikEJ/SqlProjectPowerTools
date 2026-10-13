@@ -196,6 +196,19 @@ AutoPublish=Server=localhost;Database=MyDb;Integrated Security=true;TrustServerC
 - The status bar shows `Publish completed: <filename>` on success or `Publish failed: <filename>` if an error occurs.
 - Files that contain unsupported statements (for example `CREATE TABLE`) are silently skipped.
 
+## Adding an Azure DevOps Pipeline (preview)
+
+The **Add Azure DevOps Pipeline...** command creates a commented starter pipeline that builds your project and deploys it to one or more environments.
+
+1. Right-click on your SQL database project in Solution Explorer
+2. Select **SQL Project Power Tools > Add Azure DevOps Pipeline...**
+3. Choose the target, agent pool, authentication, firewall strategy and environments
+4. Follow the checklist in the generated `pipelines/PIPELINE-SETUP.md`
+
+The pipeline uses passwordless access with workload identity federation, temporary firewall rules for Microsoft-hosted agents, the latest SqlPackage, and a plan stage with approval for staging and production environments.
+
+Read the [Azure DevOps deployment guide](azure-devops-pipelines.md) for the details behind each choice.
+
 ## Accessing the Tools
 
 All SQL Database Project Power Tools features are accessible from the context menu in Solution Explorer:

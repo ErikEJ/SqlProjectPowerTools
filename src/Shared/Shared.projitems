@@ -15,6 +15,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Commands\DeployScriptCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\EnablePublishOnSaveCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\GettingStartedCommand.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Commands\AddPipelineCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\ImportCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\ManageRulesCommand.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Commands\MermaidCommand.cs" />
@@ -66,6 +67,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\HandlerHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\ImportHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\ManageRulesHandler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Handlers\PipelineHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\PackageManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\ProcessLauncher.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Handlers\ResultDeserializer.cs" />
@@ -95,6 +97,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DatabaseConnectionModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\DiffLineViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ManageRulesViewModel.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ViewModels\PipelineWizardViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ObjectTreeRootItemViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\ObjectTreeViewModel.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)ViewModels\PickServerDatabaseViewModel.cs" />
