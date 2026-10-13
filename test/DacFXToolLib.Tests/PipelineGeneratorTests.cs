@@ -228,6 +228,55 @@ namespace DacFXToolLib.Tests
         }
 
         [Fact]
+        public void Render_ReusesProfileUsingOriginalEnvironmentName()
+        {
+            var options = CreateOptions();
+            options.Environments = new List<PipelineEnvironment>
+            {
+                PipelineEnvironment.Create("prod-east"),
+            };
+            File.WriteAllText(Path.Combine(root, "src", "MyDatabase", "MyDatabase.prod-east.publish.xml"), "<Project />");
+
+            var files = new PipelineGenerator(options).Render();
+            var pipeline = GetFile(files, "azure-pipelines.yml");
+
+            Assert.DoesNotContain(files, f => f.Path.EndsWith("MyDatabase.prod_east.publish.xml", StringComparison.Ordinal));
+            Assert.Contains("publishProfile: 'MyDatabase.prod-east.publish.xml'", pipeline, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Render_ClaimsExistingProfileForMostSpecificEnvironment()
+        {
+            var options = CreateOptions();
+            options.Environments = new List<PipelineEnvironment>
+            {
+                PipelineEnvironment.Create("prod"),
+                PipelineEnvironment.Create("west_prod"),
+            };
+            File.WriteAllText(Path.Combine(root, "src", "MyDatabase", "MyDatabase.west_prod.publish.xml"), "<Project />");
+
+            var files = new PipelineGenerator(options).Render();
+            var pipeline = GetFile(files, "azure-pipelines.yml");
+
+            Assert.Contains(files, f => f.Path == Path.Combine(root, "src", "MyDatabase", "MyDatabase.prod.publish.xml") && !f.CanOverwrite);
+            Assert.Contains("publishProfile: 'MyDatabase.west_prod.publish.xml'", pipeline, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Render_ShellQuotesSetupCommandArguments()
+        {
+            var options = CreateOptions();
+            options.DacpacName = "Sales Database's";
+            options.DefaultBranch = "#release";
+
+            var setup = GetFile(new PipelineGenerator(options).Render(), "PIPELINE-SETUP.md");
+
+            Assert.Contains("'DatabaseName=Sales Database'\"'\"'s'", setup, StringComparison.Ordinal);
+            Assert.Contains("--branch '#release'", setup, StringComparison.Ordinal);
+            Assert.Contains("--name 'sql-dev'", setup, StringComparison.Ordinal);
+        }
+
+        [Fact]
         public void Generate_DoesNotOverwriteUnlessRequested()
         {
             var options = CreateOptions();
@@ -262,6 +311,15 @@ namespace DacFXToolLib.Tests
             Assert.Equal(4, read.Environments.Count);
             Assert.True(read.Environments[3].PlanBeforeDeploy);
             Assert.Null(read.ProjectFilePath);
+        }
+
+        [Fact]
+        public void Options_TryRead_ThrowsForMalformedExistingFile()
+        {
+            var optionsPath = Path.Combine(root, PipelineOptions.OptionsFileName);
+            File.WriteAllText(optionsPath, "{");
+
+            Assert.Throws<InvalidDataException>(() => PipelineOptionsExtensions.TryRead(optionsPath));
         }
 
         private static string GetFile(IReadOnlyList<PipelineFile> files, string name)

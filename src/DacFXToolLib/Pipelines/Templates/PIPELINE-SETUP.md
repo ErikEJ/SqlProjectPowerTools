@@ -27,6 +27,7 @@ Plan stages are only generated for staging and production type environments. Oth
 {{VariableList}}
 {{FirewallSteps}}
 - [ ] **Create the pipeline** in Azure DevOps from the existing `azure-pipelines.yml` file in your repository, and run it.
+- [ ] **Azure Repos only:** configure a Build validation branch policy for the target branch; Azure Repos Git ignores the YAML `pr` trigger.
 - [ ] Authorize the variable groups, environments{{ServiceConnectionAuthorize}} the first time the pipeline runs.
 
 ## Matching Azure CLI commands

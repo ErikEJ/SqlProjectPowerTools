@@ -21,8 +21,9 @@ namespace DacFXToolLib.Pipelines
             }
 
             var options = File.ReadAllText(optionsPath, Encoding.UTF8);
+            var result = TryReadJson(options);
 
-            return TryReadJson(options);
+            return result ?? throw new InvalidDataException($"The pipeline options file '{optionsPath}' is empty or contains invalid JSON.");
         }
 
         public static PipelineOptions TryReadJson(string json)

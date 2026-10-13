@@ -260,10 +260,10 @@ namespace DacFXToolLib.Pipelines
             }
 
             var existingProfiles = Directory.Exists(ProjectDirectory)
-                ? Directory.GetFiles(ProjectDirectory, "*" + PublishProfileSuffix).Select(Path.GetFileName).OfType<string>().ToList()
+                ? Directory.GetFiles(ProjectDirectory, "*" + PublishProfileSuffix).Select(Path.GetFileName).OfType<string>().OrderBy(p => p, StringComparer.OrdinalIgnoreCase).ToList()
                 : new List<string>();
 
-            var result = new List<EnvironmentInfo>();
+            var normalizedEnvironments = new List<(string Name, string StageName, bool PlanBeforeDeploy)>();
             var usedStageNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var environment in configured)
@@ -271,18 +271,38 @@ namespace DacFXToolLib.Pipelines
                 var name = environment.Name.Trim();
                 var stageName = ToStageName(name);
 
-if (!usedStageNames.Add(stageName))
-{
-    throw new InvalidOperationException($"Environment '{name}' maps to the duplicate stage name '{stageName}'. Rename it before generating the pipeline.");
-}
+                if (!usedStageNames.Add(stageName))
+                {
+                    throw new InvalidOperationException($"Environment '{name}' maps to the duplicate stage name '{stageName}'. Rename it before generating the pipeline.");
+                }
 
-                var existingProfile = existingProfiles.Find(p => MatchesEnvironment(p, stageName));
+                normalizedEnvironments.Add((name, stageName, environment.PlanBeforeDeploy));
+            }
 
+            var availableProfiles = new HashSet<string>(existingProfiles, StringComparer.OrdinalIgnoreCase);
+            var profileByStageName = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
+            foreach (var environment in normalizedEnvironments
+                .OrderByDescending(e => e.Name.Length)
+                .ThenBy(e => e.Name, StringComparer.OrdinalIgnoreCase))
+            {
+                var existingProfile = FindExistingProfile(availableProfiles, environment.Name);
+                if (existingProfile != null)
+                {
+                    availableProfiles.Remove(existingProfile);
+                }
+
+                profileByStageName[environment.StageName] = existingProfile;
+            }
+
+            var result = new List<EnvironmentInfo>();
+            foreach (var environment in normalizedEnvironments)
+            {
+                var existingProfile = profileByStageName[environment.StageName];
                 result.Add(new EnvironmentInfo(
-                    name,
-                    stageName,
-                    "sql-" + stageName.ToLowerInvariant(),
-                    existingProfile ?? $"{ProjectName}.{stageName}{PublishProfileSuffix}",
+                    environment.Name,
+                    environment.StageName,
+                    "sql-" + environment.StageName.ToLowerInvariant(),
+                    existingProfile ?? $"{ProjectName}.{environment.StageName}{PublishProfileSuffix}",
                     existingProfile == null,
                     environment.PlanBeforeDeploy));
             }
@@ -290,14 +310,30 @@ if (!usedStageNames.Add(stageName))
             return result;
         }
 
-        private static bool MatchesEnvironment(string profileFileName, string stageName)
+        private string? FindExistingProfile(IEnumerable<string> profileFileNames, string environmentName)
         {
-            var name = profileFileName[..^PublishProfileSuffix.Length];
+            var projectProfileName = $"{ProjectName}.{environmentName}";
+            var profiles = profileFileNames.OrderBy(p => p, StringComparer.OrdinalIgnoreCase).ToList();
 
-            return name.Equals(stageName, StringComparison.OrdinalIgnoreCase)
-                || name.EndsWith("." + stageName, StringComparison.OrdinalIgnoreCase)
-                || name.EndsWith("_" + stageName, StringComparison.OrdinalIgnoreCase)
-                || name.EndsWith("-" + stageName, StringComparison.OrdinalIgnoreCase);
+            return profiles.FirstOrDefault(p => GetProfileName(p).Equals(projectProfileName, StringComparison.OrdinalIgnoreCase))
+                ?? profiles.FirstOrDefault(p => GetProfileName(p).Equals(environmentName, StringComparison.OrdinalIgnoreCase))
+                ?? profiles.FirstOrDefault(p =>
+                {
+                    var name = GetProfileName(p);
+                    return name.EndsWith("." + environmentName, StringComparison.OrdinalIgnoreCase)
+                        || name.EndsWith("_" + environmentName, StringComparison.OrdinalIgnoreCase)
+                        || name.EndsWith("-" + environmentName, StringComparison.OrdinalIgnoreCase);
+                });
+        }
+
+        private static string GetProfileName(string profileFileName)
+        {
+            return profileFileName[..^PublishProfileSuffix.Length];
+        }
+
+        private static string ShellQuote(string value)
+        {
+            return "'" + value.Replace("'", "'\"'\"'", StringComparison.Ordinal) + "'";
         }
 
         private string[] PoolLines(bool windows)
@@ -694,7 +730,7 @@ if (!usedStageNames.Add(stageName))
             var authenticationSteps = new List<string>();
             var az = new List<string>
             {
-                "az devops configure --defaults organization=https://dev.azure.com/<organization> project=<project>",
+                $"az devops configure --defaults {ShellQuote("organization=https://dev.azure.com/<organization>")} {ShellQuote("project=<project>")}",
             };
 
             if (UsesServiceConnection)
@@ -718,7 +754,7 @@ if (!usedStageNames.Add(stageName))
                 firewallSteps.Add("- [ ] **Allow the service connection identity to manage firewall rules**, for example the *SQL Server Contributor* role on the logical server. Public network access must be enabled on the server. Do not use *Allow Azure services and resources to access this server*.");
                 az.Add(string.Empty);
                 az.Add("# Allow the service connection identity to add and remove firewall rules");
-                az.Add("az role assignment create --assignee <service-connection-app-id> --role \"SQL Server Contributor\" --scope /subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.Sql/servers/<server>");
+                az.Add($"az role assignment create --assignee {ShellQuote("<service-connection-app-id>")} --role {ShellQuote("SQL Server Contributor")} --scope {ShellQuote("/subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.Sql/servers/<server>")}");
             }
             else if (options.FirewallStrategy == PipelineFirewallStrategy.PrivateNetwork)
             {
@@ -729,20 +765,34 @@ if (!usedStageNames.Add(stageName))
             az.Add("# One variable group per environment");
             foreach (var environment in environments)
             {
-                var variableArguments = "SqlServerName=<server>.database.windows.net DatabaseName=" + DacpacName
-                    + (UsesTemporaryFirewallRule ? " SqlResourceGroupName=<resource-group>" : string.Empty)
-                    + (options.Authentication == PipelineAuthentication.SqlAuthentication ? " SqlUserName=pipeline_deployer" : string.Empty)
-                    + string.Concat(sqlCmdVariables.Select(v => $" {v.Key}=<value>"));
-                az.Add($"az pipelines variable-group create --name {environment.VariableGroup} --variables {variableArguments}");
+                var variableArguments = new List<KeyValuePair<string, string>>
+                {
+                    new("SqlServerName", "<server>.database.windows.net"),
+                    new("DatabaseName", DacpacName),
+                };
+                if (UsesTemporaryFirewallRule)
+                {
+                    variableArguments.Add(new KeyValuePair<string, string>("SqlResourceGroupName", "<resource-group>"));
+                }
+
                 if (options.Authentication == PipelineAuthentication.SqlAuthentication)
                 {
-                    az.Add($"az pipelines variable-group variable create --group-id <{environment.VariableGroup}-id> --name SqlPassword --secret true");
+                    variableArguments.Add(new KeyValuePair<string, string>("SqlUserName", "pipeline_deployer"));
+                }
+
+                variableArguments.AddRange(sqlCmdVariables.Select(v => new KeyValuePair<string, string>(v.Key, "<value>")));
+
+                var quotedVariableArguments = string.Join(" ", variableArguments.Select(v => ShellQuote($"{v.Key}={v.Value}")));
+                az.Add($"az pipelines variable-group create --name {ShellQuote(environment.VariableGroup)} --variables {quotedVariableArguments}");
+                if (options.Authentication == PipelineAuthentication.SqlAuthentication)
+                {
+                    az.Add($"az pipelines variable-group variable create --group-id {ShellQuote($"<{environment.VariableGroup}-id>")} --name {ShellQuote("SqlPassword")} --secret true");
                 }
             }
 
             az.Add(string.Empty);
             az.Add("# Create the pipeline from the YAML file");
-            az.Add($"az pipelines create --name \"{ProjectName} database\" --yml-path azure-pipelines.yml --repository <repository> --repository-type tfsgit --branch {options.DefaultBranch ?? "main"} --skip-first-run true");
+            az.Add($"az pipelines create --name {ShellQuote(ProjectName + " database")} --yml-path {ShellQuote("azure-pipelines.yml")} --repository {ShellQuote("<repository>")} --repository-type tfsgit --branch {ShellQuote(options.DefaultBranch ?? "main")} --skip-first-run true");
 
             return Fill(LoadTemplate("PIPELINE-SETUP.md"), new Dictionary<string, string>
             {

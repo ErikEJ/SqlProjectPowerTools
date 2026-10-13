@@ -19,6 +19,7 @@ trigger:
     include:
       - {{DefaultBranch}}
 {{TriggerPaths}}
+# Azure Repos Git ignores YAML PR triggers; configure a Build validation branch policy there.
 pr:
   branches:
     include:
