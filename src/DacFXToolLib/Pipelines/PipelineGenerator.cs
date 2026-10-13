@@ -258,10 +258,10 @@ namespace DacFXToolLib.Pipelines
                 var name = environment.Name.Trim();
                 var stageName = ToStageName(name);
 
-                if (!usedStageNames.Add(stageName))
-                {
-                    continue;
-                }
+if (!usedStageNames.Add(stageName))
+{
+    throw new InvalidOperationException($"Environment '{name}' maps to the duplicate stage name '{stageName}'. Rename it before generating the pipeline.");
+}
 
                 var existingProfile = existingProfiles.Find(p => MatchesEnvironment(p, stageName));
 
