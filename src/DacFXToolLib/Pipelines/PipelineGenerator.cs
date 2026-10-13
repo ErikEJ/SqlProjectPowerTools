@@ -217,7 +217,7 @@ namespace DacFXToolLib.Pipelines
         private static string ToStageName(string name)
         {
             var stageName = UnsafeStageCharactersRegex().Replace(name, "_");
-            return string.IsNullOrEmpty(stageName) ? "env" : stageName;
+            return string.IsNullOrEmpty(stageName) ? "env" : char.IsLetter(stageName[0]) || stageName[0] == '_' ? stageName : "_" + stageName;
         }
 
         [GeneratedRegex("^[A-Za-z_][A-Za-z0-9_]*$")]
