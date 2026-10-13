@@ -627,7 +627,7 @@ if (!usedStageNames.Add(stageName))
                     break;
                 case PipelineAuthentication.WindowsAuthentication:
                     connectAs = "-- Connect as a sysadmin. Replace the account with the agent service account.";
-                    createUser = $"USE [master];\nGO\nCREATE LOGIN [{escapedUserName}] FROM WINDOWS;\nGO\nUSE [{DacpacName.Replace("]", "]]", StringComparison.Ordinal)}];\nGO\nCREATE USER [{escapedUserName}] FOR LOGIN [{escapedUserName}];\nGO";
+                    createUser = $"USE [master];\nGO\nCREATE LOGIN [{escapedUserName}] FROM WINDOWS;\nGO\nUSE [<target-database-name>];\nGO\nCREATE USER [{escapedUserName}] FOR LOGIN [{escapedUserName}];\nGO";
                     break;
                 default:
                     connectAs = "-- Connect as an admin. Store the password as the secret variable 'SqlPassword'\n"
