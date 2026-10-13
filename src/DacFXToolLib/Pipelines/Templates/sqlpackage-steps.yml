@@ -102,8 +102,10 @@ steps:
             $approved = Join-Path $env:PIPELINE_WORKSPACE 'plan-${{ parameters.stageName }}/deployreport.xml'
             $current = Join-Path $outFolder 'deployreport-current.xml'
             Invoke-SqlPackage 'DeployReport' @("/OutputPath:$current")
-            $approvedText = (Get-Content -Path $approved -Raw) -replace '\s', ''
-            $currentText = (Get-Content -Path $current -Raw) -replace '\s', ''
+            [xml] $approvedXml = Get-Content -Path $approved -Raw
+            [xml] $currentXml = Get-Content -Path $current -Raw
+            $approvedText = $approvedXml.OuterXml
+            $currentText = $currentXml.OuterXml
             if ($approvedText -ne $currentText) {
               Write-Host '##vso[task.logissue type=error]The target database changed after the plan was approved. Run the pipeline again to create and approve a new plan.'
               throw 'Drift detected between plan and deploy'
