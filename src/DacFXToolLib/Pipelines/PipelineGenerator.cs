@@ -69,8 +69,10 @@ namespace DacFXToolLib.Pipelines
             using var stream = entry.Open();
             using var reader = XmlReader.Create(stream, new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null });
 
-            var inSqlCmdVariables = false;
-            var depth = -1;
+            var inSqlCmdVariable = false;
+            var customDataDepth = -1;
+            string? variableName = null;
+            var defaultValue = string.Empty;
 
             while (reader.Read())
             {
@@ -89,23 +91,34 @@ namespace DacFXToolLib.Pipelines
                     && reader.LocalName == "CustomData"
                     && reader.GetAttribute("Category") == "SqlCmdVariables")
                 {
-                    inSqlCmdVariables = !reader.IsEmptyElement;
-                    depth = reader.Depth;
+                    inSqlCmdVariable = !reader.IsEmptyElement;
+                    customDataDepth = reader.Depth;
+                    variableName = null;
+                    defaultValue = string.Empty;
                     continue;
                 }
 
-                if (inSqlCmdVariables && reader.NodeType == XmlNodeType.EndElement && reader.Depth == depth)
+                if (inSqlCmdVariable && reader.NodeType == XmlNodeType.EndElement && reader.Depth == customDataDepth)
                 {
-                    inSqlCmdVariables = false;
-                    continue;
-                }
-
-                if (inSqlCmdVariables && reader.NodeType == XmlNodeType.Element && reader.LocalName == "Metadata")
-                {
-                    var name = reader.GetAttribute("Name");
-                    if (!string.IsNullOrEmpty(name))
+                    if (!string.IsNullOrEmpty(variableName))
                     {
-                        result.Add(new KeyValuePair<string, string>(name, reader.GetAttribute("Value") ?? string.Empty));
+                        result.Add(new KeyValuePair<string, string>(variableName, defaultValue));
+                    }
+
+                    inSqlCmdVariable = false;
+                    continue;
+                }
+
+                if (inSqlCmdVariable && reader.NodeType == XmlNodeType.Element && reader.LocalName == "Metadata")
+                {
+                    var metadataName = reader.GetAttribute("Name");
+                    if (metadataName == "Name")
+                    {
+                        variableName = reader.GetAttribute("Value");
+                    }
+                    else if (metadataName == "Value")
+                    {
+                        defaultValue = reader.GetAttribute("Value") ?? string.Empty;
                     }
                 }
             }
@@ -347,7 +360,7 @@ if (!usedStageNames.Add(stageName))
             {
                 ["ProjectName"] = ProjectName,
                 ["OptionsFile"] = PipelineOptions.OptionsFileName,
-                ["DefaultBranch"] = string.IsNullOrWhiteSpace(options.DefaultBranch) ? "main" : options.DefaultBranch.Trim(),
+                ["DefaultBranch"] = YamlQuote(string.IsNullOrWhiteSpace(options.DefaultBranch) ? "main" : options.DefaultBranch.Trim()),
                 ["TriggerPaths"] = triggerPaths,
                 ["ProjectPath"] = projectPath.Replace("'", "''", StringComparison.Ordinal),
                 ["ProjectFolder"] = projectFolder.Replace("'", "''", StringComparison.Ordinal),

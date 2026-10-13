@@ -28,8 +28,12 @@ namespace DacFXToolLib.Tests
                   <Header>
                     <CustomData Category="AnsiNulls"><Metadata Name="AnsiNulls" Value="True" /></CustomData>
                     <CustomData Category="SqlCmdVariables" Type="SqlCmdVariable">
-                      <Metadata Name="Environment" Value="" />
-                      <Metadata Name="StorageAccount" Value="devstorage" />
+                      <Metadata Name="Name" Value="Environment" />
+                      <Metadata Name="Value" Value="" />
+                    </CustomData>
+                    <CustomData Category="SqlCmdVariables" Type="SqlCmdVariable">
+                      <Metadata Name="Name" Value="StorageAccount" />
+                      <Metadata Name="Value" Value="devstorage" />
                     </CustomData>
                   </Header>
                   <Model>
@@ -136,6 +140,17 @@ namespace DacFXToolLib.Tests
             var pipeline = GetFile(new PipelineGenerator(options).Render(), "azure-pipelines.yml");
 
             Assert.Contains("stageName: _1prod\n", pipeline, StringComparison.Ordinal);
+        }
+
+        [Fact]
+        public void Render_QuotesIndicatorLeadingDefaultBranch()
+        {
+            var options = CreateOptions();
+            options.DefaultBranch = "#release";
+
+            var pipeline = GetFile(new PipelineGenerator(options).Render(), "azure-pipelines.yml");
+
+            Assert.Equal(2, pipeline.Split("      - '#release'\n").Length - 1);
         }
 
         [Fact]
