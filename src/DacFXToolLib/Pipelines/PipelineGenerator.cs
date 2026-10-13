@@ -633,7 +633,7 @@ namespace DacFXToolLib.Pipelines
                     connectAs = "-- Connect as an admin. Store the password as the secret variable 'SqlPassword'\n"
                         + "-- in the variable group - never in source control.";
                     createUser = options.TargetPlatform == PipelineTargetPlatform.SqlServer
-                        ? $"USE [master];\nGO\nCREATE LOGIN [{escapedUserName}] WITH PASSWORD = '<strong-password>';\nGO\nUSE [{DacpacName.Replace("]", "]]", StringComparison.Ordinal)}];\nGO\nCREATE USER [{escapedUserName}] FOR LOGIN [{escapedUserName}];\nGO"
+                        ? $"USE [master];\nGO\nCREATE LOGIN [{escapedUserName}] WITH PASSWORD = '<strong-password>';\nGO\nUSE [<target-database-name>];\nGO\nCREATE USER [{escapedUserName}] FOR LOGIN [{escapedUserName}];\nGO"
                         : $"-- Contained database user\nCREATE USER [{escapedUserName}] WITH PASSWORD = '<strong-password>';\nGO";
                     break;
             }
