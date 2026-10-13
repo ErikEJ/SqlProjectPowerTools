@@ -24,7 +24,7 @@ namespace SqlProjectsPowerTools
 
         public PipelineWizardViewModel()
         {
-            OkCommand = new RelayCommand(OkExecuted, () => Environments.Count > 0);
+            OkCommand = new RelayCommand(OkExecuted, () => Environments.Count > 0 && !IsAzureSqlWindowsAuthentication);
             CancelCommand = new RelayCommand(CancelExecuted);
         }
 
@@ -158,6 +158,11 @@ namespace SqlProjectsPowerTools
             {
                 var warnings = new List<string>();
 
+                if (IsAzureSqlWindowsAuthentication)
+                {
+                    warnings.Add("Windows authentication is not supported for Azure SQL Database. Choose SQL authentication or passwordless (workload identity federation).");
+                }
+
                 if (AgentPoolIndex == (int)PipelineAgentPool.MicrosoftHosted
                     && AuthenticationIndex == (int)PipelineAuthentication.WindowsAuthentication)
                 {
@@ -187,6 +192,10 @@ namespace SqlProjectsPowerTools
         }
 
         public bool HasWarning => !string.IsNullOrEmpty(Warning);
+
+        private bool IsAzureSqlWindowsAuthentication =>
+            TargetPlatformIndex == (int)PipelineTargetPlatform.AzureSqlDatabase
+            && AuthenticationIndex == (int)PipelineAuthentication.WindowsAuthentication;
 
         public void Load(PipelineOptions options)
         {
@@ -238,6 +247,7 @@ namespace SqlProjectsPowerTools
             {
                 RaisePropertyChanged(nameof(Warning));
                 RaisePropertyChanged(nameof(HasWarning));
+                ((RelayCommand)OkCommand).RaiseCanExecuteChanged();
             }
         }
 
