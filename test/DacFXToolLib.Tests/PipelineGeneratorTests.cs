@@ -230,6 +230,24 @@ namespace DacFXToolLib.Tests
             Assert.Contains("      - Validate\n", pipeline, StringComparison.Ordinal);
         }
 
+        [Theory]
+        [InlineData(PipelineProjectStyle.Classic, true)]
+        [InlineData(PipelineProjectStyle.Classic, false)]
+        [InlineData(PipelineProjectStyle.MicrosoftBuildSql, true)]
+        [InlineData(PipelineProjectStyle.MicrosoftBuildSql, false)]
+        [InlineData(PipelineProjectStyle.MsBuildSdkSqlProj, true)]
+        [InlineData(PipelineProjectStyle.MsBuildSdkSqlProj, false)]
+        public void Render_ExplicitlySetsCodeAnalysis(PipelineProjectStyle projectStyle, bool includeCodeAnalysis)
+        {
+            var options = CreateOptions();
+            options.ProjectStyle = projectStyle;
+            options.IncludeCodeAnalysis = includeCodeAnalysis;
+
+            var pipeline = GetFile(new PipelineGenerator(options).Render(), "azure-pipelines.yml");
+
+            Assert.Contains($"RunSqlCodeAnalysis={includeCodeAnalysis}", pipeline, StringComparison.Ordinal);
+        }
+
         [Fact]
         public void Render_ReusesExistingPublishProfile()
         {

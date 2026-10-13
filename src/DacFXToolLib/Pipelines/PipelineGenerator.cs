@@ -426,7 +426,7 @@ namespace DacFXToolLib.Pipelines
                     "  inputs:",
                     "    solution: '$(projectFile)'",
                     "    configuration: '$(buildConfiguration)'",
-                    codeAnalysis ? "    msbuildArgs: '/p:RunSqlCodeAnalysis=True'" : string.Empty)
+                    $"    msbuildArgs: '/p:RunSqlCodeAnalysis={codeAnalysis}'")
                     .Replace("\n\n", "\n", StringComparison.Ordinal);
             }
 
@@ -435,7 +435,7 @@ namespace DacFXToolLib.Pipelines
                 "# SDK-style project: builds with the .NET SDK on Linux, macOS or Windows agents",
                 "# The .NET SDK on the agent is used - add a UseDotNet@2 task or global.json to pin a version",
                 codeAnalysis ? "# Code analysis runs as part of the build, manage the rules with 'Manage Code Analysis Rules...'" : string.Empty,
-                $"- script: dotnet build \"$(projectFile)\" --configuration $(buildConfiguration)" + (codeAnalysis ? " -p:RunSqlCodeAnalysis=True" : string.Empty),
+                $"- script: dotnet build \"$(projectFile)\" --configuration $(buildConfiguration) -p:RunSqlCodeAnalysis={codeAnalysis}",
                 $"  displayName: Build {ProjectName}")
                 .Replace("\n\n", "\n", StringComparison.Ordinal);
         }
