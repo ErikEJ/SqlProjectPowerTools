@@ -678,7 +678,15 @@ namespace DacFXToolLib.Pipelines
                     connectAs = "-- Connect as a Microsoft Entra admin of the server.\n"
                         + $"-- '{userName}' is the display name of the app registration or managed identity\n"
                         + $"-- used by the Azure DevOps service connection '{options.ServiceConnectionName}'.";
-                    createUser = $"CREATE USER [{escapedUserName}] FROM EXTERNAL PROVIDER;\nGO";
+                    createUser = $"CREATE USER [{escapedUserName}] FROM EXTERNAL PROVIDER;\nGO\n\n"
+                        + "-- Alternative for Azure SQL Database and SQL database in Microsoft Fabric:\n"
+                        + "-- use this when the admin cannot query Microsoft Entra ID (for example when the\n"
+                        + "-- identity lacks Microsoft Graph permission), which makes FROM EXTERNAL PROVIDER fail.\n"
+                        + $"-- Supply the application (client) ID of '{userName}' as a binary(16) SID. Get it with:\n"
+                        + "--   SELECT CONVERT(varbinary(16), CAST('<application-client-id>' AS uniqueidentifier));\n"
+                        + "-- TYPE = E for a user, service principal or managed identity; TYPE = X for a group.\n"
+                        + $"-- CREATE USER [{escapedUserName}] WITH SID = 0x..., TYPE = E;\n"
+                        + "-- GO";
                     break;
                 case PipelineAuthentication.WindowsAuthentication:
                     connectAs = "-- Connect as a sysadmin. Replace the account with the agent service account.";

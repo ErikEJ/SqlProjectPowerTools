@@ -55,12 +55,13 @@ Start with `pipelines/PIPELINE-SETUP.md`: the pipeline will not run until the se
 - Create an **Azure Resource Manager service connection** that uses **workload identity federation**. Azure DevOps exchanges a short-lived token with Entra ID on every run, so there is no client secret to store or rotate.
 - Deploy from an `AzureCLI@2` step that uses the service connection. Inside the step, get an access token for `https://database.windows.net/` with `az account get-access-token`, and pass it to SqlPackage with `/AccessToken:`. Alternatively, use `Authentication=Active Directory Default` in the connection string, which picks up the Azure CLI sign-in.
 - **The step people miss:** the identity must exist as a user in every target database. A Microsoft Entra admin of the server runs `CREATE USER [<identity>] FROM EXTERNAL PROVIDER` once per database, and grants roles to that user.
+- **If the admin cannot query Microsoft Entra ID** (for example, the identity lacks Microsoft Graph permission), `FROM EXTERNAL PROVIDER` fails. On Azure SQL Database and SQL database in Microsoft Fabric, create the user from the application (client) ID instead: `CREATE USER [<identity>] WITH SID = <sid>, TYPE = E`, where `<sid>` is the client ID as a `binary(16)` value (`SELECT CONVERT(varbinary(16), CAST('<application-client-id>' AS uniqueidentifier));`). Use `TYPE = E` for a user, service principal or managed identity, and `TYPE = X` for a group.
 - Grant the smallest set of roles that works. `db_owner` is not required for most deployments: `db_ddladmin` lets SqlPackage change the schema, and `db_datareader` plus `db_datawriter` cover post-deployment scripts that read and write data. Add `db_owner` only if your project manages permissions, users or other database-level settings.
 
 **What the generator does:**
 
 - With **Passwordless (workload identity federation)** selected, every SqlPackage call runs inside `AzureCLI@2` with an Entra access token. The token is marked as a secret so it is masked in logs.
-- `pipelines/setup/grant-pipeline-access.sql` contains the `CREATE USER ... FROM EXTERNAL PROVIDER` and role statements for the identity name you enter.
+- `pipelines/setup/grant-pipeline-access.sql` contains the `CREATE USER ... FROM EXTERNAL PROVIDER` statement (with a commented `CREATE USER ... WITH SID = ..., TYPE = E` alternative for when Microsoft Entra ID cannot be queried) and role statements for the identity name you enter.
 - `pipelines/PIPELINE-SETUP.md` explains how to create the service connection and find the identity name.
 
 SQL authentication (user name and password in a secret variable in a variable group) and Windows authentication (self-hosted agent running as a domain account) are also available.
