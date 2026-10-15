@@ -411,7 +411,6 @@ namespace DacFXToolLib.Pipelines
                     : string.Empty,
                 ["BuildPool"] = buildPool,
                 ["BuildSteps"] = RenderBuildSteps(),
-                ["PublishProfilePattern"] = options.UsePublishProfiles ? "                *.publish.xml\n" : string.Empty,
                 ["ValidateStage"] = options.IncludeContainerValidation ? RenderValidateStage(sqlCmdVariables) : string.Empty,
                 ["EnvironmentStages"] = stages.ToString().TrimEnd('\r', '\n').Replace("\r\n", "\n", StringComparison.Ordinal),
             });
