@@ -18,7 +18,7 @@ Each topic follows the same structure: **the problem**, **why it is hard**, **th
 
 1. Right-click your SQL database project in Solution Explorer
 2. Select **SQL Project Power Tools > Add Azure DevOps Pipeline...**
-3. Pick the target, agent pool, authentication, firewall strategy, environments and optional stages
+3. Pick the target, agent pool, authentication, firewall strategy, environments, whether to use publish profiles, and optional stages
 4. Select **OK**
 
 The tool reads these facts from your project, so you don't have to enter them:
@@ -38,7 +38,7 @@ These files are created, relative to the root of your git repository:
 | `pipelines/templates/sqlpackage-steps.yml` | Installs the latest SqlPackage and runs `Script`, `DeployReport` or `Publish` |
 | `pipelines/setup/grant-pipeline-access.sql` | One-time script that creates the pipeline identity as a database user |
 | `pipelines/PIPELINE-SETUP.md` | Checklist of what to set up in Azure and Azure DevOps, with matching `az` commands |
-| `<Project>.<environment>.publish.xml` | One publish profile per environment, added to the project if missing |
+| `<Project>.<environment>.publish.xml` | One publish profile per environment, added to the project if missing (only when publish profiles are enabled) |
 
 Your choices are saved in `pipeline-options.json` next to the project file, so you can run the command again to regenerate the pipeline. If generated files already exist, you are asked whether to overwrite them. Publish profiles are never overwritten.
 
@@ -93,10 +93,10 @@ Options 1 and 2 need public network access to be enabled on the server. Option 3
 
 **Recommended pattern:**
 
-1. **Build:** compile the project, run code analysis, and publish the `.dacpac` and publish profiles as a pipeline artifact.
+1. **Build:** compile the project, run code analysis, and publish the `.dacpac` (and any publish profiles) as a pipeline artifact.
 2. **Plan:** run SqlPackage `Script` and `DeployReport` against the target. Publish the `.sql` script and `.xml` report as an artifact, and show a readable summary on the run page.
 3. **Approve:** deploy to an Azure DevOps **Environment** with an approval check, so reviewers read the plan before approving.
-4. **Deploy:** a deployment job that uses the same `.dacpac` and publish profile, with `BlockOnPossibleDataLoss=true`.
+4. **Deploy:** a deployment job that uses the same `.dacpac` (and the publish profile, if enabled).
 
 The plan stage only runs for **staging and production type environments**: environments with a name that contains `prod`, `stag`, `stg` or `live`. Development and test environments deploy directly to keep the feedback loop short.
 
@@ -123,9 +123,9 @@ If you need a reproducible version instead, pin it with `--version` on the `dotn
 
 ## Publish profiles and SQLCMD variables
 
-- Use **one publish profile per environment** (`<Project>.<environment>.publish.xml`) for deployment options such as `BlockOnPossibleDataLoss` and `DropObjectsNotInSource`. Keep server names, database names and secrets out of the profiles.
+- Publish profiles are **optional and off by default**. Enable **Use a publish profile per environment** in the wizard to generate (and reference) one publish profile per environment (`<Project>.<environment>.publish.xml`) for deployment options such as `BlockOnPossibleDataLoss` and `DropObjectsNotInSource`. Keep server names, database names and secrets out of the profiles. When disabled, SqlPackage runs with its default options and no profile files are created.
 - Map SQLCMD variables to pipeline variables. The generated pipeline reads the variables from a variable group per environment, `sql-<environment>`, so each environment can have its own values. Mark secret values as secret, or link the variable group to Azure Key Vault.
-- The generator reuses existing publish profiles whose name ends with the environment name, and creates missing ones.
+- When publish profiles are enabled, the generator reuses existing publish profiles whose name ends with the environment name, and creates missing ones.
 
 ## Classic and SDK-style projects need different agents
 
@@ -136,7 +136,7 @@ The generator picks the right image and build step for your project. Consider co
 
 ## Validate in a throwaway SQL Server container
 
-Optionally, deploy the `.dacpac` to an empty SQL Server container before touching a real environment. This catches deployment errors, and post-deployment scripts that fail or are not safe to run more than once. The generated `Validate` stage starts a SQL Server 2022 container on an Ubuntu agent and publishes the `.dacpac` twice.
+Optionally, deploy the `.dacpac` to an empty SQL Server container before touching a real environment. This catches deployment errors, and post-deployment scripts that fail or are not safe to run more than once. The generated `Validate` stage starts a SQL Server 2025 container on an Ubuntu agent and publishes the `.dacpac` twice.
 
 This works best for projects that don't depend on Azure-only features.
 
@@ -144,6 +144,6 @@ This works best for projects that don't depend on Azure-only features.
 
 - **Post-deployment scripts must be safe to run repeatedly.** They run on every deployment. The MERGE scripts created by **Script Table Data** already are.
 - **There is no automatic rollback.** SqlPackage does not undo a deployment. Rely on point-in-time restore or backups, and fix forward.
-- **Choose `DropObjectsNotInSource` and `BlockOnPossibleDataLoss` on purpose** for each environment, and keep the choice in the publish profile.
+- **Choose `DropObjectsNotInSource` and `BlockOnPossibleDataLoss` on purpose** for each environment. When publish profiles are enabled, keep the choice in the publish profile.
 - **Version the `.dacpac`** and record the version in the deployment logs, so you know what was deployed where.
 - **GitHub Actions** is not supported by the generator yet.

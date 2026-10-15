@@ -177,6 +177,11 @@ namespace DacFXToolLib.Pipelines
 
             foreach (var environment in environments.Where(e => e.CreateProfile))
             {
+                if (!options.UsePublishProfiles)
+                {
+                    continue;
+                }
+
                 files.Add(new PipelineFile(
                     Path.Combine(ProjectDirectory, environment.PublishProfile),
                     Fill(LoadTemplate("publish-profile.xml"), new Dictionary<string, string>
@@ -382,7 +387,7 @@ namespace DacFXToolLib.Pipelines
                     "    dependsOn:",
                     "      - " + previousStage,
                     "    variableGroup: " + YamlQuote(environment.VariableGroup),
-                    "    publishProfile: " + YamlQuote(environment.PublishProfile),
+                    "    publishProfile: " + YamlQuote(options.UsePublishProfiles ? environment.PublishProfile : string.Empty),
                     "    planBeforeDeploy: " + (environment.PlanBeforeDeploy ? "true" : "false"),
                     "    serviceConnection: " + YamlQuote(UsesServiceConnection ? options.ServiceConnectionName ?? string.Empty : string.Empty),
                     "    dacpacName: " + YamlQuote(DacpacName),
@@ -407,6 +412,7 @@ namespace DacFXToolLib.Pipelines
                 ["BuildPool"] = buildPool,
                 ["BuildSteps"] = RenderBuildSteps(),
                 ["ValidateStage"] = options.IncludeContainerValidation ? RenderValidateStage(sqlCmdVariables) : string.Empty,
+                ["PublishProfilePattern"] = options.UsePublishProfiles ? "**/*.publish.xml" : string.Empty,
                 ["EnvironmentStages"] = stages.ToString().TrimEnd('\r', '\n').Replace("\r\n", "\n", StringComparison.Ordinal),
             });
         }
@@ -477,7 +483,7 @@ namespace DacFXToolLib.Pipelines
                 "            # Random password for this run only",
                 "            pw=\"V$(openssl rand -hex 16)!a\"",
                 "            echo \"##vso[task.setvariable variable=ValidationSaPassword;issecret=true]$pw\"",
-                "            docker run -d --name sqlvalidation -e ACCEPT_EULA=Y -e \"MSSQL_SA_PASSWORD=$pw\" -p 1433:1433 mcr.microsoft.com/mssql/server:2022-latest",
+                "            docker run -d --name sqlvalidation -e ACCEPT_EULA=Y -e \"MSSQL_SA_PASSWORD=$pw\" -p 1433:1433 mcr.microsoft.com/mssql/server:2025-latest",
                 "            for i in $(seq 1 60); do",
                 "              if docker exec sqlvalidation /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P \"$pw\" -Q \"SELECT 1\" > /dev/null 2>&1; then exit 0; fi",
                 "              sleep 2",
@@ -699,11 +705,11 @@ namespace DacFXToolLib.Pipelines
         private string RenderSetupGuide(List<EnvironmentInfo> environments, List<KeyValuePair<string, string>> sqlCmdVariables)
         {
             var profileRows = string.Concat(environments
-                .Where(e => e.CreateProfile)
+                .Where(e => options.UsePublishProfiles && e.CreateProfile)
                 .Select(e => $"| `{e.PublishProfile}` | Publish profile for {e.Name} (in the project folder) |\n"));
 
             var environmentRows = string.Concat(environments
-                .Select(e => $"| {e.Name} | `{e.VariableGroup}` | `{e.PublishProfile}` | {(e.PlanBeforeDeploy ? "Yes" : "No")} |\n"));
+                .Select(e => $"| {e.Name} | `{e.VariableGroup}` | {(options.UsePublishProfiles ? $"`{e.PublishProfile}`" : "-")} | {(e.PlanBeforeDeploy ? "Yes" : "No")} |\n"));
 
             var variables = new List<string>
             {

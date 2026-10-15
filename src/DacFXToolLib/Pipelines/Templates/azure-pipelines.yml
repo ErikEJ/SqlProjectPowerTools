@@ -49,7 +49,7 @@ stages:
               SourceFolder: '$(Build.SourcesDirectory)/$(projectFolder)'
               Contents: |
                 **/bin/$(buildConfiguration)/**/*.dacpac
-                *.publish.xml
+{{PublishProfilePattern}}
               TargetFolder: '$(Build.ArtifactStagingDirectory)/dacpac'
               flattenFolders: true
 
