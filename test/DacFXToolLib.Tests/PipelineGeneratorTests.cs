@@ -89,8 +89,7 @@ namespace DacFXToolLib.Tests
             Assert.False(new PipelineOptions().UsePublishProfiles);
 
             var options = CreateOptions();
-        Assert.False(new PipelineOptions().UsePublishProfiles);
-        options.UsePublishProfiles = false;
+            options.UsePublishProfiles = false;
 
             var files = new PipelineGenerator(options).Render();
 
