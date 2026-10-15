@@ -47,18 +47,20 @@ steps:
         $mode = '${{ parameters.mode }}'
         $dacpacFolder = Join-Path $env:PIPELINE_WORKSPACE 'dacpac'
         $dacpac = Join-Path $dacpacFolder ($env:DACPAC_NAME + '.dacpac')
-        $publishProfile = Join-Path $dacpacFolder $env:PUBLISH_PROFILE
         $outFolder = Join-Path $env:BUILD_ARTIFACTSTAGINGDIRECTORY 'plan'
         New-Item -ItemType Directory -Force -Path $outFolder | Out-Null
 
-        # Settings such as BlockOnPossibleDataLoss and DropObjectsNotInSource
-        # are kept in the publish profile, one per environment
         $arguments = @(
           "/SourceFile:$dacpac",
-          "/Profile:$publishProfile",
           "/TargetServerName:$env:SQL_SERVER",
           "/TargetDatabaseName:$env:SQL_DATABASE"
         )
+        if ($env:PUBLISH_PROFILE) {
+          # Settings such as BlockOnPossibleDataLoss and DropObjectsNotInSource
+          # are kept in the publish profile, one per environment
+          $publishProfile = Join-Path $dacpacFolder $env:PUBLISH_PROFILE
+          $arguments += "/Profile:$publishProfile"
+        }
 {{AuthArguments}}{{SqlCmdArguments}}
         function Invoke-SqlPackage([string] $action, [string[]] $extra) {
           Write-Host "Running SqlPackage /Action:$action"

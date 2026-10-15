@@ -21,6 +21,7 @@ namespace SqlProjectsPowerTools
         private string defaultBranch = "main";
         private bool includeCodeAnalysis;
         private bool includeContainerValidation;
+        private bool usePublishProfiles;
 
         public PipelineWizardViewModel()
         {
@@ -132,6 +133,12 @@ namespace SqlProjectsPowerTools
             set => Set(ref includeContainerValidation, value);
         }
 
+        public bool UsePublishProfiles
+        {
+            get => usePublishProfiles;
+            set => Set(ref usePublishProfiles, value);
+        }
+
         public IList<string> Environments => (EnvironmentsText ?? string.Empty)
             .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
             .Select(e => e.Trim())
@@ -227,6 +234,7 @@ namespace SqlProjectsPowerTools
             DefaultBranch = string.IsNullOrWhiteSpace(options.DefaultBranch) ? "main" : options.DefaultBranch;
             IncludeCodeAnalysis = options.IncludeCodeAnalysis;
             IncludeContainerValidation = options.IncludeContainerValidation;
+            UsePublishProfiles = options.UsePublishProfiles;
             EnvironmentsText = options.Environments == null || options.Environments.Count == 0
                 ? "dev, test, prod"
                 : string.Join(", ", options.Environments.Select(e => e.Name));
@@ -249,6 +257,7 @@ namespace SqlProjectsPowerTools
             options.DefaultBranch = string.IsNullOrWhiteSpace(DefaultBranch) ? "main" : DefaultBranch.Trim();
             options.IncludeCodeAnalysis = IncludeCodeAnalysis;
             options.IncludeContainerValidation = IncludeContainerValidation;
+            options.UsePublishProfiles = UsePublishProfiles;
 
             // Plan stages are only used for staging and production type environments
             options.Environments = Environments.Select(PipelineEnvironment.Create).ToList();

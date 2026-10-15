@@ -77,6 +77,8 @@ namespace DacFXToolLib.Pipelines
 
         public bool IncludeContainerValidation { get; set; }
 
+        public bool UsePublishProfiles { get; set; }
+
         public string DefaultBranch { get; set; } = "main";
     }
 }

@@ -48,6 +48,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
         <TextBlock Grid.Row="0" Grid.ColumnSpan="2" Margin="0,0,0,10" TextWrapping="Wrap">
@@ -112,7 +113,11 @@
                   Content="Validate the deployment in a SQL Server container first"
                   IsChecked="{Binding IncludeContainerValidation, Mode=TwoWay}" />
 
-        <Border Grid.Row="13" Grid.ColumnSpan="2"
+        <CheckBox Grid.Row="13" Grid.Column="1" Margin="0,2"
+                  Content="Use a publish profile per environment for deployment options"
+                  IsChecked="{Binding UsePublishProfiles, Mode=TwoWay}" />
+
+        <Border Grid.Row="14" Grid.ColumnSpan="2"
                 Background="#FFF5C600"
                 Padding="8,4"
                 Margin="0,8,0,0"
@@ -120,7 +125,7 @@
             <TextBlock TextWrapping="Wrap" Foreground="#FF000000" Text="{Binding Warning}" />
         </Border>
 
-        <StackPanel Grid.Row="14" Grid.ColumnSpan="2"
+        <StackPanel Grid.Row="15" Grid.ColumnSpan="2"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right"
                     Margin="0,12">
