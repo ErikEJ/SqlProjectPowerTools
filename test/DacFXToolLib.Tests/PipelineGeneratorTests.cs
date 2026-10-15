@@ -87,7 +87,8 @@ namespace DacFXToolLib.Tests
         public void Render_PublishProfilesDisabledByDefault()
         {
             var options = CreateOptions();
-            options.UsePublishProfiles = false;
+        Assert.False(new PipelineOptions().UsePublishProfiles);
+        options.UsePublishProfiles = false;
 
             var files = new PipelineGenerator(options).Render();
 
