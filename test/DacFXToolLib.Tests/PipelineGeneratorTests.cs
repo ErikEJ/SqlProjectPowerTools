@@ -243,6 +243,8 @@ namespace DacFXToolLib.Tests
 
             var grant = GetFile(files, "grant-pipeline-access.sql");
             Assert.Contains("CREATE USER [my-app] FROM EXTERNAL PROVIDER;", grant, StringComparison.Ordinal);
+            Assert.Contains("-- CREATE USER [my-app] WITH SID = 0x..., TYPE = E;", grant, StringComparison.Ordinal);
+            Assert.Contains("SELECT CONVERT(varbinary(16), CAST('<application-client-id>' AS uniqueidentifier));", grant, StringComparison.Ordinal);
             Assert.DoesNotContain("db_owner TO", grant, StringComparison.Ordinal);
         }
 
