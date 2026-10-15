@@ -406,6 +406,7 @@ namespace DacFXToolLib.Pipelines
                 ["ProjectPath"] = projectPath.Replace("'", "''", StringComparison.Ordinal),
                 ["ProjectFolder"] = projectFolder.Replace("'", "''", StringComparison.Ordinal),
                 ["CodeAnalysisComment"] = options.IncludeCodeAnalysis ? " (with code analysis)" : string.Empty,
+                ["PublishProfilePattern"] = options.UsePublishProfiles ? "                *.publish.xml\n" : string.Empty,
                 ["ValidateComment"] = options.IncludeContainerValidation
                     ? "#   Validate - deploy twice to a throwaway SQL Server container to test the\n#              .dacpac and that post-deployment scripts can run repeatedly\n"
                     : string.Empty,

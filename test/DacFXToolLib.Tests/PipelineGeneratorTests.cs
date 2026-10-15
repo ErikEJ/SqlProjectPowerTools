@@ -86,6 +86,8 @@ namespace DacFXToolLib.Tests
         [Fact]
         public void Render_PublishProfilesDisabledByDefault()
         {
+            Assert.False(new PipelineOptions().UsePublishProfiles);
+
             var options = CreateOptions();
         Assert.False(new PipelineOptions().UsePublishProfiles);
         options.UsePublishProfiles = false;
@@ -98,6 +100,7 @@ namespace DacFXToolLib.Tests
             var pipeline = GetFile(files, "azure-pipelines.yml");
             Assert.Contains("publishProfile: ''", pipeline, StringComparison.Ordinal);
             Assert.DoesNotContain("MyDatabase.prod.publish.xml", pipeline, StringComparison.Ordinal);
+            Assert.DoesNotContain("*.publish.xml", pipeline, StringComparison.Ordinal);
 
             var steps = GetFile(files, "sqlpackage-steps.yml");
             Assert.Contains("if ($env:PUBLISH_PROFILE) {", steps, StringComparison.Ordinal);
@@ -111,9 +114,11 @@ namespace DacFXToolLib.Tests
         public void Render_PublishProfilesEnabled_ReferencesProfiles()
         {
             var files = new PipelineGenerator(CreateOptions()).Render();
+            var pipeline = GetFile(files, "azure-pipelines.yml");
 
             Assert.Contains(files, f => f.Path.EndsWith(".publish.xml", StringComparison.Ordinal));
-            Assert.Contains("publishProfile: 'MyDatabase.prod.publish.xml'", GetFile(files, "azure-pipelines.yml"), StringComparison.Ordinal);
+            Assert.Contains("publishProfile: 'MyDatabase.prod.publish.xml'", pipeline, StringComparison.Ordinal);
+            Assert.Contains("*.publish.xml", pipeline, StringComparison.Ordinal);
         }
 
         [Fact]
