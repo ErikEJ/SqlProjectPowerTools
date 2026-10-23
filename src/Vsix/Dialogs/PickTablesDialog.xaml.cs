@@ -78,7 +78,7 @@ namespace SqlProjectsPowerTools
 
         private void DialogWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            bool isInEditMode = ((IPickTablesViewModel)tree.DataContext).ObjectTree.IsInEditMode;
+            var isInEditMode = ((IPickTablesViewModel)tree.DataContext).ObjectTree.IsInEditMode;
             if (isInEditMode)
             {
                 e.Cancel = true;

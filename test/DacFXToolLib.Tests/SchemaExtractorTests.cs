@@ -48,7 +48,7 @@ namespace DacFXToolLib.Tests
         {
             var method = typeof(SchemaExtractor).GetMethod("GetModelOptionValue", BindingFlags.NonPublic | BindingFlags.Static);
             Assert.NotNull(method);
-            return (string?)method!.Invoke(null, [propertyName, value, useDbScopedConfigOnOffWorkaround]);
+            return (string?)method.Invoke(null, [propertyName, value, useDbScopedConfigOnOffWorkaround]);
         }
     }
 }

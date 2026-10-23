@@ -1,23 +1,22 @@
-namespace SqlProjectsPowerTools
-{
-    [Command(PackageIds.cmdidDeployScript)]
-    internal sealed class DeployScriptCommand : BaseCommand<DeployScriptCommand>
-    {
-        protected override void BeforeQueryStatus(EventArgs e)
-        {
-            ThreadHelper.JoinableTaskFactory.Run(async () =>
-            {
-                Command.Enabled = await Command.IsEnabledForModernSqlProjectAsync();
-            });
-        }
+namespace SqlProjectsPowerTools;
 
-        protected override async Task ExecuteAsync(OleMenuCmdEventArgs e)
+[Command(PackageIds.cmdidDeployScript)]
+internal sealed class DeployScriptCommand : BaseCommand<DeployScriptCommand>
+{
+    protected override void BeforeQueryStatus(EventArgs e)
+    {
+        ThreadHelper.JoinableTaskFactory.Run(async () =>
         {
-            var project = await VS.Solutions.GetActiveProjectAsync();
-            if (project != null)
-            {
-                await DeployScriptHandler.AddDeploymentScriptsAsync(project);
-            }
+            Command.Enabled = await Command.IsEnabledForModernSqlProjectAsync();
+        });
+    }
+
+    protected override async Task ExecuteAsync(OleMenuCmdEventArgs e)
+    {
+        var project = await VS.Solutions.GetActiveProjectAsync();
+        if (project != null)
+        {
+            await DeployScriptHandler.AddDeploymentScriptsAsync(project);
         }
     }
 }

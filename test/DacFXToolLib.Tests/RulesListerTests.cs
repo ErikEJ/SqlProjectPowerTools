@@ -58,7 +58,7 @@ namespace DacFXToolLib.Tests
 
             var suppressed = rules.SingleOrDefault(r => r.Id == firstRule.Id);
             Assert.NotNull(suppressed);
-            Assert.False(suppressed!.Enabled);
+            Assert.False(suppressed.Enabled);
         }
 
         [Fact]
@@ -181,7 +181,7 @@ namespace DacFXToolLib.Tests
 
             var suppressed = rules.SingleOrDefault(r => r.Id == firstRule.Id);
             Assert.NotNull(suppressed);
-            Assert.False(suppressed!.Enabled);
+            Assert.False(suppressed.Enabled);
 
             // Other matching rules should have Error severity
             var elevated = rules.Where(r =>
@@ -206,13 +206,13 @@ namespace DacFXToolLib.Tests
             var filtered = lister.GetRules($"-{firstRule.Id}");
             var suppressedRule = filtered.SingleOrDefault(r => r.Id == firstRule.Id);
             Assert.NotNull(suppressedRule);
-            Assert.False(suppressedRule!.Enabled);
+            Assert.False(suppressedRule.Enabled);
 
             // Second call: no expression — should not carry over suppression
             var plain = lister.GetRules();
             var restoredRule = plain.SingleOrDefault(r => r.Id == firstRule.Id);
             Assert.NotNull(restoredRule);
-            Assert.True(restoredRule!.Enabled);
+            Assert.True(restoredRule.Enabled);
         }
     }
 }

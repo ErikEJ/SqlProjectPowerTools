@@ -29,15 +29,15 @@ namespace SqlServer.Rules.Report
             SendNotification($"Loading {request.FileName}.dacpac");
             var sw = Stopwatch.StartNew();
 
-            TSqlModel model = TSqlModel.LoadFromDacpac(
+            var model = TSqlModel.LoadFromDacpac(
                     request.InputPath,
                     new ModelLoadOptions()
                     {
                         LoadAsScriptBackedModel = true,
                         ModelStorageType = Microsoft.SqlServer.Dac.DacSchemaModelStorageType.Memory,
                     });
-            CodeAnalysisServiceFactory factory = new CodeAnalysisServiceFactory();
-            CodeAnalysisService service = factory.CreateAnalysisService(model);
+            var factory = new CodeAnalysisServiceFactory();
+            var service = factory.CreateAnalysisService(model);
 
             service.SetProblemSuppressor(request.Suppress);
             sw.Stop();

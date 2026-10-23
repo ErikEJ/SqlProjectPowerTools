@@ -1,11 +1,10 @@
 using System.Windows.Input;
 
-namespace SqlProjectsPowerTools
-{
-    public interface IObjectTreeSelectableViewModel
-    {
-        bool? IsSelected { get; }
+namespace SqlProjectsPowerTools;
 
-        ICommand SetSelectedCommand { get; }
-    }
+public interface IObjectTreeSelectableViewModel
+{
+    public bool? IsSelected { get; }
+
+    public ICommand SetSelectedCommand { get; }
 }

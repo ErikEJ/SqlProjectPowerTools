@@ -6,232 +6,231 @@ using System.Threading.Tasks;
 using DacFXToolLib.Common;
 using DacFXToolLib.Dab;
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+internal sealed class SeedHandler
 {
-    internal sealed class SeedHandler
+    public async Task GenerateSeedScriptsAsync(Project project)
     {
-        public async Task GenerateSeedScriptsAsync(Project project)
+        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+        try
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            try
+            if (await VSHelper.IsDebugModeAsync())
             {
-                if (await VSHelper.IsDebugModeAsync())
-                {
-                    VSHelper.ShowError("Cannot generate code while debugging");
-                    return;
-                }
-
-                var options = new DataApiBuilderOptions();
-
-                var info = await ChooseDataBaseConnectionAsync(options);
-
-                if (info.DatabaseModel == null)
-                {
-                    return;
-                }
-
-                var dbInfo = await GetDatabaseInfoAsync(options);
-
-                if (dbInfo == null)
-                {
-                    return;
-                }
-
-                options.ProjectPath = project.FullPath;
-
-                if (!await LoadDataBaseObjectsAsync(options))
-                {
-                    await VS.StatusBar.ClearAsync();
-                    return;
-                }
-
-                await GenerateScriptAsync(options, dbInfo.ConnectionString, project);
-            }
-            catch (AggregateException ae)
-            {
-                foreach (var innerException in ae.Flatten().InnerExceptions)
-                {
-                    VSHelper.ShowError(innerException.Message);
-                }
-            }
-            catch (Exception exception)
-            {
-                VSHelper.ShowError(exception.Message);
-            }
-            finally
-            {
-                await VS.StatusBar.ClearAsync();
-            }
-        }
-
-        private static async Task GenerateScriptAsync(DataApiBuilderOptions options, string connectionString, Project project)
-        {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            await VS.StatusBar.ShowProgressAsync("Getting seed data", 1, 2);
-
-            var revEngRunner = new ProcessLauncher();
-
-            var parts = options.Tables.FirstOrDefault()?.Name.Split('.');
-
-            if (parts == null || parts.Length != 2)
-            {
-                VSHelper.ShowError("No table selected.");
+                VSHelper.ShowError("Cannot generate code while debugging");
                 return;
             }
 
-            var tableName = parts[1];
-            var schema = parts[0];
+            var options = new DataApiBuilderOptions();
 
-            var result = await revEngRunner.CreateMergeScriptAsync(options.ProjectPath, connectionString, tableName, schema);
+            var (DatabaseModel, FileGenerationMode, ImportSettings) = await ChooseDataBaseConnectionAsync(options);
 
-            await VS.StatusBar.ShowProgressAsync("Getting seed data", 2, 2);
-
-            if (File.Exists(result))
+            if (DatabaseModel == null)
             {
-                await VS.Documents.OpenAsync(result);
+                return;
+            }
 
-                var projectDirectory = Path.GetDirectoryName(project.FullPath);
+            var dbInfo = await GetDatabaseInfoAsync(options);
 
-                var insertStatement = $":r ./{Path.GetFileName(result)}";
+            if (dbInfo == null)
+            {
+                return;
+            }
 
-                var postDeployFilePath = Path.Combine(projectDirectory, "Post-Deployment", "Script.PostDeployment.sql");
+            options.ProjectPath = project.FullPath;
 
-                if (File.Exists(postDeployFilePath))
-                {
-                    var textLines = File.ReadAllLines(postDeployFilePath).ToList();
+            if (!await LoadDataBaseObjectsAsync(options))
+            {
+                await VS.StatusBar.ClearAsync();
+                return;
+            }
 
-                    if (!textLines.Any(line => line.Trim().Equals(insertStatement, StringComparison.OrdinalIgnoreCase)))
-                    {
-                        textLines.Add(string.Empty);
-                        textLines.Add(insertStatement);
-                        File.WriteAllLines(postDeployFilePath, textLines, Encoding.UTF8);
-                    }
-                }
-                else
-                {
-                    File.WriteAllLines(postDeployFilePath, new List<string> { insertStatement }, Encoding.UTF8);
-                }
-
-                project.AddDeployToProject("Post-Deployment/Script.PostDeployment.sql", "PostDeploy");
+            await GenerateScriptAsync(options, dbInfo.ConnectionString, project);
+        }
+        catch (AggregateException ae)
+        {
+            foreach (var innerException in ae.Flatten().InnerExceptions)
+            {
+                VSHelper.ShowError(innerException.Message);
             }
         }
-
-        private static async Task<IList<TableModel>> GetTablesAsync(string connectionString)
+        catch (Exception exception)
         {
-            var builder = new TableListBuilder(connectionString, DatabaseType.SQLServer);
-
-            return await builder.GetTableDefinitionsAsync();
+            VSHelper.ShowError(exception.Message);
         }
-
-        private static async Task<bool> LoadDataBaseObjectsAsync(DataApiBuilderOptions options)
+        finally
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            IEnumerable<TableModel> predefinedTables = null;
-
-            try
-            {
-                await VS.StatusBar.StartAnimationAsync(StatusAnimation.Build);
-
-                predefinedTables = await GetTablesAsync(options.ConnectionString);
-
-                predefinedTables = predefinedTables
-                    .Where(t => t.ObjectType == ObjectType.Table);
-            }
-            catch (InvalidOperationException ex)
-            {
-                VSHelper.ShowError($"{ex.Message}");
-                return false;
-            }
-            finally
-            {
-                await VS.StatusBar.EndAnimationAsync(StatusAnimation.Build);
-            }
-
-            var preselectedTables = new List<SerializationTableModel>();
-
             await VS.StatusBar.ClearAsync();
+        }
+    }
 
-            var ptd = PackageManager.Package.GetView<IPickTablesDialog>()
-                              .AddTables(predefinedTables, new List<Schema>())
-                              .PreselectTables(preselectedTables);
+    private static async Task GenerateScriptAsync(DataApiBuilderOptions options, string connectionString, Project project)
+    {
+        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            var pickTablesResult = ptd.ShowAndAwaitUserResponse(true);
+        await VS.StatusBar.ShowProgressAsync("Getting seed data", 1, 2);
 
-            options.Tables = pickTablesResult.Payload.Objects.ToList();
-            return pickTablesResult.ClosedByOK;
+        var revEngRunner = new ProcessLauncher();
+
+        var parts = options.Tables.FirstOrDefault()?.Name.Split('.');
+
+        if (parts == null || parts.Length != 2)
+        {
+            VSHelper.ShowError("No table selected.");
+            return;
         }
 
-        private async Task<(DatabaseConnectionModel DatabaseModel, int FileGenerationMode, bool ImportSettings)> ChooseDataBaseConnectionAsync(DataApiBuilderOptions options)
-        {
-#if !SSMS
-            var vsDataHelper = new VsDataHelper();
-            var databaseList = await vsDataHelper.GetDataConnectionsAsync();
-#else
-            var databaseList = await SsmsDataHelper.GetDataConnectionsAsync();
-#endif
-            var psd = PackageManager.Package.GetView<IPickServerDatabaseDialog>();
+        var tableName = parts[1];
+        var schema = parts[0];
 
-            if (databaseList != null && databaseList.Any())
+        var result = await revEngRunner.CreateMergeScriptAsync(options.ProjectPath, connectionString, tableName, schema);
+
+        await VS.StatusBar.ShowProgressAsync("Getting seed data", 2, 2);
+
+        if (File.Exists(result))
+        {
+            await VS.Documents.OpenAsync(result);
+
+            var projectDirectory = Path.GetDirectoryName(project.FullPath);
+
+            var insertStatement = $":r ./{Path.GetFileName(result)}";
+
+            var postDeployFilePath = Path.Combine(projectDirectory, "Post-Deployment", "Script.PostDeployment.sql");
+
+            if (File.Exists(postDeployFilePath))
             {
-                psd.PublishConnections(databaseList.Select(m => new DatabaseConnectionModel
+                var textLines = File.ReadAllLines(postDeployFilePath).ToList();
+
+                if (!textLines.Any(line => line.Trim().Equals(insertStatement, StringComparison.OrdinalIgnoreCase)))
                 {
-                    ConnectionName = m.Value.ConnectionName,
-                    ConnectionString = m.Value.ConnectionString,
-                    DatabaseType = m.Value.DatabaseType,
-                    IsFromServerExplorer = m.Value.IsFromServerExplorer,
-                }));
+                    textLines.Add(string.Empty);
+                    textLines.Add(insertStatement);
+                    File.WriteAllLines(postDeployFilePath, textLines, Encoding.UTF8);
+                }
             }
-
-            psd.PublishFileGenerationMode(GetCodeGenerationModes());
-
-            var pickDataSourceResult = psd.ShowAndAwaitUserResponse(true);
-            if (!pickDataSourceResult.ClosedByOK)
+            else
             {
-                return (null, 0, false);
+                File.WriteAllLines(postDeployFilePath, new List<string> { insertStatement }, Encoding.UTF8);
             }
 
-            if (pickDataSourceResult.Payload.Connection != null)
-            {
-                options.ConnectionString = pickDataSourceResult.Payload.Connection.ConnectionString;
-                options.DatabaseType = pickDataSourceResult.Payload.Connection.DatabaseType;
-            }
-
-            return (pickDataSourceResult.Payload.Connection,
-                pickDataSourceResult.Payload.CodeGenerationMode,
-                pickDataSourceResult.Payload.GetDatabaseOptions);
+            project.AddDeployToProject("Post-Deployment/Script.PostDeployment.sql", "PostDeploy");
         }
+    }
 
-        private static async Task<DatabaseConnectionModel> GetDatabaseInfoAsync(DataApiBuilderOptions options)
+    private static async Task<IList<TableModel>> GetTablesAsync(string connectionString)
+    {
+        var builder = new TableListBuilder(connectionString, DatabaseType.SQLServer);
+
+        return await builder.GetTableDefinitionsAsync();
+    }
+
+    private static async Task<bool> LoadDataBaseObjectsAsync(DataApiBuilderOptions options)
+    {
+        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+        IEnumerable<TableModel> predefinedTables = null;
+
+        try
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            await VS.StatusBar.StartAnimationAsync(StatusAnimation.Build);
 
-            var dbInfo = new DatabaseConnectionModel();
+            predefinedTables = await GetTablesAsync(options.ConnectionString);
 
-            if (!string.IsNullOrEmpty(options.ConnectionString))
-            {
-                dbInfo.ConnectionString = options.ConnectionString;
-                dbInfo.DatabaseType = options.DatabaseType;
-            }
-
-            if (dbInfo.DatabaseType == DatabaseType.Undefined)
-            {
-                VSHelper.ShowError($"Unsupported provider");
-                return null;
-            }
-
-            return dbInfo;
+            predefinedTables = predefinedTables
+                .Where(t => t.ObjectType == ObjectType.Table);
         }
-
-        private static List<CodeGenerationItem> GetCodeGenerationModes()
+        catch (InvalidOperationException ex)
         {
-            var list = new List<CodeGenerationItem>
-            {
-                new CodeGenerationItem { Key = 0, Value = "Seed" },
-            };
-            return list;
+            VSHelper.ShowError($"{ex.Message}");
+            return false;
         }
+        finally
+        {
+            await VS.StatusBar.EndAnimationAsync(StatusAnimation.Build);
+        }
+
+        var preselectedTables = new List<SerializationTableModel>();
+
+        await VS.StatusBar.ClearAsync();
+
+        var ptd = PackageManager.Package.GetView<IPickTablesDialog>()
+                          .AddTables(predefinedTables, new List<Schema>())
+                          .PreselectTables(preselectedTables);
+
+        var (ClosedByOK, Payload) = ptd.ShowAndAwaitUserResponse(true);
+
+        options.Tables = Payload.Objects.ToList();
+        return ClosedByOK;
+    }
+
+    private async Task<(DatabaseConnectionModel DatabaseModel, int FileGenerationMode, bool ImportSettings)> ChooseDataBaseConnectionAsync(DataApiBuilderOptions options)
+    {
+#if !SSMS
+        var vsDataHelper = new VsDataHelper();
+        var databaseList = await vsDataHelper.GetDataConnectionsAsync();
+#else
+        var databaseList = await SsmsDataHelper.GetDataConnectionsAsync();
+#endif
+        var psd = PackageManager.Package.GetView<IPickServerDatabaseDialog>();
+
+        if (databaseList != null && databaseList.Any())
+        {
+            psd.PublishConnections(databaseList.Select(m => new DatabaseConnectionModel
+            {
+                ConnectionName = m.Value.ConnectionName,
+                ConnectionString = m.Value.ConnectionString,
+                DatabaseType = m.Value.DatabaseType,
+                IsFromServerExplorer = m.Value.IsFromServerExplorer,
+            }));
+        }
+
+        psd.PublishFileGenerationMode(GetCodeGenerationModes());
+
+        var (ClosedByOK, Payload) = psd.ShowAndAwaitUserResponse(true);
+        if (!ClosedByOK)
+        {
+            return (null, 0, false);
+        }
+
+        if (Payload.Connection != null)
+        {
+            options.ConnectionString = Payload.Connection.ConnectionString;
+            options.DatabaseType = Payload.Connection.DatabaseType;
+        }
+
+        return (Payload.Connection,
+            Payload.CodeGenerationMode,
+            Payload.GetDatabaseOptions);
+    }
+
+    private static async Task<DatabaseConnectionModel> GetDatabaseInfoAsync(DataApiBuilderOptions options)
+    {
+        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+        var dbInfo = new DatabaseConnectionModel();
+
+        if (!string.IsNullOrEmpty(options.ConnectionString))
+        {
+            dbInfo.ConnectionString = options.ConnectionString;
+            dbInfo.DatabaseType = options.DatabaseType;
+        }
+
+        if (dbInfo.DatabaseType == DatabaseType.Undefined)
+        {
+            VSHelper.ShowError($"Unsupported provider");
+            return null;
+        }
+
+        return dbInfo;
+    }
+
+    private static List<CodeGenerationItem> GetCodeGenerationModes()
+    {
+        var list = new List<CodeGenerationItem>
+        {
+            new CodeGenerationItem { Key = 0, Value = "Seed" },
+        };
+        return list;
     }
 }

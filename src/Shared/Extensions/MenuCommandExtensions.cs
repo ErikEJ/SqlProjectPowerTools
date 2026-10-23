@@ -1,41 +1,40 @@
 using System.ComponentModel.Design;
 using System.Threading.Tasks;
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+internal static class MenuCommandExtensions
 {
-    internal static class MenuCommandExtensions
+    public static async Task<bool> IsEnabledForAnySqlProjectAsync(this MenuCommand command)
     {
-        public static async Task<bool> IsEnabledForAnySqlProjectAsync(this MenuCommand command)
+        var activeProject = await VS.Solutions.GetActiveProjectAsync();
+        if (activeProject == null)
         {
-            var activeProject = await VS.Solutions.GetActiveProjectAsync();
-            if (activeProject == null)
-            {
-                return false;
-            }
-
-            return activeProject.IsAnySqlDatabaseProject();
+            return false;
         }
 
-        public static async Task<bool> IsEnabledForModernSqlProjectAsync(this MenuCommand command)
-        {
-            var activeProject = await VS.Solutions.GetActiveProjectAsync();
-            if (activeProject == null)
-            {
-                return false;
-            }
+        return activeProject.IsAnySqlDatabaseProject();
+    }
 
-            return activeProject.IsModernSqlDatabaseProject();
+    public static async Task<bool> IsEnabledForModernSqlProjectAsync(this MenuCommand command)
+    {
+        var activeProject = await VS.Solutions.GetActiveProjectAsync();
+        if (activeProject == null)
+        {
+            return false;
         }
 
-        public static async Task<bool> IsEnabledForMsBuildSdkSqlProjectAsync(this MenuCommand command)
-        {
-            var activeProject = await VS.Solutions.GetActiveProjectAsync();
-            if (activeProject == null)
-            {
-                return false;
-            }
+        return activeProject.IsModernSqlDatabaseProject();
+    }
 
-            return activeProject.IsMsBuildSdkSqlDatabaseProject();
+    public static async Task<bool> IsEnabledForMsBuildSdkSqlProjectAsync(this MenuCommand command)
+    {
+        var activeProject = await VS.Solutions.GetActiveProjectAsync();
+        if (activeProject == null)
+        {
+            return false;
         }
+
+        return activeProject.IsMsBuildSdkSqlDatabaseProject();
     }
 }

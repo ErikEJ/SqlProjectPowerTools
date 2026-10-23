@@ -1,26 +1,25 @@
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+[Command(PackageIds.cmdidImport)]
+internal sealed class ImportCommand : BaseCommand<ImportCommand>
 {
-    [Command(PackageIds.cmdidImport)]
-    internal sealed class ImportCommand : BaseCommand<ImportCommand>
+    protected override void BeforeQueryStatus(EventArgs e)
     {
-        protected override void BeforeQueryStatus(EventArgs e)
+        ThreadHelper.JoinableTaskFactory.Run(async () =>
         {
-            ThreadHelper.JoinableTaskFactory.Run(async () =>
-            {
-                var isSdkSqlProject = await Command.IsEnabledForModernSqlProjectAsync();
+            var isSdkSqlProject = await Command.IsEnabledForModernSqlProjectAsync();
 
-                Command.Enabled = isSdkSqlProject;
-            });
-        }
+            Command.Enabled = isSdkSqlProject;
+        });
+    }
 
-        protected override async Task ExecuteAsync(OleMenuCmdEventArgs e)
+    protected override async Task ExecuteAsync(OleMenuCmdEventArgs e)
+    {
+        var project = await VS.Solutions.GetActiveProjectAsync();
+
+        if (project != null)
         {
-            var project = await VS.Solutions.GetActiveProjectAsync();
-
-            if (project != null)
-            {
-                await new ImportHandler().GenerateAsync(project);
-            }
+            await new ImportHandler().GenerateAsync(project);
         }
     }
 }

@@ -26,22 +26,22 @@ namespace SqlProjectsPowerTools
 
             var result = string.Empty;
 
-            if (builder.TryGetValue("Data Source", out object dataSource))
+            if (builder.TryGetValue("Data Source", out var dataSource))
             {
                 result += dataSource.ToString().Replace(".database.windows.net", string.Empty);
             }
 
-            if (builder.TryGetValue("DataSource", out object dataSource2))
+            if (builder.TryGetValue("DataSource", out var dataSource2))
             {
                 result += dataSource2.ToString();
             }
 
-            if (builder.TryGetValue("Database", out object database))
+            if (builder.TryGetValue("Database", out var database))
             {
                 result += "." + database.ToString();
             }
 
-            if (builder.TryGetValue("Initial Catalog", out object catalog))
+            if (builder.TryGetValue("Initial Catalog", out var catalog))
             {
                 result += "." + catalog.ToString();
             }
@@ -121,7 +121,7 @@ namespace SqlProjectsPowerTools
             {
                 var providerManager = await VS.GetServiceAsync<IVsDataProviderManager, IVsDataProviderManager>();
                 return providerManager != null &&
-                    providerManager.Providers.TryGetValue(id, out IVsDataProvider _);
+                    providerManager.Providers.TryGetValue(id, out var _);
             }
             catch
             {
@@ -254,7 +254,7 @@ namespace SqlProjectsPowerTools
                             cmd.CommandText = "SELECT ISNULL(LOWER(CAST(SERVERPROPERTY('ServerName') AS NVARCHAR(128))), '') + '.' + ISNULL(DB_NAME(), '') + '.' + ISNULL(SCHEMA_NAME(), '')";
                             conn.Open();
 
-                            object res = cmd.ExecuteScalar();
+                            var res = cmd.ExecuteScalar();
 
                             if (res != null && res != DBNull.Value)
                             {

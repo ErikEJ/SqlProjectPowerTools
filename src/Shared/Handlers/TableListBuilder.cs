@@ -2,29 +2,28 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DacFXToolLib.Common;
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+public class TableListBuilder
 {
-    public class TableListBuilder
+    private readonly string connectionString;
+    private readonly DatabaseType databaseType;
+
+    public TableListBuilder(string connectionString, DatabaseType databaseType)
     {
-        private readonly string connectionString;
-        private readonly DatabaseType databaseType;
-
-        public TableListBuilder(string connectionString, DatabaseType databaseType)
+        if (string.IsNullOrEmpty(connectionString))
         {
-            if (string.IsNullOrEmpty(connectionString))
-            {
-                throw new ArgumentNullException(nameof(connectionString));
-            }
-
-            this.connectionString = connectionString;
-            this.databaseType = databaseType;
+            throw new ArgumentNullException(nameof(connectionString));
         }
 
-        public async Task<IList<TableModel>> GetTableDefinitionsAsync()
-        {
-            var launcher = new ProcessLauncher();
+        this.connectionString = connectionString;
+        this.databaseType = databaseType;
+    }
 
-            return await launcher.GetTablesAsync(connectionString, databaseType);
-        }
+    public async Task<IList<TableModel>> GetTableDefinitionsAsync()
+    {
+        var launcher = new ProcessLauncher();
+
+        return await launcher.GetTablesAsync(connectionString, databaseType);
     }
 }

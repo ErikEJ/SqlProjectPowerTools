@@ -2,96 +2,95 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using GalaSoft.MvvmLight;
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+public class RuleGroupViewModel : ViewModelBase
 {
-    public class RuleGroupViewModel : ViewModelBase
+    private bool? isEnabled;
+    private bool isVisible = true;
+    private bool updatingFromRules;
+
+    public RuleGroupViewModel(string groupName, ObservableCollection<RuleViewModel> rules)
     {
-        private bool? isEnabled;
-        private bool isVisible = true;
-        private bool updatingFromRules;
+        GroupName = groupName;
+        Rules = rules;
 
-        public RuleGroupViewModel(string groupName, ObservableCollection<RuleViewModel> rules)
+        foreach (var rule in Rules)
         {
-            GroupName = groupName;
-            Rules = rules;
-
-            foreach (var rule in Rules)
+            rule.IsEnabledChanged += (s, e) =>
             {
-                rule.IsEnabledChanged += (s, e) =>
-                {
-                    UpdateGroupState();
-                    UpdateGroupVisibility();
-                };
-            }
-
-            UpdateGroupState();
+                UpdateGroupState();
+                UpdateGroupVisibility();
+            };
         }
 
-        public string GroupName { get; }
+        UpdateGroupState();
+    }
 
-        public ObservableCollection<RuleViewModel> Rules { get; }
+    public string GroupName { get; }
 
-        public bool? IsEnabled
+    public ObservableCollection<RuleViewModel> Rules { get; }
+
+    public bool? IsEnabled
+    {
+        get => isEnabled;
+        set
         {
-            get => isEnabled;
-            set
+            if (Equals(value, isEnabled))
             {
-                if (Equals(value, isEnabled))
-                {
-                    return;
-                }
+                return;
+            }
 
-                isEnabled = value;
-                RaisePropertyChanged();
+            isEnabled = value;
+            RaisePropertyChanged();
 
-                if (!updatingFromRules && value.HasValue)
-                {
-                    SetAllRules(value.Value);
-                }
+            if (!updatingFromRules && value.HasValue)
+            {
+                SetAllRules(value.Value);
             }
         }
+    }
 
-        public bool IsVisible
+    public bool IsVisible
+    {
+        get => isVisible;
+        set
         {
-            get => isVisible;
-            set
+            if (Equals(value, isVisible))
             {
-                if (Equals(value, isVisible))
-                {
-                    return;
-                }
-
-                isVisible = value;
-                RaisePropertyChanged();
+                return;
             }
+
+            isVisible = value;
+            RaisePropertyChanged();
         }
+    }
 
-        public void UpdateGroupVisibility()
+    public void UpdateGroupVisibility()
+    {
+        IsVisible = Rules.Any(r => r.IsVisible);
+    }
+
+    private void SetAllRules(bool enabled)
+    {
+        foreach (var rule in Rules)
         {
-            IsVisible = Rules.Any(r => r.IsVisible);
+            rule.IsEnabled = enabled;
         }
+    }
 
-        private void SetAllRules(bool enabled)
+    private void UpdateGroupState()
+    {
+        updatingFromRules = true;
+        try
         {
-            foreach (var rule in Rules)
-            {
-                rule.IsEnabled = enabled;
-            }
+            var allEnabled = Rules.All(r => r.IsEnabled);
+            var allDisabled = Rules.All(r => !r.IsEnabled);
+            IsEnabled = allEnabled ? true : (allDisabled ? (bool?)false : null);
         }
-
-        private void UpdateGroupState()
+        finally
         {
-            updatingFromRules = true;
-            try
-            {
-                var allEnabled = Rules.All(r => r.IsEnabled);
-                var allDisabled = Rules.All(r => !r.IsEnabled);
-                IsEnabled = allEnabled ? true : (allDisabled ? (bool?)false : null);
-            }
-            finally
-            {
-                updatingFromRules = false;
-            }
+            updatingFromRules = false;
         }
     }
 }

@@ -9,283 +9,282 @@ using System.Text;
 using System.Threading.Tasks;
 using DacFXToolLib.Common;
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+internal sealed class ProcessLauncher
 {
-    internal sealed class ProcessLauncher
+    private readonly string toolFolder;
+    private readonly string toolRoot;
+    private readonly string exeName;
+    private readonly string zipName;
+
+    public ProcessLauncher()
     {
-        private readonly string toolFolder;
-        private readonly string toolRoot;
-        private readonly string exeName;
-        private readonly string zipName;
+        var versionSuffix = FileVersionInfo.GetVersionInfo(typeof(VsixPackage).Assembly.Location).FileVersion;
+        toolFolder = $"dacfxtool.";
+        exeName = $"dacfxtool.dll";
+        zipName = $"dacfxtool.exe.zip";
+        toolRoot = toolFolder;
+        toolFolder += versionSuffix;
+    }
 
-        public ProcessLauncher()
+    public async Task<IList<TableModel>> GetTablesAsync(string connectionString, DatabaseType databaseType)
+    {
+        string arguments;
+
+        if (databaseType == DatabaseType.SQLServerDacpac)
         {
-            var versionSuffix = FileVersionInfo.GetVersionInfo(typeof(VsixPackage).Assembly.Location).FileVersion;
-            toolFolder = $"dacfxtool.";
-            exeName = $"dacfxtool.dll";
-            zipName = $"dacfxtool.exe.zip";
-            toolRoot = toolFolder;
-            toolFolder += versionSuffix;
+            arguments = "getobjects \"" + connectionString.Replace("\"", "\\\"") + "\"";
+        }
+        else
+        {
+            arguments = "gettables \"" + connectionString.Replace("\"", "\\\"") + "\"";
         }
 
-        public async Task<IList<TableModel>> GetTablesAsync(string connectionString, DatabaseType databaseType)
+        return await GetTablesInternalAsync(arguments);
+    }
+
+    public async Task<string> GetDiagramAsync(string connectionString, string optionsPath, List<string> schemaList)
+    {
+        var option = "dgml ";
+
+        var arguments = option + " \"" + optionsPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\" \"" + string.Join(",", schemaList) + "\"";
+
+        if (schemaList.Count == 0)
         {
-            string arguments;
-
-            if (databaseType == DatabaseType.SQLServerDacpac)
-            {
-                arguments = "getobjects \"" + connectionString.Replace("\"", "\\\"") + "\"";
-            }
-            else
-            {
-                arguments = "gettables \"" + connectionString.Replace("\"", "\\\"") + "\"";
-            }
-
-            return await GetTablesInternalAsync(arguments);
+            arguments = option + " \"" + optionsPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\"";
         }
 
-        public async Task<string> GetDiagramAsync(string connectionString, string optionsPath, List<string> schemaList)
+        var filePath = await GetDiagramInternalAsync(arguments);
+
+        return filePath;
+    }
+
+    public async Task<string> GetImportAsync(int fileGenerationMode, string optionsPath, string connectionString)
+    {
+        var option = "import ";
+
+        var arguments = option + fileGenerationMode.ToString(CultureInfo.InvariantCulture) + " \"" + optionsPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\"";
+
+        var filePath = await GetDiagramInternalAsync(arguments);
+
+        return filePath;
+    }
+
+    public async Task<string> GetVisualCompareAsync(bool databaseIsSource, string dacpacPath, string connectionString)
+    {
+        var option = "visualcompare ";
+
+        var arguments = option + "\"" + dacpacPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\" " + databaseIsSource.ToString();
+
+        var filePath = await GetDiagramInternalAsync(arguments);
+
+        return filePath;
+    }
+
+    public async Task<string> GetDatabaseSettingsAsync(string connectionString, bool useDbScopedConfigOnOffWorkaround)
+    {
+        var option = "getdboptions ";
+
+        var arguments = option + " \"" + connectionString.Replace("\"", "\\\"") + "\" " + useDbScopedConfigOnOffWorkaround.ToString();
+
+        var filePath = await GetDiagramInternalAsync(arguments);
+
+        return filePath;
+    }
+
+    public async Task<string> GetErDiagramAsync(string optionsPath, string connectionString)
+    {
+        var arguments = "erdiagram " + " \"" + optionsPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\" ";
+
+        var filePath = await GetDiagramInternalAsync(arguments);
+
+        return filePath;
+    }
+
+    public async Task<string> GetUnpackAsync(string optionsPath, string connectionString)
+    {
+        var arguments = "unpack " + " \"" + optionsPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\" ";
+
+        var filePath = await GetDiagramInternalAsync(arguments);
+
+        return filePath;
+    }
+
+    public async Task<string> GetReportPathAsync(string path)
+    {
+        var option = "dacpacreport ";
+
+        var arguments = option + " \"" + path.Replace("\"", "\\\"") + "\"";
+
+        var filePath = await GetDiagramInternalAsync(arguments);
+
+        return filePath;
+    }
+
+    public async Task<string> GetDabConfigPathAsync(string optionsPath, string connectionString)
+    {
+        var arguments = "dabbuilder " + " \"" + optionsPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\" ";
+
+        var filePath = await GetDiagramInternalAsync(arguments);
+
+        return filePath;
+    }
+
+    // pipeline "<options path>" "<project file path>" "<dacpac path>" "<output root>" <overwrite>
+    public async Task<string> GeneratePipelineAsync(string optionsPath, string projectFilePath, string dacpacPath, string outputRoot, bool overwrite)
+    {
+        var arguments = "pipeline " + Quote(optionsPath) + " " + Quote(projectFilePath) + " " + Quote(dacpacPath ?? string.Empty) + " " + Quote(outputRoot) + " " + overwrite.ToString();
+
+        return await GetDiagramInternalAsync(arguments);
+    }
+
+    public async Task<string> GetRulesPathAsync(string sqlServerVersion, string rulesExpression)
+    {
+        var arguments = string.IsNullOrEmpty(rulesExpression)
+            ? "getrules \"" + sqlServerVersion + "\""
+            : "getrules \"" + sqlServerVersion + "\" \"" + rulesExpression.Replace("\"", "\\\"") + "\"";
+
+        return await GetDiagramInternalAsync(arguments);
+    }
+
+    // merge "projectpath" "connectionString" "tableName" "schema"
+    public async Task<string> CreateMergeScriptAsync(string projectPath, string connectionString, string tablename, string schema)
+    {
+        var arguments = "merge " + " \"" + projectPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\" \"" + tablename.Replace("\"", "\\\"") + "\" \"" + schema.Replace("\"", "\\\"") + "\"";
+
+        var result = await GetDiagramInternalAsync(arguments);
+
+        return result;
+    }
+
+    private static string Quote(string value)
+    {
+        var escaped = value.Replace("\"", "\\\"");
+
+        // A trailing backslash would escape the closing quote
+        if (escaped.EndsWith("\\", StringComparison.Ordinal))
         {
-            var option = "dgml ";
-
-            var arguments = option + " \"" + optionsPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\" \"" + string.Join(",", schemaList) + "\"";
-
-            if (schemaList.Count == 0)
-            {
-                arguments = option + " \"" + optionsPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\"";
-            }
-
-            var filePath = await GetDiagramInternalAsync(arguments);
-
-            return filePath;
+            escaped += "\\";
         }
 
-        public async Task<string> GetImportAsync(int fileGenerationMode, string optionsPath, string connectionString)
+        return "\"" + escaped + "\"";
+    }
+
+    private static async Task<string> RunProcessAsync(ProcessStartInfo startInfo)
+    {
+        return await ExternalProcessLauncher.RunProcessAsync(startInfo);
+    }
+
+    private async Task<string> GetDiagramInternalAsync(string arguments)
+    {
+        var startInfo = await CreateStartInfoAsync(arguments);
+
+        try
         {
-            var option = "import ";
-
-            var arguments = option + fileGenerationMode.ToString(CultureInfo.InvariantCulture) + " \"" + optionsPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\"";
-
-            var filePath = await GetDiagramInternalAsync(arguments);
-
-            return filePath;
+            File.WriteAllText(Path.Combine(Path.GetTempPath(), "dacfxtoolparams.txt"), startInfo.Arguments, Encoding.UTF8);
+        }
+        catch
+        {
+            // Ignore
         }
 
-        public async Task<string> GetVisualCompareAsync(bool databaseIsSource, string dacpacPath, string connectionString)
+        var standardOutput = await RunProcessAsync(startInfo);
+
+        return ResultDeserializer.BuildDiagramResult(standardOutput);
+    }
+
+    private async Task<IList<TableModel>> GetTablesInternalAsync(string arguments)
+    {
+        var startInfo = await CreateStartInfoAsync(arguments);
+
+        var standardOutput = await RunProcessAsync(startInfo);
+
+        return ResultDeserializer.BuildTableResult(standardOutput);
+    }
+
+    private async Task<ProcessStartInfo> CreateStartInfoAsync(string arguments)
+    {
+        var version = "8.0";
+
+        if (!await IsDotnetInstalledAsync(version))
         {
-            var option = "visualcompare ";
-
-            var arguments = option + "\"" + dacpacPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\" " + databaseIsSource.ToString();
-
-            var filePath = await GetDiagramInternalAsync(arguments);
-
-            return filePath;
+            throw new InvalidOperationException($"Reverse engineer error: Unable to launch 'dotnet' version {version}. Do you have the runtime installed? Check with 'dotnet --list-runtimes'");
         }
 
-        public async Task<string> GetDatabaseSettingsAsync(string connectionString, bool useDbScopedConfigOnOffWorkaround)
+        var launchPath = DropNetCoreFiles();
+
+        var startInfo = new ProcessStartInfo
         {
-            var option = "getdboptions ";
+            FileName = "dotnet",
+            Arguments = $"\"{launchPath}\" {arguments}",
+        };
+        return startInfo;
+    }
 
-            var arguments = option + " \"" + connectionString.Replace("\"", "\\\"") + "\" " + useDbScopedConfigOnOffWorkaround.ToString();
+    private async Task<bool> IsDotnetInstalledAsync(string version)
+    {
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = "dotnet",
+            Arguments = "--list-runtimes",
+        };
 
-            var filePath = await GetDiagramInternalAsync(arguments);
+        var result = await RunProcessAsync(startInfo);
 
-            return filePath;
+        if (string.IsNullOrWhiteSpace(result))
+        {
+            return false;
         }
 
-        public async Task<string> GetErDiagramAsync(string optionsPath, string connectionString)
+        var sdks = result.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+
+        return sdks.Exists(s => s.StartsWith($"Microsoft.NETCore.App {version}.", StringComparison.OrdinalIgnoreCase));
+    }
+
+    private string DropNetCoreFiles()
+    {
+        var toDir = Path.Combine(Path.GetTempPath(), toolFolder);
+        var fromDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+
+        Debug.Assert(fromDir != null, nameof(fromDir) + " != null");
+        Debug.Assert(toDir != null, nameof(toDir) + " != null");
+
+        var fullPath = Path.Combine(toDir, exeName);
+
+        if (Directory.Exists(toDir)
+            && File.Exists(fullPath)
+            && Directory.EnumerateFiles(toDir, "*", SearchOption.TopDirectoryOnly).Count() >= 97)
         {
-            var arguments = "erdiagram " + " \"" + optionsPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\" ";
-
-            var filePath = await GetDiagramInternalAsync(arguments);
-
-            return filePath;
+            return fullPath;
         }
 
-        public async Task<string> GetUnpackAsync(string optionsPath, string connectionString)
+        if (Directory.Exists(toDir))
         {
-            var arguments = "unpack " + " \"" + optionsPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\" ";
-
-            var filePath = await GetDiagramInternalAsync(arguments);
-
-            return filePath;
+            Directory.Delete(toDir, true);
         }
 
-        public async Task<string> GetReportPathAsync(string path)
+        Directory.CreateDirectory(toDir);
+
+        using (var archive = ZipFile.Open(Path.Combine(fromDir, zipName), ZipArchiveMode.Read))
         {
-            var option = "dacpacreport ";
-
-            var arguments = option + " \"" + path.Replace("\"", "\\\"") + "\"";
-
-            var filePath = await GetDiagramInternalAsync(arguments);
-
-            return filePath;
+            archive.ExtractToDirectory(toDir, true);
         }
 
-        public async Task<string> GetDabConfigPathAsync(string optionsPath, string connectionString)
+        var dirs = Directory.GetDirectories(Path.GetTempPath(), toolRoot + "*");
+
+        foreach (var dir in dirs.Where(dir => !dir.Equals(toDir, StringComparison.Ordinal)))
         {
-            var arguments = "dabbuilder " + " \"" + optionsPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\" ";
-
-            var filePath = await GetDiagramInternalAsync(arguments);
-
-            return filePath;
-        }
-
-        // pipeline "<options path>" "<project file path>" "<dacpac path>" "<output root>" <overwrite>
-        public async Task<string> GeneratePipelineAsync(string optionsPath, string projectFilePath, string dacpacPath, string outputRoot, bool overwrite)
-        {
-            var arguments = "pipeline " + Quote(optionsPath) + " " + Quote(projectFilePath) + " " + Quote(dacpacPath ?? string.Empty) + " " + Quote(outputRoot) + " " + overwrite.ToString();
-
-            return await GetDiagramInternalAsync(arguments);
-        }
-
-        public async Task<string> GetRulesPathAsync(string sqlServerVersion, string rulesExpression)
-        {
-            var arguments = string.IsNullOrEmpty(rulesExpression)
-                ? "getrules \"" + sqlServerVersion + "\""
-                : "getrules \"" + sqlServerVersion + "\" \"" + rulesExpression.Replace("\"", "\\\"") + "\"";
-
-            return await GetDiagramInternalAsync(arguments);
-        }
-
-        // merge "projectpath" "connectionString" "tableName" "schema"
-        public async Task<string> CreateMergeScriptAsync(string projectPath, string connectionString, string tablename, string schema)
-        {
-            var arguments = "merge " + " \"" + projectPath.Replace("\"", "\\\"") + "\" " + " \"" + connectionString.Replace("\"", "\\\"") + "\" \"" + tablename.Replace("\"", "\\\"") + "\" \"" + schema.Replace("\"", "\\\"") + "\"";
-
-            var result = await GetDiagramInternalAsync(arguments);
-
-            return result;
-        }
-
-        private static string Quote(string value)
-        {
-            var escaped = value.Replace("\"", "\\\"");
-
-            // A trailing backslash would escape the closing quote
-            if (escaped.EndsWith("\\", StringComparison.Ordinal))
-            {
-                escaped += "\\";
-            }
-
-            return "\"" + escaped + "\"";
-        }
-
-        private static async Task<string> RunProcessAsync(ProcessStartInfo startInfo)
-        {
-            return await ExternalProcessLauncher.RunProcessAsync(startInfo);
-        }
-
-        private async Task<string> GetDiagramInternalAsync(string arguments)
-        {
-            var startInfo = await CreateStartInfoAsync(arguments);
-
             try
             {
-                File.WriteAllText(Path.Combine(Path.GetTempPath(), "dacfxtoolparams.txt"), startInfo.Arguments, Encoding.UTF8);
+                Directory.Delete(dir, true);
             }
             catch
             {
                 // Ignore
             }
-
-            var standardOutput = await RunProcessAsync(startInfo);
-
-            return ResultDeserializer.BuildDiagramResult(standardOutput);
         }
 
-        private async Task<IList<TableModel>> GetTablesInternalAsync(string arguments)
-        {
-            var startInfo = await CreateStartInfoAsync(arguments);
-
-            var standardOutput = await RunProcessAsync(startInfo);
-
-            return ResultDeserializer.BuildTableResult(standardOutput);
-        }
-
-        private async Task<ProcessStartInfo> CreateStartInfoAsync(string arguments)
-        {
-            string version = "8.0";
-
-            if (!await IsDotnetInstalledAsync(version))
-            {
-                throw new InvalidOperationException($"Reverse engineer error: Unable to launch 'dotnet' version {version}. Do you have the runtime installed? Check with 'dotnet --list-runtimes'");
-            }
-
-            var launchPath = DropNetCoreFiles();
-
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = "dotnet",
-                Arguments = $"\"{launchPath}\" {arguments}",
-            };
-            return startInfo;
-        }
-
-        private async Task<bool> IsDotnetInstalledAsync(string version)
-        {
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = "dotnet",
-                Arguments = "--list-runtimes",
-            };
-
-            var result = await RunProcessAsync(startInfo);
-
-            if (string.IsNullOrWhiteSpace(result))
-            {
-                return false;
-            }
-
-            var sdks = result.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
-
-            return sdks.Exists(s => s.StartsWith($"Microsoft.NETCore.App {version}.", StringComparison.OrdinalIgnoreCase));
-        }
-
-        private string DropNetCoreFiles()
-        {
-            var toDir = Path.Combine(Path.GetTempPath(), toolFolder);
-            var fromDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-
-            Debug.Assert(fromDir != null, nameof(fromDir) + " != null");
-            Debug.Assert(toDir != null, nameof(toDir) + " != null");
-
-            var fullPath = Path.Combine(toDir, exeName);
-
-            if (Directory.Exists(toDir)
-                && File.Exists(fullPath)
-                && Directory.EnumerateFiles(toDir, "*", SearchOption.TopDirectoryOnly).Count() >= 97)
-            {
-                return fullPath;
-            }
-
-            if (Directory.Exists(toDir))
-            {
-                Directory.Delete(toDir, true);
-            }
-
-            Directory.CreateDirectory(toDir);
-
-            using (var archive = ZipFile.Open(Path.Combine(fromDir, zipName), ZipArchiveMode.Read))
-            {
-                archive.ExtractToDirectory(toDir, true);
-            }
-
-            var dirs = Directory.GetDirectories(Path.GetTempPath(), toolRoot + "*");
-
-            foreach (var dir in dirs.Where(dir => !dir.Equals(toDir, StringComparison.Ordinal)))
-            {
-                try
-                {
-                    Directory.Delete(dir, true);
-                }
-                catch
-                {
-                    // Ignore
-                }
-            }
-
-            return fullPath;
-        }
+        return fullPath;
     }
 }

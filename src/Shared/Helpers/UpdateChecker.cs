@@ -5,155 +5,154 @@ using System.Net.Http;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.Imaging;
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+internal static class UpdateChecker
 {
-    internal static class UpdateChecker
+    private static readonly XNamespace AtomNamespace = "http://www.w3.org/2005/Atom";
+    private static readonly XNamespace VsixNamespace = "http://schemas.microsoft.com/developer/vsx-syndication-schema/2010";
+    private static readonly HttpClient HttpClient = new() { Timeout = TimeSpan.FromSeconds(10) };
+
+    public static async Task CheckForUpdatesAsync(string extensionId, string currentVersion, string extensionName)
     {
-        private static readonly XNamespace AtomNamespace = "http://www.w3.org/2005/Atom";
-        private static readonly XNamespace VsixNamespace = "http://schemas.microsoft.com/developer/vsx-syndication-schema/2010";
-        private static readonly HttpClient HttpClient = new() { Timeout = TimeSpan.FromSeconds(10) };
-
-        public static async Task CheckForUpdatesAsync(string extensionId, string currentVersion, string extensionName)
+        try
         {
-            try
+            var options = await ToolOptions.GetLiveInstanceAsync();
+            if (!options.CheckForUpdates)
             {
-                var options = await ToolOptions.GetLiveInstanceAsync();
-                if (!options.CheckForUpdates)
-                {
-                    return;
-                }
-
-                if (HasCheckedToday(extensionId))
-                {
-                    return;
-                }
-
-                SaveLastCheckDate(extensionId);
-
-                var feedUrl = new Uri($"https://www.vsixgallery.com/feed/extension/{extensionId}");
-                var feedContent = await HttpClient.GetStringAsync(feedUrl).ConfigureAwait(false);
-
-                var latestVersion = ParseVersionFromFeed(feedContent);
-                if (latestVersion != null && IsNewerVersion(latestVersion, currentVersion))
-                {
-                    await ShowUpdateNotificationAsync(extensionId, extensionName, latestVersion);
-                }
+                return;
             }
-            catch (Exception ex)
+
+            if (HasCheckedToday(extensionId))
             {
-                await ex.LogAsync();
+                return;
+            }
+
+            SaveLastCheckDate(extensionId);
+
+            var feedUrl = new Uri($"https://www.vsixgallery.com/feed/extension/{extensionId}");
+            var feedContent = await HttpClient.GetStringAsync(feedUrl).ConfigureAwait(false);
+
+            var latestVersion = ParseVersionFromFeed(feedContent);
+            if (latestVersion != null && IsNewerVersion(latestVersion, currentVersion))
+            {
+                await ShowUpdateNotificationAsync(extensionId, extensionName, latestVersion);
             }
         }
-
-        private static string GetLastCheckFilePath(string extensionId)
+        catch (Exception ex)
         {
-            var folder = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "SqlProjectPowerTools");
-            Directory.CreateDirectory(folder);
-            return Path.Combine(folder, $"{extensionId}-lastcheck.txt");
+            await ex.LogAsync();
         }
+    }
 
-        private static bool HasCheckedToday(string extensionId)
+    private static string GetLastCheckFilePath(string extensionId)
+    {
+        var folder = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "SqlProjectPowerTools");
+        Directory.CreateDirectory(folder);
+        return Path.Combine(folder, $"{extensionId}-lastcheck.txt");
+    }
+
+    private static bool HasCheckedToday(string extensionId)
+    {
+        try
         {
-            try
+            var filePath = GetLastCheckFilePath(extensionId);
+            if (!File.Exists(filePath))
             {
-                var filePath = GetLastCheckFilePath(extensionId);
-                if (!File.Exists(filePath))
-                {
-                    return false;
-                }
-
-                var content = File.ReadAllText(filePath).Trim();
-                return DateTime.TryParseExact(content, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var lastCheck) &&
-                       lastCheck.Date == DateTime.UtcNow.Date;
-            }
-            catch (Exception ex)
-            {
-                ex.Log();
                 return false;
             }
+
+            var content = File.ReadAllText(filePath).Trim();
+            return DateTime.TryParseExact(content, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var lastCheck) &&
+                   lastCheck.Date == DateTime.UtcNow.Date;
         }
-
-        private static void SaveLastCheckDate(string extensionId)
+        catch (Exception ex)
         {
-            try
-            {
-                File.WriteAllText(GetLastCheckFilePath(extensionId), DateTime.UtcNow.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
-            }
-            catch (Exception ex)
-            {
-                ex.Log();
-            }
+            ex.Log();
+            return false;
         }
+    }
 
-        private static string ParseVersionFromFeed(string feedContent)
+    private static void SaveLastCheckDate(string extensionId)
+    {
+        try
         {
-            var doc = XDocument.Parse(feedContent);
-            var firstEntry = doc.Root?.Element(AtomNamespace + "entry");
+            File.WriteAllText(GetLastCheckFilePath(extensionId), DateTime.UtcNow.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
+        }
+        catch (Exception ex)
+        {
+            ex.Log();
+        }
+    }
 
-            if (firstEntry == null)
-            {
-                return null;
-            }
+    private static string ParseVersionFromFeed(string feedContent)
+    {
+        var doc = XDocument.Parse(feedContent);
+        var firstEntry = doc.Root?.Element(AtomNamespace + "entry");
 
-            // Get version from the Vsix/Version element
-            var vsixElement = firstEntry.Element(VsixNamespace + "Vsix");
-            var versionElement = vsixElement?.Element(VsixNamespace + "Version");
-            if (versionElement != null && Version.TryParse(versionElement.Value, out _))
-            {
-                return versionElement.Value;
-            }
-
+        if (firstEntry == null)
+        {
             return null;
         }
 
-        private static bool IsNewerVersion(string latestVersion, string currentVersion)
+        // Get version from the Vsix/Version element
+        var vsixElement = firstEntry.Element(VsixNamespace + "Vsix");
+        var versionElement = vsixElement?.Element(VsixNamespace + "Version");
+        if (versionElement != null && Version.TryParse(versionElement.Value, out _))
         {
-            if (Version.TryParse(latestVersion, out var latest) &&
-                Version.TryParse(currentVersion, out var current))
-            {
-                return latest > current;
-            }
-
-            return false;
+            return versionElement.Value;
         }
 
-        private static async Task ShowUpdateNotificationAsync(string extensionId, string extensionName, string newVersion)
+        return null;
+    }
+
+    private static bool IsNewerVersion(string latestVersion, string currentVersion)
+    {
+        if (Version.TryParse(latestVersion, out var latest) &&
+            Version.TryParse(currentVersion, out var current))
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            return latest > current;
+        }
 
-            var downloadUrl = $"https://www.vsixgallery.com/extension/{extensionId}";
+        return false;
+    }
 
-            var model = new InfoBarModel(
-                $"{extensionName} {newVersion} is available.",
-                [new InfoBarHyperlink("Download")],
-                KnownMonikers.StatusInformation);
+    private static async Task ShowUpdateNotificationAsync(string extensionId, string extensionName, string newVersion)
+    {
+        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            var infoBar = await VS.InfoBar.CreateAsync(model);
-            if (infoBar != null)
+        var downloadUrl = $"https://www.vsixgallery.com/extension/{extensionId}";
+
+        var model = new InfoBarModel(
+            $"{extensionName} {newVersion} is available.",
+            [new InfoBarHyperlink("Download")],
+            KnownMonikers.StatusInformation);
+
+        var infoBar = await VS.InfoBar.CreateAsync(model);
+        if (infoBar != null)
+        {
+            infoBar.ActionItemClicked += (sender, e) =>
             {
-                infoBar.ActionItemClicked += (sender, e) =>
+                try
                 {
-                    try
+                    Process.Start(new ProcessStartInfo(downloadUrl) { UseShellExecute = true });
+                }
+                catch (Exception ex)
+                {
+                    ex.Log();
+                }
+                finally
+                {
+                    if (sender is InfoBar bar)
                     {
-                        Process.Start(new ProcessStartInfo(downloadUrl) { UseShellExecute = true });
+                        bar.Close();
                     }
-                    catch (Exception ex)
-                    {
-                        ex.Log();
-                    }
-                    finally
-                    {
-                        if (sender is InfoBar bar)
-                        {
-                            bar.Close();
-                        }
-                    }
-                };
+                }
+            };
 
-                await infoBar.TryShowInfoBarUIAsync();
-            }
+            await infoBar.TryShowInfoBarUIAsync();
         }
     }
 }

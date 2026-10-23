@@ -8,236 +8,236 @@ using DacFXToolLib.Common;
 using DacFXToolLib.Dab;
 using Microsoft.VisualStudio.Shell.Interop;
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+internal sealed class ImportHandler
 {
-    internal sealed class ImportHandler
+    public async Task GenerateAsync(Project project)
     {
-        public async Task GenerateAsync(Project project)
+        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+        try
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            if (await VSHelper.IsDebugModeAsync())
+            {
+                VSHelper.ShowError("Cannot generate code while debugging");
+                return;
+            }
+
+            var outputPath = Path.GetDirectoryName(project.FullPath);
+
+            var options = new DataApiBuilderOptions();
+
+            var (DatabaseModel, FileGenerationMode, ImportSettings) = await ChooseDataBaseConnectionAsync(options);
+
+            if (DatabaseModel == null)
+            {
+                return;
+            }
+
+            var dbInfo = await GetDatabaseInfoAsync(options);
+
+            if (dbInfo == null)
+            {
+                return;
+            }
+
+            await VS.StatusBar.ShowMessageAsync("Importing database schema...");
+
+            // Use threaded wait dialog for better UX feedback
+            IVsThreadedWaitDialog2 dialog = null;
+
+            var result = string.Empty;
 
             try
             {
-                if (await VSHelper.IsDebugModeAsync())
+                var dialogFactory = await VS.GetServiceAsync<SVsThreadedWaitDialogFactory, IVsThreadedWaitDialogFactory>();
+                dialogFactory?.CreateInstance(out dialog);
+
+                dialog?.StartWaitDialog(
+                    szWaitCaption: "SQL Database Project Power Tools",
+                    szWaitMessage: "Importing database schema...",
+                    szProgressText: null,
+                    varStatusBmpAnim: null,
+                    szStatusBarText: "Importing database schema...",
+                    iDelayToShowDialog: 0,
+                    fIsCancelable: false,
+                    fShowMarqueeProgress: true);
+
+                result = await RunImportAsync(FileGenerationMode, outputPath, dbInfo.ConnectionString);
+            }
+            finally
+            {
+                dialog?.EndWaitDialog(out var _);
+                await VS.StatusBar.ClearAsync();
+            }
+
+            if (result == "OK")
+            {
+                await VS.StatusBar.ShowMessageAsync("Import completed successfully");
+            }
+
+            if (ImportSettings)
+            {
+                await VS.StatusBar.ShowMessageAsync("Importing database settings...");
+
+                var isMicrosoftBuildSqlProject = project.IsMicrosoftSdkSqlDatabaseProject();
+                var settingsPath = await RunGetDatabaseSettingsAsync(dbInfo.ConnectionString, isMicrosoftBuildSqlProject);
+
+                if (string.IsNullOrEmpty(settingsPath) || !File.Exists(settingsPath))
                 {
-                    VSHelper.ShowError("Cannot generate code while debugging");
+                    await VS.StatusBar.ShowMessageAsync("Settings import failed!");
                     return;
                 }
-
-                var outputPath = Path.GetDirectoryName(project.FullPath);
-
-                var options = new DataApiBuilderOptions();
-
-                var info = await ChooseDataBaseConnectionAsync(options);
-
-                if (info.DatabaseModel == null)
-                {
-                    return;
-                }
-
-                var dbInfo = await GetDatabaseInfoAsync(options);
-
-                if (dbInfo == null)
-                {
-                    return;
-                }
-
-                await VS.StatusBar.ShowMessageAsync("Importing database schema...");
-
-                // Use threaded wait dialog for better UX feedback
-                IVsThreadedWaitDialog2 dialog = null;
-
-                string result = string.Empty;
 
                 try
                 {
-                    var dialogFactory = await VS.GetServiceAsync<SVsThreadedWaitDialogFactory, IVsThreadedWaitDialogFactory>();
-                    dialogFactory?.CreateInstance(out dialog);
+                    var settingsString = File.ReadAllText(settingsPath, Encoding.UTF8);
+                    var settings = JsonSerializer.Deserialize<Dictionary<string, string>>(settingsString);
 
-                    dialog?.StartWaitDialog(
-                        szWaitCaption: "SQL Database Project Power Tools",
-                        szWaitMessage: "Importing database schema...",
-                        szProgressText: null,
-                        varStatusBmpAnim: null,
-                        szStatusBarText: "Importing database schema...",
-                        iDelayToShowDialog: 0,
-                        fIsCancelable: false,
-                        fShowMarqueeProgress: true);
-
-                    result = await RunImportAsync(info.FileGenerationMode, outputPath, dbInfo.ConnectionString);
-                }
-                finally
-                {
-                    dialog?.EndWaitDialog(out int _);
-                    await VS.StatusBar.ClearAsync();
-                }
-
-                if (result == "OK")
-                {
-                    await VS.StatusBar.ShowMessageAsync("Import completed successfully");
-                }
-
-                if (info.ImportSettings)
-                {
-                    await VS.StatusBar.ShowMessageAsync("Importing database settings...");
-
-                    var isMicrosoftBuildSqlProject = project.IsMicrosoftSdkSqlDatabaseProject();
-                    var settingsPath = await RunGetDatabaseSettingsAsync(dbInfo.ConnectionString, isMicrosoftBuildSqlProject);
-
-                    if (string.IsNullOrEmpty(settingsPath) || !File.Exists(settingsPath))
+                    if (settings == null)
                     {
                         await VS.StatusBar.ShowMessageAsync("Settings import failed!");
                         return;
                     }
 
-                    try
+                    foreach (var setting in settings)
                     {
-                        var settingsString = File.ReadAllText(settingsPath, Encoding.UTF8);
-                        var settings = JsonSerializer.Deserialize<Dictionary<string, string>>(settingsString);
-
-                        if (settings == null)
+                        await VS.StatusBar.ShowMessageAsync($"Saving database settings: {setting.Key}...");
+                        if (string.IsNullOrEmpty(setting.Value))
                         {
-                            await VS.StatusBar.ShowMessageAsync("Settings import failed!");
-                            return;
+                            continue;
                         }
 
-                        foreach (var setting in settings)
-                        {
-                            await VS.StatusBar.ShowMessageAsync($"Saving database settings: {setting.Key}...");
-                            if (string.IsNullOrEmpty(setting.Value))
-                            {
-                                continue;
-                            }
-
-                            await project.TrySetAttributeAsync(setting.Key, setting.Value);
-                        }
+                        await project.TrySetAttributeAsync(setting.Key, setting.Value);
                     }
-                    finally
-                    {
-                        TryDeleteFile(settingsPath);
-                    }
-
-                    await VS.StatusBar.ShowMessageAsync("Import completed successfully");
                 }
-            }
-            catch (AggregateException ae)
-            {
-                foreach (var innerException in ae.Flatten().InnerExceptions)
+                finally
                 {
-                    await VS.MessageBox.ShowErrorAsync("SQL Database Project Power Tools", innerException.Message);
+                    TryDeleteFile(settingsPath);
                 }
-            }
-            catch (Exception exception)
-            {
-                await VS.MessageBox.ShowErrorAsync("SQL Database Project Power Tools", exception.Message);
-            }
-            finally
-            {
-                await VS.StatusBar.ClearAsync();
+
+                await VS.StatusBar.ShowMessageAsync("Import completed successfully");
             }
         }
-
-        private static async Task<string> RunImportAsync(int filegenerationMode, string optionsPath, string connectionString)
+        catch (AggregateException ae)
         {
-            var launcher = new ProcessLauncher();
-            return await launcher.GetImportAsync(filegenerationMode, optionsPath, connectionString);
+            foreach (var innerException in ae.Flatten().InnerExceptions)
+            {
+                await VS.MessageBox.ShowErrorAsync("SQL Database Project Power Tools", innerException.Message);
+            }
         }
-
-        private static async Task<string> RunGetDatabaseSettingsAsync(string connectionString, bool useDbScopedConfigOnOffWorkaround)
+        catch (Exception exception)
         {
-            var launcher = new ProcessLauncher();
-            return await launcher.GetDatabaseSettingsAsync(connectionString, useDbScopedConfigOnOffWorkaround);
+            await VS.MessageBox.ShowErrorAsync("SQL Database Project Power Tools", exception.Message);
         }
-
-        private static async Task<DatabaseConnectionModel> GetDatabaseInfoAsync(DataApiBuilderOptions options)
+        finally
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            var dbInfo = new DatabaseConnectionModel();
-
-            if (!string.IsNullOrEmpty(options.ConnectionString))
-            {
-                dbInfo.ConnectionString = options.ConnectionString;
-                dbInfo.DatabaseType = options.DatabaseType;
-            }
-
-            if (dbInfo.DatabaseType == DatabaseType.Undefined)
-            {
-                VSHelper.ShowError($"Unsupported provider");
-                return null;
-            }
-
-            return dbInfo;
-        }
-
-        private async Task<(DatabaseConnectionModel DatabaseModel, int FileGenerationMode, bool ImportSettings)> ChooseDataBaseConnectionAsync(DataApiBuilderOptions options)
-        {
-#if !SSMS
-            var vsDataHelper = new VsDataHelper();
-            var databaseList = await vsDataHelper.GetDataConnectionsAsync();
-#else
-            var databaseList = await SsmsDataHelper.GetDataConnectionsAsync();
-#endif
-            var psd = PackageManager.Package.GetView<IPickServerDatabaseDialog>();
-
-            if (databaseList != null && databaseList.Any())
-            {
-                psd.PublishConnections(databaseList.Select(m => new DatabaseConnectionModel
-                {
-                    ConnectionName = m.Value.ConnectionName,
-                    ConnectionString = m.Value.ConnectionString,
-                    DatabaseType = m.Value.DatabaseType,
-                    IsFromServerExplorer = m.Value.IsFromServerExplorer,
-                }));
-            }
-
-            psd.PublishFileGenerationMode(GetCodeGenerationModes());
-
-            var pickDataSourceResult = psd.ShowAndAwaitUserResponse(true);
-            if (!pickDataSourceResult.ClosedByOK)
-            {
-                return (null, 0, false);
-            }
-
-            if (pickDataSourceResult.Payload.Connection != null)
-            {
-                options.ConnectionString = pickDataSourceResult.Payload.Connection.ConnectionString;
-                options.DatabaseType = pickDataSourceResult.Payload.Connection.DatabaseType;
-            }
-
-            return (pickDataSourceResult.Payload.Connection,
-                pickDataSourceResult.Payload.CodeGenerationMode,
-                pickDataSourceResult.Payload.GetDatabaseOptions);
-        }
-
-        private List<CodeGenerationItem> GetCodeGenerationModes()
-        {
-            // https://learn.microsoft.com/dotnet/api/microsoft.sqlserver.dac.dacextracttarget
-            var list = new List<CodeGenerationItem>
-            {
-                new CodeGenerationItem { Key = 5, Value = "SchemaObjectType" },
-                new CodeGenerationItem { Key = 3, Value = "ObjectType" },
-                new CodeGenerationItem { Key = 2, Value = "Flat" },
-                new CodeGenerationItem { Key = 4, Value = "Schema" },
-            };
-            return list;
-        }
-
-        private static void TryDeleteFile(string filePath)
-        {
-            if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
-            {
-                return;
-            }
-
-            try
-            {
-                File.Delete(filePath);
-            }
-            catch (Exception ex)
-            {
-                ex.Log();
-            }
+            await VS.StatusBar.ClearAsync();
         }
     }
- }
+
+    private static async Task<string> RunImportAsync(int filegenerationMode, string optionsPath, string connectionString)
+    {
+        var launcher = new ProcessLauncher();
+        return await launcher.GetImportAsync(filegenerationMode, optionsPath, connectionString);
+    }
+
+    private static async Task<string> RunGetDatabaseSettingsAsync(string connectionString, bool useDbScopedConfigOnOffWorkaround)
+    {
+        var launcher = new ProcessLauncher();
+        return await launcher.GetDatabaseSettingsAsync(connectionString, useDbScopedConfigOnOffWorkaround);
+    }
+
+    private static async Task<DatabaseConnectionModel> GetDatabaseInfoAsync(DataApiBuilderOptions options)
+    {
+        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+        var dbInfo = new DatabaseConnectionModel();
+
+        if (!string.IsNullOrEmpty(options.ConnectionString))
+        {
+            dbInfo.ConnectionString = options.ConnectionString;
+            dbInfo.DatabaseType = options.DatabaseType;
+        }
+
+        if (dbInfo.DatabaseType == DatabaseType.Undefined)
+        {
+            VSHelper.ShowError($"Unsupported provider");
+            return null;
+        }
+
+        return dbInfo;
+    }
+
+    private async Task<(DatabaseConnectionModel DatabaseModel, int FileGenerationMode, bool ImportSettings)> ChooseDataBaseConnectionAsync(DataApiBuilderOptions options)
+    {
+#if !SSMS
+        var vsDataHelper = new VsDataHelper();
+        var databaseList = await vsDataHelper.GetDataConnectionsAsync();
+#else
+        var databaseList = await SsmsDataHelper.GetDataConnectionsAsync();
+#endif
+        var psd = PackageManager.Package.GetView<IPickServerDatabaseDialog>();
+
+        if (databaseList != null && databaseList.Any())
+        {
+            psd.PublishConnections(databaseList.Select(m => new DatabaseConnectionModel
+            {
+                ConnectionName = m.Value.ConnectionName,
+                ConnectionString = m.Value.ConnectionString,
+                DatabaseType = m.Value.DatabaseType,
+                IsFromServerExplorer = m.Value.IsFromServerExplorer,
+            }));
+        }
+
+        psd.PublishFileGenerationMode(GetCodeGenerationModes());
+
+        var (closedByOK, payload) = psd.ShowAndAwaitUserResponse(true);
+        if (!closedByOK)
+        {
+            return (null, 0, false);
+        }
+
+        if (payload.Connection != null)
+        {
+            options.ConnectionString = payload.Connection.ConnectionString;
+            options.DatabaseType = payload.Connection.DatabaseType;
+        }
+
+        return (payload.Connection,
+            payload.CodeGenerationMode,
+            payload.GetDatabaseOptions);
+    }
+
+    private List<CodeGenerationItem> GetCodeGenerationModes()
+    {
+        // https://learn.microsoft.com/dotnet/api/microsoft.sqlserver.dac.dacextracttarget
+        var list = new List<CodeGenerationItem>
+        {
+            new CodeGenerationItem { Key = 5, Value = "SchemaObjectType" },
+            new CodeGenerationItem { Key = 3, Value = "ObjectType" },
+            new CodeGenerationItem { Key = 2, Value = "Flat" },
+            new CodeGenerationItem { Key = 4, Value = "Schema" },
+        };
+        return list;
+    }
+
+    private static void TryDeleteFile(string filePath)
+    {
+        if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
+        {
+            return;
+        }
+
+        try
+        {
+            File.Delete(filePath);
+        }
+        catch (Exception ex)
+        {
+            ex.Log();
+        }
+    }
+}
+

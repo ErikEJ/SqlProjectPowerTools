@@ -1,20 +1,19 @@
 using System.Collections.Generic;
 using DacFXToolLib.Common;
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+public interface IPickServerDatabaseDialog : IDialog<(DatabaseConnectionModel Connection, int CodeGenerationMode, SchemaInfo[] Schemas, string UiHint, bool GetDatabaseOptions)>
 {
-    public interface IPickServerDatabaseDialog : IDialog<(DatabaseConnectionModel Connection, int CodeGenerationMode, SchemaInfo[] Schemas, string UiHint, bool GetDatabaseOptions)>
-    {
-        void PublishConnections(IEnumerable<DatabaseConnectionModel> connections);
+    public void PublishConnections(IEnumerable<DatabaseConnectionModel> connections);
 
-        void PublishDefinitions(IEnumerable<DatabaseConnectionModel> definitions);
+    public void PublishDefinitions(IEnumerable<DatabaseConnectionModel> definitions);
 
-        void PublishSchemas(IEnumerable<SchemaInfo> schemas);
+    public void PublishSchemas(IEnumerable<SchemaInfo> schemas);
 
-        void PublishFileGenerationMode(IList<CodeGenerationItem> methods);
+    public void PublishFileGenerationMode(IList<CodeGenerationItem> methods);
 
-        void PublishUiHint(string uiHint);
+    public void PublishUiHint(string uiHint);
 
-        (DatabaseConnectionModel Connection, int CodeGenerationMode, SchemaInfo[] Schemas, string UiHint, bool GetDatabaseOptions) GetResults();
-    }
+    public (DatabaseConnectionModel Connection, int CodeGenerationMode, SchemaInfo[] Schemas, string UiHint, bool GetDatabaseOptions) GetResults();
 }

@@ -1,48 +1,48 @@
 using System.IO;
 using System.Text;
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+internal static class DeployScriptHandler
 {
-    internal static class DeployScriptHandler
+    public static async Task AddDeploymentScriptsAsync(Project project)
     {
-        public static async Task AddDeploymentScriptsAsync(Project project)
+        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+        try
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            if (await VSHelper.IsDebugModeAsync())
+            {
+                VSHelper.ShowError("Cannot add deployment scripts while debugging");
+                return;
+            }
 
-            try
+            await GenerateScriptAsync(project);
+        }
+        catch (AggregateException ae)
+        {
+            foreach (var innerException in ae.Flatten().InnerExceptions)
             {
-                if (await VSHelper.IsDebugModeAsync())
-                {
-                    VSHelper.ShowError("Cannot add deployment scripts while debugging");
-                    return;
-                }
-
-                await GenerateScriptAsync(project);
-            }
-            catch (AggregateException ae)
-            {
-                foreach (var innerException in ae.Flatten().InnerExceptions)
-                {
-                    VSHelper.ShowError(innerException.Message);
-                }
-            }
-            catch (Exception exception)
-            {
-                VSHelper.ShowError(exception.Message);
-            }
-            finally
-            {
-                await VS.StatusBar.ClearAsync();
+                VSHelper.ShowError(innerException.Message);
             }
         }
-
-        private static async Task GenerateScriptAsync(Project project)
+        catch (Exception exception)
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            VSHelper.ShowError(exception.Message);
+        }
+        finally
+        {
+            await VS.StatusBar.ClearAsync();
+        }
+    }
 
-            var projectDirectory = Path.GetDirectoryName(project.FullPath);
+    private static async Task GenerateScriptAsync(Project project)
+    {
+        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            var preStandardText = """                
+        var projectDirectory = Path.GetDirectoryName(project.FullPath);
+
+        var preStandardText = """                
 /*
  Pre-Deployment Script Template
 --------------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ namespace SqlProjectsPowerTools
 */
 """;
 
-            var postStandardText = """                
+        var postStandardText = """                
 /*
 Post-Deployment Script Template
 --------------------------------------------------------------------------------------
@@ -70,33 +70,32 @@ Post-Deployment Script Template
 */
 """;
 
-            var postDeployFilePath = Path.Combine(projectDirectory, "Post-Deployment", "Script.PostDeployment.sql");
+        var postDeployFilePath = Path.Combine(projectDirectory, "Post-Deployment", "Script.PostDeployment.sql");
 
-            if (!File.Exists(postDeployFilePath))
+        if (!File.Exists(postDeployFilePath))
+        {
+            if (!Directory.Exists(Path.GetDirectoryName(postDeployFilePath)))
             {
-                if (!Directory.Exists(Path.GetDirectoryName(postDeployFilePath)))
-                {
-                    Directory.CreateDirectory(Path.GetDirectoryName(postDeployFilePath)!);
-                }
-
-                File.WriteAllText(postDeployFilePath, postStandardText, Encoding.UTF8);
-
-                project.AddDeployToProject("Post-Deployment/Script.PostDeployment.sql", "PostDeploy");
+                Directory.CreateDirectory(Path.GetDirectoryName(postDeployFilePath)!);
             }
 
-            var preDeployFilePath = Path.Combine(projectDirectory, "Pre-Deployment", "Script.PreDeployment.sql");
+            File.WriteAllText(postDeployFilePath, postStandardText, Encoding.UTF8);
 
-            if (!File.Exists(preDeployFilePath))
+            project.AddDeployToProject("Post-Deployment/Script.PostDeployment.sql", "PostDeploy");
+        }
+
+        var preDeployFilePath = Path.Combine(projectDirectory, "Pre-Deployment", "Script.PreDeployment.sql");
+
+        if (!File.Exists(preDeployFilePath))
+        {
+            if (!Directory.Exists(Path.GetDirectoryName(preDeployFilePath)))
             {
-                if (!Directory.Exists(Path.GetDirectoryName(preDeployFilePath)))
-                {
-                    Directory.CreateDirectory(Path.GetDirectoryName(preDeployFilePath)!);
-                }
-
-                File.WriteAllText(preDeployFilePath, preStandardText, Encoding.UTF8);
-
-                project.AddDeployToProject("Pre-Deployment/Script.PreDeployment.sql", "PreDeploy");
+                Directory.CreateDirectory(Path.GetDirectoryName(preDeployFilePath)!);
             }
+
+            File.WriteAllText(preDeployFilePath, preStandardText, Encoding.UTF8);
+
+            project.AddDeployToProject("Pre-Deployment/Script.PreDeployment.sql", "PreDeploy");
         }
     }
 }

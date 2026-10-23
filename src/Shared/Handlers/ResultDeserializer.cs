@@ -4,84 +4,83 @@ using System.Runtime.Serialization.Json;
 using System.Text;
 using DacFXToolLib.Common;
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+public static class ResultDeserializer
 {
-    public static class ResultDeserializer
+    public static VisualCompareResult BuildVisualCompareResult(string jsonFilePath)
     {
-        public static VisualCompareResult BuildVisualCompareResult(string jsonFilePath)
+        var result = File.ReadAllText(jsonFilePath, Encoding.UTF8);
+
+        if (TryRead(result, out VisualCompareResult deserialized))
         {
-            var result = File.ReadAllText(jsonFilePath, Encoding.UTF8);
-
-            if (TryRead(result, out VisualCompareResult deserialized))
-            {
-                return deserialized;
-            }
-
-            throw new InvalidOperationException($"Unable to deserialize visual compare result from file: {jsonFilePath}");
+            return deserialized;
         }
 
-        public static IList<IssueTypeModel> BuildRulesResult(string jsonFilePath)
+        throw new InvalidOperationException($"Unable to deserialize visual compare result from file: {jsonFilePath}");
+    }
+
+    public static IList<IssueTypeModel> BuildRulesResult(string jsonFilePath)
+    {
+        var json = File.ReadAllText(jsonFilePath, Encoding.UTF8);
+
+        if (TryRead(json, out List<IssueTypeModel> deserialized))
         {
-            var json = File.ReadAllText(jsonFilePath, Encoding.UTF8);
-
-            if (TryRead(json, out List<IssueTypeModel> deserialized))
-            {
-                return deserialized;
-            }
-
-            throw new InvalidOperationException($"Unable to deserialize rules result from file: {jsonFilePath}");
+            return deserialized;
         }
 
-        public static IList<TableModel> BuildTableResult(string output)
+        throw new InvalidOperationException($"Unable to deserialize rules result from file: {jsonFilePath}");
+    }
+
+    public static IList<TableModel> BuildTableResult(string output)
+    {
+        var resultParts = output.Split(new[] { "Result:" + Environment.NewLine }, StringSplitOptions.None);
+        if (resultParts.Length == 2 && TryRead(resultParts[1], out List<TableModel> deserialized))
         {
-            var resultParts = output.Split(new[] { "Result:" + Environment.NewLine }, StringSplitOptions.None);
-            if (resultParts.Length == 2 && TryRead(resultParts[1], out List<TableModel> deserialized))
-            {
-                return deserialized;
-            }
-
-            var errorParts = output.Split(new[] { "Error:" + Environment.NewLine }, StringSplitOptions.None);
-            if (errorParts.Length == 2)
-            {
-                throw new InvalidOperationException("Table list error: " + Environment.NewLine + errorParts[1]);
-            }
-
-            throw new InvalidOperationException($"Table list error: Unable to launch external process: {Environment.NewLine + output}");
+            return deserialized;
         }
 
-        public static string BuildDiagramResult(string output)
+        var errorParts = output.Split(new[] { "Error:" + Environment.NewLine }, StringSplitOptions.None);
+        if (errorParts.Length == 2)
         {
-            var resultParts = output.Split(new[] { "Result:" + Environment.NewLine }, StringSplitOptions.None);
-            if (resultParts.Length == 2)
-            {
-                return resultParts[1].Trim();
-            }
-
-            var errorParts = output.Split(new[] { "Error:" + Environment.NewLine }, StringSplitOptions.None);
-            if (errorParts.Length == 2)
-            {
-                throw new InvalidOperationException("Result error: " + Environment.NewLine + errorParts[1]);
-            }
-
-            throw new InvalidOperationException($"Launch error: Unable to launch external process: {Environment.NewLine + output}");
+            throw new InvalidOperationException("Table list error: " + Environment.NewLine + errorParts[1]);
         }
 
-        private static bool TryRead<T>(string options, out T deserialized)
-            where T : class, new()
+        throw new InvalidOperationException($"Table list error: Unable to launch external process: {Environment.NewLine + output}");
+    }
+
+    public static string BuildDiagramResult(string output)
+    {
+        var resultParts = output.Split(new[] { "Result:" + Environment.NewLine }, StringSplitOptions.None);
+        if (resultParts.Length == 2)
         {
-            try
-            {
-                var ms = new MemoryStream(Encoding.UTF8.GetBytes(options));
-                var ser = new DataContractJsonSerializer(typeof(T));
-                deserialized = ser.ReadObject(ms) as T;
-                ms.Close();
-                return true;
-            }
-            catch
-            {
-                deserialized = null;
-                return false;
-            }
+            return resultParts[1].Trim();
+        }
+
+        var errorParts = output.Split(new[] { "Error:" + Environment.NewLine }, StringSplitOptions.None);
+        if (errorParts.Length == 2)
+        {
+            throw new InvalidOperationException("Result error: " + Environment.NewLine + errorParts[1]);
+        }
+
+        throw new InvalidOperationException($"Launch error: Unable to launch external process: {Environment.NewLine + output}");
+    }
+
+    private static bool TryRead<T>(string options, out T deserialized)
+        where T : class, new()
+    {
+        try
+        {
+            var ms = new MemoryStream(Encoding.UTF8.GetBytes(options));
+            var ser = new DataContractJsonSerializer(typeof(T));
+            deserialized = ser.ReadObject(ms) as T;
+            ms.Close();
+            return true;
+        }
+        catch
+        {
+            deserialized = null;
+            return false;
         }
     }
 }
