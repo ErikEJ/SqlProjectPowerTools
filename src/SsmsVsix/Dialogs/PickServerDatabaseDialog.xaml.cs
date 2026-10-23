@@ -102,38 +102,17 @@ public sealed partial class PickServerDatabaseDialog : IPickServerDatabaseDialog
         return (closedByOkay, getDialogResult());
     }
 
-    void IPickServerDatabaseDialog.PublishConnections(IEnumerable<DatabaseConnectionModel> connections)
-    {
-        addConnections(connections);
-    }
+    void IPickServerDatabaseDialog.PublishConnections(IEnumerable<DatabaseConnectionModel> connections) => addConnections(connections);
 
-    void IPickServerDatabaseDialog.PublishDefinitions(IEnumerable<DatabaseConnectionModel> definitions)
-    {
-        addDefinitions(definitions);
-    }
+    void IPickServerDatabaseDialog.PublishDefinitions(IEnumerable<DatabaseConnectionModel> definitions) => addDefinitions(definitions);
 
-    public void PublishSchemas(IEnumerable<SchemaInfo> schemas)
-    {
-        addSchemas(schemas);
-    }
+    public void PublishSchemas(IEnumerable<SchemaInfo> schemas) => addSchemas(schemas);
 
-    public void PublishFileGenerationMode(IList<CodeGenerationItem> methods)
-    {
-        codeGeneration(methods);
-    }
+    public void PublishFileGenerationMode(IList<CodeGenerationItem> methods) => codeGeneration(methods);
 
-    public void PublishUiHint(string uiHint)
-    {
-        this.uiHint(uiHint);
-    }
+    public void PublishUiHint(string uiHint) => this.uiHint(uiHint);
 
-    public (DatabaseConnectionModel Connection, int CodeGenerationMode, SchemaInfo[] Schemas, string UiHint, bool GetDatabaseOptions) GetResults()
-    {
-        return getDialogResult();
-    }
+    public (DatabaseConnectionModel Connection, int CodeGenerationMode, SchemaInfo[] Schemas, string UiHint, bool GetDatabaseOptions) GetResults() => getDialogResult();
 
-    private void Window_Loaded(object sender, RoutedEventArgs e)
-    {
-        DatabaseConnectionCombobox.Focus();
-    }
+    private void Window_Loaded(object sender, RoutedEventArgs e) => DatabaseConnectionCombobox.Focus();
 }

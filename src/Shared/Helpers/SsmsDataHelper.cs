@@ -16,7 +16,7 @@ internal static class SsmsDataHelper
     private const string NodeInformationTypeName =
         "Microsoft.SqlServer.Management.UI.VSIntegration.ObjectExplorer.INodeInformation";
 
-    private static readonly Dictionary<string, Type> TypeCache = new Dictionary<string, Type>();
+    private static readonly Dictionary<string, Type> TypeCache = new();
 
     internal static async Task<Dictionary<string, DatabaseConnectionModel>> GetDataConnectionsAsync()
     {
@@ -35,7 +35,7 @@ internal static class SsmsDataHelper
                 return databaseList;
             }
 
-            serverConnectionStrings = new List<string>(GetServerConnectionStrings(objectExplorer));
+            serverConnectionStrings = [.. GetServerConnectionStrings(objectExplorer)];
         }
         catch (Exception ex)
         {
@@ -97,8 +97,7 @@ internal static class SsmsDataHelper
                 continue;
             }
 
-            var serviceProvider = root as IServiceProvider;
-            if (serviceProvider == null)
+            if (root is not IServiceProvider serviceProvider)
             {
                 continue;
             }
@@ -149,8 +148,7 @@ internal static class SsmsDataHelper
             yield break;
         }
 
-        var hierDictionary = hierFieldInfo.GetValue(objectTreeControl) as IEnumerable;
-        if (hierDictionary == null)
+        if (hierFieldInfo.GetValue(objectTreeControl) is not IEnumerable hierDictionary)
         {
             yield break;
         }
@@ -196,18 +194,14 @@ internal static class SsmsDataHelper
         builder.InitialCatalog = "master";
         using (var conn = new SqlConnection(builder.ConnectionString))
         {
-            using (var command = new SqlCommand(sql, conn))
-            {
-                await conn.OpenAsync();
-                command.CommandTimeout = 30;
+            using var command = new SqlCommand(sql, conn);
+            await conn.OpenAsync();
+            command.CommandTimeout = 30;
 
-                using (var reader = await command.ExecuteReaderAsync())
-                {
-                    while (await reader.ReadAsync())
-                    {
-                        result.Add(reader[0].ToString());
-                    }
-                }
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                result.Add(reader[0].ToString());
             }
         }
 

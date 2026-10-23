@@ -1,41 +1,40 @@
-namespace DacFXToolLib.Common
+using System.Runtime.Serialization;
+
+namespace DacFXToolLib.Common;
+
+/// <summary>
+/// Represents a single analyzer rule (issue type) available in the code analysis service.
+/// </summary>
+[DataContract]
+public class IssueTypeModel
 {
-    using System.Runtime.Serialization;
+    /// <summary>
+    /// Gets or sets the fully qualified rule identifier (e.g. "Microsoft.Rules.Data.SR0001").
+    /// </summary>
+    [DataMember]
+    public string Id { get; set; }
 
     /// <summary>
-    /// Represents a single analyzer rule (issue type) available in the code analysis service.
+    /// Gets or sets the severity of the rule (e.g. "Warning", "Error", "Information").
     /// </summary>
-    [DataContract]
-    public class IssueTypeModel
-    {
-        /// <summary>
-        /// Gets or sets the fully qualified rule identifier (e.g. "Microsoft.Rules.Data.SR0001").
-        /// </summary>
-        [DataMember]
-        public string Id { get; set; }
+    [DataMember]
+    public string Severity { get; set; }
 
-        /// <summary>
-        /// Gets or sets the severity of the rule (e.g. "Warning", "Error", "Information").
-        /// </summary>
-        [DataMember]
-        public string Severity { get; set; }
+    /// <summary>
+    /// Gets or sets the human-readable description of the rule.
+    /// </summary>
+    [DataMember]
+    public string Description { get; set; }
 
-        /// <summary>
-        /// Gets or sets the human-readable description of the rule.
-        /// </summary>
-        [DataMember]
-        public string Description { get; set; }
+    /// <summary>
+    /// Gets or sets the fully qualified category of the rule (namespace + category).
+    /// </summary>
+    [DataMember]
+    public string Category { get; set; }
 
-        /// <summary>
-        /// Gets or sets the fully qualified category of the rule (namespace + category).
-        /// </summary>
-        [DataMember]
-        public string Category { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the rule is enabled based on the CodeAnalysisRules project setting.
-        /// </summary>
-        [DataMember]
-        public bool Enabled { get; set; }
-    }
+    /// <summary>
+    /// Gets or sets a value indicating whether the rule is enabled based on the CodeAnalysisRules project setting.
+    /// </summary>
+    [DataMember]
+    public bool Enabled { get; set; }
 }

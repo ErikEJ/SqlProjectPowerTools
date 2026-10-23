@@ -76,7 +76,7 @@ Post-Deployment Script Template
         {
             if (!Directory.Exists(Path.GetDirectoryName(postDeployFilePath)))
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(postDeployFilePath)!);
+                Directory.CreateDirectory(Path.GetDirectoryName(postDeployFilePath));
             }
 
             File.WriteAllText(postDeployFilePath, postStandardText, Encoding.UTF8);
@@ -90,7 +90,7 @@ Post-Deployment Script Template
         {
             if (!Directory.Exists(Path.GetDirectoryName(preDeployFilePath)))
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(preDeployFilePath)!);
+                Directory.CreateDirectory(Path.GetDirectoryName(preDeployFilePath));
             }
 
             File.WriteAllText(preDeployFilePath, preStandardText, Encoding.UTF8);

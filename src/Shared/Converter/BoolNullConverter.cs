@@ -9,17 +9,11 @@ public sealed class BoolNullConverter : IValueConverter
         object value,
         Type targetType,
         object parameter,
-        CultureInfo culture)
-    {
-        return value != null;
-    }
+        CultureInfo culture) => value != null;
 
     object IValueConverter.ConvertBack(
         object value,
         Type targetType,
         object parameter,
-        CultureInfo culture)
-    {
-        return value != null;
-    }
+        CultureInfo culture) => value != null;
 }

@@ -1,7 +1,9 @@
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+#if !SSMS
 using Microsoft.VisualStudio.Shell.Interop;
+#endif
 
 namespace SqlProjectsPowerTools;
 
@@ -43,10 +45,7 @@ internal static class DacpacAnalyzerHandler
         return await launcher.GetReportPathAsync(path);
     }
 
-    private static void OpenWebBrowser(string path)
-    {
-        Process.Start(path);
-    }
+    private static void OpenWebBrowser(string path) => Process.Start(path);
 
     private static async Task OpenVsWebBrowserAsync(string path)
     {

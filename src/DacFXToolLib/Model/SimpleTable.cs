@@ -1,17 +1,16 @@
-namespace DacFXToolLib.Model
+namespace DacFXToolLib.Model;
+
+public class SimpleTable
 {
-    public class SimpleTable
-    {
-        public string Name { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
 
-        public string Schema { get; set; } = string.Empty;
+    public string Schema { get; set; } = string.Empty;
 
-        public string? Comment { get; set; }
+    public string? Comment { get; set; }
 
-        public List<SimpleColumn> Columns { get; init; } = [];
+    public List<SimpleColumn> Columns { get; init; } = [];
 
-        public SimplePrimaryKey? PrimaryKey { get; set; }
+    public SimplePrimaryKey? PrimaryKey { get; set; }
 
-        public List<SimpleForeignKey> ForeignKeys { get; init; } = [];
-    }
+    public List<SimpleForeignKey> ForeignKeys { get; init; } = [];
 }

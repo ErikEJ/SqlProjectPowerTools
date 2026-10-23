@@ -2,87 +2,86 @@ using DacFXToolLib.Common;
 using Microsoft.Data.SqlClient;
 using Microsoft.SqlServer.Dac.Compare;
 
-namespace DacFXToolLib
+namespace DacFXToolLib;
+
+public static class DacPackageComparer
 {
-    public static class DacPackageComparer
+    public static VisualCompareResult CompareVisual(string dacpacPath, string connectionString, bool databaseIsSource)
     {
-        public static VisualCompareResult CompareVisual(string dacpacPath, string connectionString, bool databaseIsSource)
+        var dacpac = new SchemaCompareDacpacEndpoint(dacpacPath);
+        var database = new SchemaCompareDatabaseEndpoint(connectionString);
+
+        var comparison = databaseIsSource
+            ? new SchemaComparison(database, dacpac)
+            : new SchemaComparison(dacpac, database);
+
+        comparison.Options.IgnorePermissions = true;
+
+        var compareResult = comparison.Compare();
+
+        if (!compareResult.IsValid)
         {
-            var dacpac = new SchemaCompareDacpacEndpoint(dacpacPath);
-            var database = new SchemaCompareDatabaseEndpoint(connectionString);
+            throw new InvalidOperationException("Schema comparison failed to complete.");
+        }
 
-            var comparison = databaseIsSource
-                ? new SchemaComparison(database, dacpac)
-                : new SchemaComparison(dacpac, database);
+        var differences = new List<SchemaDifferenceModel>();
 
-            comparison.Options.IgnorePermissions = true;
+        foreach (var diff in compareResult.Differences)
+        {
+            var name = diff.Name;
+            var objectType = diff.SourceObject?.ObjectType?.Name ?? diff.TargetObject?.ObjectType?.Name ?? "Unknown";
+            var differenceType = diff.DifferenceType.ToString();
+            var updateAction = diff.UpdateAction.ToString();
+            var targetName = diff.TargetObject?.Name?.ToString() ?? string.Empty;
+            var sourceName = diff.SourceObject?.Name?.ToString() ?? string.Empty;
 
-            var compareResult = comparison.Compare();
+            var sourceScript = compareResult.GetDiffEntrySourceScript(diff) ?? string.Empty;
+            var targetScript = compareResult.GetDiffEntryTargetScript(diff) ?? string.Empty;
 
-            if (!compareResult.IsValid)
+            differences.Add(new SchemaDifferenceModel
             {
-                throw new InvalidOperationException("Schema comparison failed to complete.");
-            }
+                Name = name,
+                ObjectType = objectType,
+                DifferenceType = differenceType,
+                UpdateAction = updateAction,
+                SourceScript = sourceScript,
+                TargetScript = targetScript,
+                TargetObjectName = targetName,
+                SourceObjectName = sourceName,
+            });
+        }
 
-            var differences = new List<SchemaDifferenceModel>();
+        string deploymentScript;
+        if (compareResult.IsEqual)
+        {
+            deploymentScript = "-- No differences found";
+        }
+        else if (!databaseIsSource)
+        {
+            var databaseName = new SqlConnectionStringBuilder(connectionString).InitialCatalog;
+            var scriptResult = compareResult.GenerateScript(databaseName);
 
-            foreach (var diff in compareResult.Differences)
+            if (!scriptResult.Success)
             {
-                var name = diff.Name;
-                var objectType = diff.SourceObject?.ObjectType?.Name ?? diff.TargetObject?.ObjectType?.Name ?? "Unknown";
-                var differenceType = diff.DifferenceType.ToString();
-                var updateAction = diff.UpdateAction.ToString();
-                var targetName = diff.TargetObject?.Name?.ToString() ?? string.Empty;
-                var sourceName = diff.SourceObject?.Name?.ToString() ?? string.Empty;
-
-                var sourceScript = compareResult.GetDiffEntrySourceScript(diff) ?? string.Empty;
-                var targetScript = compareResult.GetDiffEntryTargetScript(diff) ?? string.Empty;
-
-                differences.Add(new SchemaDifferenceModel
+                if (scriptResult.Exception != null)
                 {
-                    Name = name,
-                    ObjectType = objectType,
-                    DifferenceType = differenceType,
-                    UpdateAction = updateAction,
-                    SourceScript = sourceScript,
-                    TargetScript = targetScript,
-                    TargetObjectName = targetName,
-                    SourceObjectName = sourceName,
-                });
-            }
-
-            string deploymentScript;
-            if (compareResult.IsEqual)
-            {
-                deploymentScript = "-- No differences found";
-            }
-            else if (!databaseIsSource)
-            {
-                var databaseName = new SqlConnectionStringBuilder(connectionString).InitialCatalog;
-                var scriptResult = compareResult.GenerateScript(databaseName);
-
-                if (!scriptResult.Success)
-                {
-                    if (scriptResult.Exception != null)
-                    {
-                        throw scriptResult.Exception;
-                    }
-
-                    throw new InvalidOperationException($"Script generation failed: {scriptResult.Message}");
+                    throw scriptResult.Exception;
                 }
 
-                deploymentScript = scriptResult.Script;
-            }
-            else
-            {
-                deploymentScript = "-- Deployment script not available when database is source";
+                throw new InvalidOperationException($"Script generation failed: {scriptResult.Message}");
             }
 
-            return new VisualCompareResult
-            {
-                Differences = differences,
-                DeploymentScript = deploymentScript,
-            };
+            deploymentScript = scriptResult.Script;
         }
+        else
+        {
+            deploymentScript = "-- Deployment script not available when database is source";
+        }
+
+        return new VisualCompareResult
+        {
+            Differences = differences,
+            DeploymentScript = deploymentScript,
+        };
     }
 }

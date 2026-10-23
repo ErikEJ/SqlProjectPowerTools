@@ -22,10 +22,7 @@ public partial class PipelineWizardDialog
         AddHandler(Hyperlink.RequestNavigateEvent, new RequestNavigateEventHandler(OnHyperlinkRequestNavigate));
     }
 
-    public bool ShowAndAwaitUserResponse()
-    {
-        return ShowModal() == true;
-    }
+    public bool ShowAndAwaitUserResponse() => ShowModal() == true;
 
     private static void OnHyperlinkRequestNavigate(object sender, RequestNavigateEventArgs e)
     {

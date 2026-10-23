@@ -62,13 +62,7 @@ public class ColumnInformationViewModel : ViewModelBase, IColumnInformationViewM
         }
     }
 
-    public string DisplayName
-    {
-        get
-        {
-            return newName == name ? name : $"{newName} - ({name})";
-        }
-    }
+    public string DisplayName => newName == name ? name : $"{newName} - ({name})";
 
     public bool IsPrimaryKey
     {
@@ -102,10 +96,7 @@ public class ColumnInformationViewModel : ViewModelBase, IColumnInformationViewM
         }
     }
 
-    public bool IsColumn
-    {
-        get => !isPrimaryKey;
-    }
+    public bool IsColumn => !isPrimaryKey;
 
     public bool? IsSelected
     {
@@ -153,7 +144,7 @@ public class ColumnInformationViewModel : ViewModelBase, IColumnInformationViewM
         }
     }
 
-    public bool IsEnabled { get => IsTableSelected && !IsPrimaryKey && !IsForeignKey; }
+    public bool IsEnabled => IsTableSelected && !IsPrimaryKey && !IsForeignKey;
 
     public ICommand StartEditCommand { get; }
 
@@ -165,15 +156,9 @@ public class ColumnInformationViewModel : ViewModelBase, IColumnInformationViewM
 
     public ObservableCollection<IColumnChildrenViewModel> Children { get; set; } = new ObservableCollection<IColumnChildrenViewModel>();
 
-    public void SetSelected(bool value)
-    {
-        IsSelected = value;
-    }
+    public void SetSelected(bool value) => IsSelected = value;
 
-    private void StartEdit_Execute()
-    {
-        IsEditing = true;
-    }
+    private void StartEdit_Execute() => IsEditing = true;
 
     private void ConfirmEdit_Execute()
     {
@@ -206,7 +191,7 @@ public class ColumnInformationViewModel : ViewModelBase, IColumnInformationViewM
 
     private void Children_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-        foreach (var item in e.NewItems)
+        foreach (var _ in e.NewItems)
         {
             RaisePropertyChanged(nameof(Name));
         }

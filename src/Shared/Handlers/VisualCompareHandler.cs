@@ -6,221 +6,217 @@ using System.Threading.Tasks;
 using DacFXToolLib.Common;
 using DacFXToolLib.Dab;
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+internal static class VisualCompareHandler
 {
-    internal static class VisualCompareHandler
+    public static async Task RunAsync(Project project)
     {
-        public static async Task RunAsync(Project project)
+        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+        try
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            if (await VSHelper.IsDebugModeAsync())
+            {
+                VSHelper.ShowError("Cannot run schema compare while debugging");
+                return;
+            }
+
+            var options = new DataApiBuilderOptions();
+
+            var (databaseModel, databaseIsSource) = await ChooseDataBaseConnectionAsync(options);
+
+            if (databaseModel == null)
+            {
+                return;
+            }
+
+            var dbInfo = await GetDatabaseInfoAsync(options);
+
+            if (dbInfo == null)
+            {
+                return;
+            }
+
+            var dacOptions = new DataApiBuilderOptions
+            {
+                Dacpac = project.FullPath,
+                ConnectionString = dbInfo.ConnectionString,
+                DatabaseType = DatabaseType.SQLServerDacpac,
+            };
+
+            var dacpacInfo = await HandlerHelper.GetDatabaseInfoAsync(dacOptions);
+
+            if (dacpacInfo == null)
+            {
+                return;
+            }
+
+            var pane = await SchemaCompareToolWindow.ShowAsync();
+            var control = pane?.Content as SchemaCompareWindowControl;
+
+            if (control?.DataContext is SchemaCompareViewModel vm)
+            {
+                vm.IsBusy = true;
+                vm.Status = "Comparing database schemas...";
+            }
+
+            await VS.StatusBar.ShowMessageAsync("Comparing database schemas...");
+
+            string jsonResultPath = null;
 
             try
             {
-                if (await VSHelper.IsDebugModeAsync())
+                jsonResultPath = await RunVisualCompareAsync(databaseIsSource, dacOptions.Dacpac, dbInfo.ConnectionString);
+
+                if (!string.IsNullOrEmpty(jsonResultPath))
                 {
-                    VSHelper.ShowError("Cannot run schema compare while debugging");
-                    return;
-                }
+                    var result = await Task.Run(() => ResultDeserializer.BuildVisualCompareResult(jsonResultPath));
 
-                var options = new DataApiBuilderOptions();
+                    var databaseName = GetDatabaseName(dbInfo.ConnectionString);
+                    var projectName = project.Name;
 
-                var connectionInfo = await ChooseDataBaseConnectionAsync(options);
+                    string sourceName;
+                    string targetName;
 
-                if (connectionInfo.DatabaseModel == null)
-                {
-                    return;
-                }
-
-                var dbInfo = await GetDatabaseInfoAsync(options);
-
-                if (dbInfo == null)
-                {
-                    return;
-                }
-
-                var dacOptions = new DataApiBuilderOptions
-                {
-                    Dacpac = project.FullPath,
-                    ConnectionString = dbInfo.ConnectionString,
-                    DatabaseType = DatabaseType.SQLServerDacpac,
-                };
-
-                var dacpacInfo = await HandlerHelper.GetDatabaseInfoAsync(dacOptions);
-
-                if (dacpacInfo == null)
-                {
-                    return;
-                }
-
-                var pane = await SchemaCompareToolWindow.ShowAsync();
-                var control = pane?.Content as SchemaCompareWindowControl;
-
-                if (control?.DataContext is SchemaCompareViewModel vm)
-                {
-                    vm.IsBusy = true;
-                    vm.Status = "Comparing database schemas...";
-                }
-
-                await VS.StatusBar.ShowMessageAsync("Comparing database schemas...");
-
-                string jsonResultPath = null;
-
-                try
-                {
-                    jsonResultPath = await RunVisualCompareAsync(connectionInfo.DatabaseIsSource, dacOptions.Dacpac, dbInfo.ConnectionString);
-
-                    if (!string.IsNullOrEmpty(jsonResultPath))
+                    if (databaseIsSource)
                     {
-                        var result = await Task.Run(() => ResultDeserializer.BuildVisualCompareResult(jsonResultPath));
-
-                        var databaseName = GetDatabaseName(dbInfo.ConnectionString);
-                        var projectName = project.Name;
-
-                        string sourceName;
-                        string targetName;
-
-                        if (connectionInfo.DatabaseIsSource)
-                        {
-                            sourceName = databaseName;
-                            targetName = projectName;
-                        }
-                        else
-                        {
-                            sourceName = projectName;
-                            targetName = databaseName;
-                        }
-
-                        control?.SetResult(result, sourceName, targetName);
-
-                        TryDeleteFile(jsonResultPath);
+                        sourceName = databaseName;
+                        targetName = projectName;
                     }
-                }
-                finally
-                {
-                    if (control?.DataContext is SchemaCompareViewModel vmDone)
+                    else
                     {
-                        vmDone.IsBusy = false;
+                        sourceName = projectName;
+                        targetName = databaseName;
                     }
+
+                    control?.SetResult(result, sourceName, targetName);
+
+                    TryDeleteFile(jsonResultPath);
                 }
-            }
-            catch (AggregateException ae)
-            {
-                foreach (var innerException in ae.Flatten().InnerExceptions)
-                {
-                    await VS.MessageBox.ShowErrorAsync("SQL Database Project Power Tools", innerException.Message);
-                }
-            }
-            catch (Exception exception)
-            {
-                await VS.MessageBox.ShowErrorAsync("SQL Database Project Power Tools", exception.Message);
             }
             finally
             {
-                await VS.StatusBar.ClearAsync();
-            }
-        }
-
-        private static string GetDatabaseName(string connectionString)
-        {
-            try
-            {
-                return SqlConnectionStringBuilderHelper.GetBuilder(connectionString).InitialCatalog;
-            }
-            catch
-            {
-                return "(Unknown database)";
-            }
-        }
-
-        private static void TryDeleteFile(string path)
-        {
-            try
-            {
-                if (File.Exists(path))
+                if (control?.DataContext is SchemaCompareViewModel vmDone)
                 {
-                    File.Delete(path);
+                    vmDone.IsBusy = false;
                 }
             }
-            catch
+        }
+        catch (AggregateException ae)
+        {
+            foreach (var innerException in ae.Flatten().InnerExceptions)
             {
-                // Best-effort cleanup
+                await VS.MessageBox.ShowErrorAsync("SQL Database Project Power Tools", innerException.Message);
             }
         }
-
-        private static async Task<string> RunVisualCompareAsync(bool databaseIsSource, string dacpacPath, string connectionString)
+        catch (Exception exception)
         {
-            var launcher = new ProcessLauncher();
-            return await launcher.GetVisualCompareAsync(databaseIsSource, dacpacPath, connectionString);
+            await VS.MessageBox.ShowErrorAsync("SQL Database Project Power Tools", exception.Message);
         }
-
-        private static async Task<DatabaseConnectionModel> GetDatabaseInfoAsync(DataApiBuilderOptions options)
+        finally
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            var dbInfo = new DatabaseConnectionModel();
-
-            if (!string.IsNullOrEmpty(options.ConnectionString))
-            {
-                dbInfo.ConnectionString = options.ConnectionString;
-                dbInfo.DatabaseType = options.DatabaseType;
-            }
-
-            if (dbInfo.DatabaseType == DatabaseType.Undefined)
-            {
-                VSHelper.ShowError("Unsupported provider");
-                return null;
-            }
-
-            return dbInfo;
-        }
-
-        private static async Task<(DatabaseConnectionModel DatabaseModel, bool DatabaseIsSource)> ChooseDataBaseConnectionAsync(DataApiBuilderOptions options)
-        {
-#if !SSMS
-            var vsDataHelper = new VsDataHelper();
-            var databaseList = await vsDataHelper.GetDataConnectionsAsync();
-#else
-            var databaseList = await SsmsDataHelper.GetDataConnectionsAsync();
-#endif
-
-            var psd = PackageManager.Package.GetView<IPickServerDatabaseDialog>();
-
-            if (databaseList != null && databaseList.Any())
-            {
-                psd.PublishConnections(databaseList.Select(m => new DatabaseConnectionModel
-                {
-                    ConnectionName = m.Value.ConnectionName,
-                    ConnectionString = m.Value.ConnectionString,
-                    DatabaseType = m.Value.DatabaseType,
-                    IsFromServerExplorer = m.Value.IsFromServerExplorer,
-                }));
-            }
-
-            psd.PublishFileGenerationMode(GetCodeGenerationModes());
-
-            var pickDataSourceResult = psd.ShowAndAwaitUserResponse(true);
-            if (!pickDataSourceResult.ClosedByOK)
-            {
-                return (null, false);
-            }
-
-            if (pickDataSourceResult.Payload.Connection != null)
-            {
-                options.ConnectionString = pickDataSourceResult.Payload.Connection.ConnectionString;
-                options.DatabaseType = pickDataSourceResult.Payload.Connection.DatabaseType;
-            }
-
-            return (pickDataSourceResult.Payload.Connection,
-                pickDataSourceResult.Payload.GetDatabaseOptions);
-        }
-
-        private static List<CodeGenerationItem> GetCodeGenerationModes()
-        {
-            return new List<CodeGenerationItem>
-            {
-                new CodeGenerationItem { Key = 0, Value = "Compare" },
-            };
+            await VS.StatusBar.ClearAsync();
         }
     }
+
+    private static string GetDatabaseName(string connectionString)
+    {
+        try
+        {
+            return SqlConnectionStringBuilderHelper.GetBuilder(connectionString).InitialCatalog;
+        }
+        catch
+        {
+            return "(Unknown database)";
+        }
+    }
+
+    private static void TryDeleteFile(string path)
+    {
+        try
+        {
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+            }
+        }
+        catch
+        {
+            // Best-effort cleanup
+        }
+    }
+
+    private static async Task<string> RunVisualCompareAsync(bool databaseIsSource, string dacpacPath, string connectionString)
+    {
+        var launcher = new ProcessLauncher();
+        return await launcher.GetVisualCompareAsync(databaseIsSource, dacpacPath, connectionString);
+    }
+
+    private static async Task<DatabaseConnectionModel> GetDatabaseInfoAsync(DataApiBuilderOptions options)
+    {
+        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+        var dbInfo = new DatabaseConnectionModel();
+
+        if (!string.IsNullOrEmpty(options.ConnectionString))
+        {
+            dbInfo.ConnectionString = options.ConnectionString;
+            dbInfo.DatabaseType = options.DatabaseType;
+        }
+
+        if (dbInfo.DatabaseType == DatabaseType.Undefined)
+        {
+            VSHelper.ShowError("Unsupported provider");
+            return null;
+        }
+
+        return dbInfo;
+    }
+
+    private static async Task<(DatabaseConnectionModel DatabaseModel, bool DatabaseIsSource)> ChooseDataBaseConnectionAsync(DataApiBuilderOptions options)
+    {
+#if !SSMS
+        var vsDataHelper = new VsDataHelper();
+        var databaseList = await vsDataHelper.GetDataConnectionsAsync();
+#else
+        var databaseList = await SsmsDataHelper.GetDataConnectionsAsync();
+#endif
+
+        var psd = PackageManager.Package.GetView<IPickServerDatabaseDialog>();
+
+        if (databaseList != null && databaseList.Any())
+        {
+            psd.PublishConnections(databaseList.Select(m => new DatabaseConnectionModel
+            {
+                ConnectionName = m.Value.ConnectionName,
+                ConnectionString = m.Value.ConnectionString,
+                DatabaseType = m.Value.DatabaseType,
+                IsFromServerExplorer = m.Value.IsFromServerExplorer,
+            }));
+        }
+
+        psd.PublishFileGenerationMode(GetCodeGenerationModes());
+
+        var (closedByOk, payload) = psd.ShowAndAwaitUserResponse(true);
+        if (!closedByOk)
+        {
+            return (null, false);
+        }
+
+        if (payload.Connection != null)
+        {
+            options.ConnectionString = payload.Connection.ConnectionString;
+            options.DatabaseType = payload.Connection.DatabaseType;
+        }
+
+        return (payload.Connection,
+            payload.GetDatabaseOptions);
+    }
+
+    private static List<CodeGenerationItem> GetCodeGenerationModes() => new()
+    {
+        new CodeGenerationItem { Key = 0, Value = "Compare" },
+    };
 }
 #endif

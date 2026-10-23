@@ -66,10 +66,7 @@ public class RuleGroupViewModel : ViewModelBase
         }
     }
 
-    public void UpdateGroupVisibility()
-    {
-        IsVisible = Rules.Any(r => r.IsVisible);
-    }
+    public void UpdateGroupVisibility() => IsVisible = Rules.Any(r => r.IsVisible);
 
     private void SetAllRules(bool enabled)
     {

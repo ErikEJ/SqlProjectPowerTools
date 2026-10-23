@@ -22,10 +22,7 @@ public class ObjectTreeRootItemViewModel : ViewModelBase, IObjectTreeRootItemVie
         };
     }
 
-    public bool IsVisible
-    {
-        get => Schemas.Any(m => m.IsVisible);
-    }
+    public bool IsVisible => Schemas.Any(m => m.IsVisible);
 
     public bool? IsSelected
     {
@@ -81,10 +78,7 @@ public class ObjectTreeRootItemViewModel : ViewModelBase, IObjectTreeRootItemVie
         }
     }
 
-    public ObjectTypeIcon ObjectTypeIcon
-    {
-        get => (ObjectTypeIcon)Enum.Parse(typeof(ObjectTypeIcon), ObjectType.ToString());
-    }
+    public ObjectTypeIcon ObjectTypeIcon => (ObjectTypeIcon)Enum.Parse(typeof(ObjectTypeIcon), ObjectType.ToString());
 
     public ObservableCollection<ISchemaInformationViewModel> Schemas { get; } = new ObservableCollection<ISchemaInformationViewModel>();
 
@@ -123,8 +117,5 @@ public class ObjectTreeRootItemViewModel : ViewModelBase, IObjectTreeRootItemVie
         }
     }
 
-    private void SetSelected_Execute(bool value)
-    {
-        IsSelected = value;
-    }
+    private void SetSelected_Execute(bool value) => IsSelected = value;
 }

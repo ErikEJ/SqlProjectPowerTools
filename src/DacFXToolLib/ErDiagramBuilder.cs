@@ -3,40 +3,39 @@ using DacFXToolLib.Common;
 using DacFXToolLib.Dab;
 using DacFXToolLib.Model;
 
-namespace DacFXToolLib
+namespace DacFXToolLib;
+
+public class ErDiagramBuilder
 {
-    public class ErDiagramBuilder
+    private readonly DataApiBuilderOptions dataApiBuilderOptions;
+
+    public ErDiagramBuilder(DataApiBuilderOptions dataApiBuilderCommandOptions)
     {
-        private readonly DataApiBuilderOptions dataApiBuilderOptions;
+        dataApiBuilderOptions = dataApiBuilderCommandOptions;
+    }
 
-        public ErDiagramBuilder(DataApiBuilderOptions dataApiBuilderCommandOptions)
-        {
-            dataApiBuilderOptions = dataApiBuilderCommandOptions;
-        }
+    public string GetErDiagramFileName(bool createMarkdown)
+    {
+        var tables = GetTablesInternal();
 
-        public string GetErDiagramFileName(bool createMarkdown)
-        {
-            var tables = GetTablesInternal();
+        var creator = new DatabaseModelToMermaid(tables);
 
-            var creator = new DatabaseModelToMermaid(tables);
+        var diagram = creator.CreateMermaid(createMarkdown);
 
-            var diagram = creator.CreateMermaid(createMarkdown);
+        var extension = createMarkdown ? ".md" : ".mmd";
 
-            var extension = createMarkdown ? ".md" : ".mmd";
+        var fileName = Path.Join(dataApiBuilderOptions.ProjectPath, "dbdiagram" + extension);
+        File.WriteAllText(fileName, diagram, Encoding.UTF8);
 
-            var fileName = Path.Join(dataApiBuilderOptions.ProjectPath, "dbdiagram" + extension);
-            File.WriteAllText(fileName, diagram, Encoding.UTF8);
+        return fileName;
+    }
 
-            return fileName;
-        }
+    private List<SimpleTable> GetTablesInternal()
+    {
+        var tableNames = dataApiBuilderOptions.Tables
+            ?.Where(t => t.ObjectType == ObjectType.Table)
+            .Select(m => m.Name);
 
-        private List<SimpleTable> GetTablesInternal()
-        {
-            var tableNames = dataApiBuilderOptions.Tables
-                ?.Where(t => t.ObjectType == ObjectType.Table)
-                .Select(m => m.Name);
-
-            return DacpacModelFactory.GetTables(dataApiBuilderOptions.Dacpac, tableNames);
-        }
+        return DacpacModelFactory.GetTables(dataApiBuilderOptions.Dacpac, tableNames);
     }
 }

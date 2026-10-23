@@ -11,8 +11,5 @@ public sealed class ColumnEnabledConverter : IMultiValueConverter
         return isTableSelected && !isPrimaryKey;
     }
 
-    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, System.Globalization.CultureInfo culture)
-    {
-        throw new NotImplementedException();
-    }
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, System.Globalization.CultureInfo culture) => throw new NotImplementedException();
 }

@@ -294,10 +294,7 @@ internal sealed class DacpacItemNode :
         return activeNodes;
     }
 
-    private static bool IsInternalMetadataFile(FileSystemInfo item)
-    {
-        return item is FileInfo && string.Equals(item.Name, ".dacpacstamp", StringComparison.OrdinalIgnoreCase);
-    }
+    private static bool IsInternalMetadataFile(FileSystemInfo item) => item is FileInfo && string.Equals(item.Name, ".dacpacstamp", StringComparison.OrdinalIgnoreCase);
 
     private void UpdateChildrenOnUIThread(List<DacpacItemNode> newChildren)
     {
@@ -391,10 +388,7 @@ internal sealed class DacpacItemNode :
 
     public bool IsDisposed
     {
-        get
-        {
-            return isDisposed;
-        }
+        get => isDisposed;
 
         set
         {
@@ -560,8 +554,5 @@ internal sealed class DacpacItemNode :
         return null;
     }
 
-    public void RaisePropertyChanged(string propertyName)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
+    public void RaisePropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 }

@@ -3,13 +3,10 @@ namespace SqlProjectsPowerTools;
 [Command(PackageIds.cmdidAnalyze)]
 internal sealed class AnalyzeCommand : BaseCommand<AnalyzeCommand>
 {
-    protected override void BeforeQueryStatus(EventArgs e)
-    {
-        ThreadHelper.JoinableTaskFactory.Run(async () =>
-        {
-            Command.Enabled = await Command.IsEnabledForAnySqlProjectAsync();
-        });
-    }
+    protected override void BeforeQueryStatus(EventArgs e) => ThreadHelper.JoinableTaskFactory.Run(async () =>
+                                                                   {
+                                                                       Command.Enabled = await Command.IsEnabledForAnySqlProjectAsync();
+                                                                   });
 
     protected override async Task ExecuteAsync(OleMenuCmdEventArgs e)
     {

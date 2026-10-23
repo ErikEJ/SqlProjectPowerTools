@@ -79,7 +79,7 @@ internal static class PipelineHandler
             await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
             var written = (result ?? string.Empty)
-                .Split(new[] { '|' }, StringSplitOptions.RemoveEmptyEntries)
+                .Split(['|'], StringSplitOptions.RemoveEmptyEntries)
                 .Select(p => p.Trim())
                 .ToList();
 

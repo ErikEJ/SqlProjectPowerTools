@@ -9,17 +9,11 @@ public sealed class BoolInvertConverter : IValueConverter
         object value,
         Type targetType,
         object parameter,
-        CultureInfo culture)
-    {
-        return !(bool)value;
-    }
+        CultureInfo culture) => !(bool)value;
 
     object IValueConverter.ConvertBack(
         object value,
         Type targetType,
         object parameter,
-        CultureInfo culture)
-    {
-        return !(bool)value;
-    }
+        CultureInfo culture) => !(bool)value;
 }

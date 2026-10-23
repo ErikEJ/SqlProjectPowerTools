@@ -34,10 +34,7 @@ public sealed class VisualStudioAccess : IVisualStudioAccess
         };
     }
 
-    async System.Threading.Tasks.Task IVisualStudioAccess.RemoveDatabaseConnectionAsync(IVsDataConnection dataConnection)
-    {
-        await VsDataHelper.RemoveDataConnectionAsync(dataConnection);
-    }
+    async System.Threading.Tasks.Task IVisualStudioAccess.RemoveDatabaseConnectionAsync(IVsDataConnection dataConnection) => await VsDataHelper.RemoveDataConnectionAsync(dataConnection);
 #endif
 
     void IVisualStudioAccess.ShowMessage(string message)

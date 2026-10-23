@@ -53,10 +53,7 @@ public sealed class VsixPackage : ToolkitPackage
     }
 
     internal TView GetView<TView>()
-        where TView : IView
-    {
-        return extensionServices.GetService<TView>();
-    }
+        where TView : IView => extensionServices.GetService<TView>();
 
     private IServiceProvider CreateServiceProvider()
     {

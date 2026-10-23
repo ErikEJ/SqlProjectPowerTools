@@ -3,454 +3,453 @@ using DacFXToolLib.Common;
 using DacFXToolLib.Model;
 using Microsoft.SqlServer.Dac.Model;
 
-namespace DacFXToolLib
+namespace DacFXToolLib;
+
+public static class DacpacModelFactory
 {
-    public static class DacpacModelFactory
+    private static readonly HashSet<string> DateTimePrecisionTypes =
+        new(StringComparer.OrdinalIgnoreCase)
+        { "datetimeoffset", "datetime2", "time" };
+
+    private static readonly HashSet<string> MaxLengthRequiredTypes =
+        new(StringComparer.OrdinalIgnoreCase)
+        { "binary", "varbinary", "char", "varchar", "nchar", "nvarchar" };
+
+    public static List<SimpleTable> GetTables(string dacpacPath, IEnumerable<string>? tableNames = null)
     {
-        private static readonly HashSet<string> DateTimePrecisionTypes =
-            new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            { "datetimeoffset", "datetime2", "time" };
-
-        private static readonly HashSet<string> MaxLengthRequiredTypes =
-            new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            { "binary", "varbinary", "char", "varchar", "nchar", "nvarchar" };
-
-        public static List<SimpleTable> GetTables(string dacpacPath, IEnumerable<string>? tableNames = null)
+        if (string.IsNullOrEmpty(dacpacPath))
         {
-            if (string.IsNullOrEmpty(dacpacPath))
-            {
-                throw new ArgumentException("Dacpac path is required.", nameof(dacpacPath));
-            }
-
-            if (!File.Exists(dacpacPath))
-            {
-                throw new ArgumentException($"Dacpac file not found: {dacpacPath}", nameof(dacpacPath));
-            }
-
-            using var model = TSqlModel.LoadFromDacpac(dacpacPath, new ModelLoadOptions());
-
-            return GetTablesFromModel(model, tableNames);
+            throw new ArgumentException("Dacpac path is required.", nameof(dacpacPath));
         }
 
-        public static List<SimpleStoredProcedure> GetStoredProcedures(string dacpacPath)
+        if (!File.Exists(dacpacPath))
         {
-            if (string.IsNullOrEmpty(dacpacPath))
-            {
-                throw new ArgumentException("Dacpac path is required.", nameof(dacpacPath));
-            }
-
-            if (!File.Exists(dacpacPath))
-            {
-                throw new ArgumentException($"Dacpac file not found: {dacpacPath}", nameof(dacpacPath));
-            }
-
-            using var model = TSqlModel.LoadFromDacpac(dacpacPath, new ModelLoadOptions());
-
-            return GetStoredProceduresFromModel(model);
+            throw new ArgumentException($"Dacpac file not found: {dacpacPath}", nameof(dacpacPath));
         }
 
-        public static List<TableModel> GetObjects(string dacpacPath)
+        using var model = TSqlModel.LoadFromDacpac(dacpacPath, new ModelLoadOptions());
+
+        return GetTablesFromModel(model, tableNames);
+    }
+
+    public static List<SimpleStoredProcedure> GetStoredProcedures(string dacpacPath)
+    {
+        if (string.IsNullOrEmpty(dacpacPath))
         {
-            if (string.IsNullOrEmpty(dacpacPath))
-            {
-                throw new ArgumentException("Dacpac path is required.", nameof(dacpacPath));
-            }
-
-            if (!File.Exists(dacpacPath))
-            {
-                throw new ArgumentException($"Dacpac file not found: {dacpacPath}", nameof(dacpacPath));
-            }
-
-            using var model = TSqlModel.LoadFromDacpac(dacpacPath, new ModelLoadOptions());
-
-            var result = new List<TableModel>();
-
-            foreach (var table in GetTablesFromModel(model, null))
-            {
-                var pkColumnNames = table.PrimaryKey?.Columns
-                    .Select(c => c.Name)
-                    .ToHashSet(StringComparer.OrdinalIgnoreCase)
-                    ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-                var fkColumnNames = table.ForeignKeys
-                    .SelectMany(fk => fk.Columns)
-                    .Select(c => c.Name)
-                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-                var columns = table.Columns.Select(c => new ColumnModel(
-                    c.Name,
-                    c.StoreType ?? string.Empty,
-                    pkColumnNames.Contains(c.Name),
-                    fkColumnNames.Contains(c.Name))).ToList();
-
-                result.Add(new TableModel(table.Name, table.Schema, DatabaseType.SQLServerDacpac, ObjectType.Table, columns));
-            }
-
-            // Include views as objects with columns so that VSIX consumers
-            // (e.g., ER diagrams, DAB builder) can select them for DACPAC-based flows.
-            foreach (var viewObj in model.GetObjects(DacQueryScopes.UserDefined, View.TypeClass))
-            {
-                var schema = viewObj.Name.Parts[0];
-                var name = viewObj.Name.Parts[1];
-
-                var columns = viewObj.GetReferenced(View.Columns, DacQueryScopes.UserDefined)
-                    .Select(col => new ColumnModel(
-                        col.Name.Parts[2],
-                        string.Empty,
-                        false,
-                        false))
-                    .ToList();
-
-                result.Add(new TableModel(name, schema, DatabaseType.SQLServerDacpac, ObjectType.View, columns));
-            }
-
-            foreach (var proc in GetStoredProceduresFromModel(model))
-            {
-                result.Add(new TableModel(proc.Name, proc.Schema, DatabaseType.SQLServerDacpac, ObjectType.Procedure, Array.Empty<ColumnModel>()));
-            }
-
-            return result;
+            throw new ArgumentException("Dacpac path is required.", nameof(dacpacPath));
         }
 
-        private static List<SimpleTable> GetTablesFromModel(TSqlModel model, IEnumerable<string>? tableNames)
+        if (!File.Exists(dacpacPath))
         {
-            var tableFilter = tableNames?.ToHashSet(StringComparer.OrdinalIgnoreCase);
-            var typeAliases = GetTypeAliases(model);
-            var tableComments = GetTableComments(model);
-            var columnComments = GetColumnComments(model);
+            throw new ArgumentException($"Dacpac file not found: {dacpacPath}", nameof(dacpacPath));
+        }
 
-            var tableObjects = model
-                .GetObjects(DacQueryScopes.UserDefined, Table.TypeClass)
-                .Where(t => !t.GetProperty<bool>(Table.IsAutoGeneratedHistoryTable))
-                .Where(t => tableFilter == null
-                    || tableFilter.Count == 0
-                    || tableFilter.Contains($"[{t.Name.Parts[0]}].[{t.Name.Parts[1]}]"))
+        using var model = TSqlModel.LoadFromDacpac(dacpacPath, new ModelLoadOptions());
+
+        return GetStoredProceduresFromModel(model);
+    }
+
+    public static List<TableModel> GetObjects(string dacpacPath)
+    {
+        if (string.IsNullOrEmpty(dacpacPath))
+        {
+            throw new ArgumentException("Dacpac path is required.", nameof(dacpacPath));
+        }
+
+        if (!File.Exists(dacpacPath))
+        {
+            throw new ArgumentException($"Dacpac file not found: {dacpacPath}", nameof(dacpacPath));
+        }
+
+        using var model = TSqlModel.LoadFromDacpac(dacpacPath, new ModelLoadOptions());
+
+        var result = new List<TableModel>();
+
+        foreach (var table in GetTablesFromModel(model, null))
+        {
+            var pkColumnNames = table.PrimaryKey?.Columns
+                .Select(c => c.Name)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase)
+                ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            var fkColumnNames = table.ForeignKeys
+                .SelectMany(fk => fk.Columns)
+                .Select(c => c.Name)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+            var columns = table.Columns.Select(c => new ColumnModel(
+                c.Name,
+                c.StoreType ?? string.Empty,
+                pkColumnNames.Contains(c.Name),
+                fkColumnNames.Contains(c.Name))).ToList();
+
+            result.Add(new TableModel(table.Name, table.Schema, DatabaseType.SQLServerDacpac, ObjectType.Table, columns));
+        }
+
+        // Include views as objects with columns so that VSIX consumers
+        // (e.g., ER diagrams, DAB builder) can select them for DACPAC-based flows.
+        foreach (var viewObj in model.GetObjects(DacQueryScopes.UserDefined, View.TypeClass))
+        {
+            var schema = viewObj.Name.Parts[0];
+            var name = viewObj.Name.Parts[1];
+
+            var columns = viewObj.GetReferenced(View.Columns, DacQueryScopes.UserDefined)
+                .Select(col => new ColumnModel(
+                    col.Name.Parts[2],
+                    string.Empty,
+                    false,
+                    false))
                 .ToList();
 
-            var tables = new List<SimpleTable>();
-            var tablesByKey = new Dictionary<string, SimpleTable>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var tableObj in tableObjects)
-            {
-                var schema = tableObj.Name.Parts[0];
-                var name = tableObj.Name.Parts[1];
-
-                tableComments.TryGetValue($"{schema}.{name}", out var tableComment);
-
-                var simpleTable = new SimpleTable
-                {
-                    Name = name,
-                    Schema = schema,
-                    Comment = tableComment,
-                };
-
-                foreach (var colObj in tableObj.GetReferenced(Table.Columns, DacQueryScopes.UserDefined))
-                {
-                    var colType = colObj.GetMetadata<ColumnType>(Column.ColumnType);
-                    if (colType == ColumnType.ComputedColumn)
-                    {
-                        continue;
-                    }
-
-                    var colName = colObj.Name.Parts[2];
-                    var isNullable = colObj.GetProperty<bool>(Column.Nullable);
-                    var storeType = GetColumnStoreType(colObj, typeAliases);
-
-                    if (colType == ColumnType.ComputedColumn)
-                    {
-                        var formula = colObj.GetProperty(Column.Expression);
-
-                        var trimmedFormula = formula as string;
-
-                        if (trimmedFormula != null)
-                        {
-                            trimmedFormula = trimmedFormula.Trim().Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase);
-                        }
-
-                        storeType = $"computed({trimmedFormula ?? formula})";
-                    }
-
-                    columnComments.TryGetValue($"{schema}.{name}.{colName}", out var colComment);
-
-                    simpleTable.Columns.Add(new SimpleColumn
-                    {
-                        Name = colName,
-                        StoreType = storeType,
-                        IsNullable = isNullable,
-                        Comment = colComment,
-                    });
-                }
-
-                tables.Add(simpleTable);
-                tablesByKey[$"{schema}.{name}"] = simpleTable;
-            }
-
-            foreach (var pkObj in model.GetObjects(DacQueryScopes.UserDefined, PrimaryKeyConstraint.TypeClass))
-            {
-                var hostRefs = pkObj.GetReferenced(PrimaryKeyConstraint.Host, DacQueryScopes.UserDefined).ToList();
-                if (hostRefs.Count == 0)
-                {
-                    continue;
-                }
-
-                var host = hostRefs[0];
-                var tableKey = $"{host.Name.Parts[0]}.{host.Name.Parts[1]}";
-                if (!tablesByKey.TryGetValue(tableKey, out var table))
-                {
-                    continue;
-                }
-
-                var columnsByName = table.Columns.ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
-
-                var primaryKey = new SimplePrimaryKey
-                {
-                    Name = pkObj.Name.HasName ? pkObj.Name.Parts[1] : null,
-                };
-
-                foreach (var colRef in pkObj.GetReferenced(PrimaryKeyConstraint.Columns, DacQueryScopes.UserDefined))
-                {
-                    if (columnsByName.TryGetValue(colRef.Name.Parts[2], out var dbCol))
-                    {
-                        primaryKey.Columns.Add(dbCol);
-                    }
-                }
-
-                table.PrimaryKey = primaryKey;
-            }
-
-            foreach (var fkObj in model.GetObjects(DacQueryScopes.UserDefined, ForeignKeyConstraint.TypeClass))
-            {
-                var hostRefs = fkObj.GetReferenced(ForeignKeyConstraint.Host, DacQueryScopes.UserDefined).ToList();
-                if (hostRefs.Count == 0)
-                {
-                    continue;
-                }
-
-                var host = hostRefs[0];
-                var tableKey = $"{host.Name.Parts[0]}.{host.Name.Parts[1]}";
-                if (!tablesByKey.TryGetValue(tableKey, out var table))
-                {
-                    continue;
-                }
-
-                var foreignTableRefs = fkObj.GetReferenced(ForeignKeyConstraint.ForeignTable, DacQueryScopes.UserDefined).ToList();
-                if (foreignTableRefs.Count == 0)
-                {
-                    continue;
-                }
-
-                var foreignTableRef = foreignTableRefs[0];
-                var principalKey = $"{foreignTableRef.Name.Parts[0]}.{foreignTableRef.Name.Parts[1]}";
-                if (!tablesByKey.TryGetValue(principalKey, out var principalTable))
-                {
-                    continue;
-                }
-
-                var tableColumnsByName = table.Columns.ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
-                var principalColumnsByName = principalTable.Columns.ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
-
-                var foreignKey = new SimpleForeignKey
-                {
-                    Name = fkObj.Name.HasName ? fkObj.Name.Parts[1] : null,
-                    PrincipalTable = principalTable,
-                };
-
-                foreach (var colRef in fkObj.GetReferenced(ForeignKeyConstraint.Columns, DacQueryScopes.UserDefined))
-                {
-                    if (tableColumnsByName.TryGetValue(colRef.Name.Parts[2], out var dbCol))
-                    {
-                        foreignKey.Columns.Add(dbCol);
-                    }
-                }
-
-                foreach (var colRef in fkObj.GetReferenced(ForeignKeyConstraint.ForeignColumns, DacQueryScopes.UserDefined))
-                {
-                    if (principalColumnsByName.TryGetValue(colRef.Name.Parts[2], out var dbCol))
-                    {
-                        foreignKey.PrincipalColumns.Add(dbCol);
-                    }
-                }
-
-                if (foreignKey.PrincipalColumns.Count > 0)
-                {
-                    table.ForeignKeys.Add(foreignKey);
-                }
-            }
-
-            return tables;
+            result.Add(new TableModel(name, schema, DatabaseType.SQLServerDacpac, ObjectType.View, columns));
         }
 
-        private static List<SimpleStoredProcedure> GetStoredProceduresFromModel(TSqlModel model)
+        foreach (var proc in GetStoredProceduresFromModel(model))
         {
-            var result = new List<SimpleStoredProcedure>();
+            result.Add(new TableModel(proc.Name, proc.Schema, DatabaseType.SQLServerDacpac, ObjectType.Procedure, Array.Empty<ColumnModel>()));
+        }
 
-            foreach (var proc in model.GetObjects(DacQueryScopes.UserDefined, Procedure.TypeClass))
+        return result;
+    }
+
+    private static List<SimpleTable> GetTablesFromModel(TSqlModel model, IEnumerable<string>? tableNames)
+    {
+        var tableFilter = tableNames?.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var typeAliases = GetTypeAliases(model);
+        var tableComments = GetTableComments(model);
+        var columnComments = GetColumnComments(model);
+
+        var tableObjects = model
+            .GetObjects(DacQueryScopes.UserDefined, Table.TypeClass)
+            .Where(t => !t.GetProperty<bool>(Table.IsAutoGeneratedHistoryTable))
+            .Where(t => tableFilter == null
+                || tableFilter.Count == 0
+                || tableFilter.Contains($"[{t.Name.Parts[0]}].[{t.Name.Parts[1]}]"))
+            .ToList();
+
+        var tables = new List<SimpleTable>();
+        var tablesByKey = new Dictionary<string, SimpleTable>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var tableObj in tableObjects)
+        {
+            var schema = tableObj.Name.Parts[0];
+            var name = tableObj.Name.Parts[1];
+
+            tableComments.TryGetValue($"{schema}.{name}", out var tableComment);
+
+            var simpleTable = new SimpleTable
             {
-                result.Add(new SimpleStoredProcedure
+                Name = name,
+                Schema = schema,
+                Comment = tableComment,
+            };
+
+            foreach (var colObj in tableObj.GetReferenced(Table.Columns, DacQueryScopes.UserDefined))
+            {
+                var colType = colObj.GetMetadata<ColumnType>(Column.ColumnType);
+                if (colType == ColumnType.ComputedColumn)
                 {
-                    Schema = proc.Name.Parts[0],
-                    Name = proc.Name.Parts[1],
+                    continue;
+                }
+
+                var colName = colObj.Name.Parts[2];
+                var isNullable = colObj.GetProperty<bool>(Column.Nullable);
+                var storeType = GetColumnStoreType(colObj, typeAliases);
+
+                if (colType == ColumnType.ComputedColumn)
+                {
+                    var formula = colObj.GetProperty(Column.Expression);
+
+                    var trimmedFormula = formula as string;
+
+                    if (trimmedFormula != null)
+                    {
+                        trimmedFormula = trimmedFormula.Trim().Replace(" ", string.Empty, StringComparison.OrdinalIgnoreCase);
+                    }
+
+                    storeType = $"computed({trimmedFormula ?? formula})";
+                }
+
+                columnComments.TryGetValue($"{schema}.{name}.{colName}", out var colComment);
+
+                simpleTable.Columns.Add(new SimpleColumn
+                {
+                    Name = colName,
+                    StoreType = storeType,
+                    IsNullable = isNullable,
+                    Comment = colComment,
                 });
             }
 
-            return result;
+            tables.Add(simpleTable);
+            tablesByKey[$"{schema}.{name}"] = simpleTable;
         }
 
-        private static Dictionary<string, string> GetTableComments(TSqlModel model)
+        foreach (var pkObj in model.GetObjects(DacQueryScopes.UserDefined, PrimaryKeyConstraint.TypeClass))
         {
-            var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var ep in model.GetObjects(DacQueryScopes.UserDefined, ExtendedProperty.TypeClass))
+            var hostRefs = pkObj.GetReferenced(PrimaryKeyConstraint.Host, DacQueryScopes.UserDefined).ToList();
+            if (hostRefs.Count == 0)
             {
-                var parts = ep.Name.Parts;
-                if (parts.Count == 4
-                    && string.Equals(parts[0], "SqlTableBase", StringComparison.OrdinalIgnoreCase)
-                    && string.Equals(parts[3], "MS_Description", StringComparison.OrdinalIgnoreCase))
-                {
-                    var value = ep.GetProperty(ExtendedProperty.Value);
+                continue;
+            }
 
-                    if (value is string strValue && !string.IsNullOrEmpty(strValue))
-                    {
-                        result[$"{parts[1]}.{parts[2]}"] = FixExtendedPropertyValue(strValue) ?? strValue;
-                    }
+            var host = hostRefs[0];
+            var tableKey = $"{host.Name.Parts[0]}.{host.Name.Parts[1]}";
+            if (!tablesByKey.TryGetValue(tableKey, out var table))
+            {
+                continue;
+            }
+
+            var columnsByName = table.Columns.ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
+
+            var primaryKey = new SimplePrimaryKey
+            {
+                Name = pkObj.Name.HasName ? pkObj.Name.Parts[1] : null,
+            };
+
+            foreach (var colRef in pkObj.GetReferenced(PrimaryKeyConstraint.Columns, DacQueryScopes.UserDefined))
+            {
+                if (columnsByName.TryGetValue(colRef.Name.Parts[2], out var dbCol))
+                {
+                    primaryKey.Columns.Add(dbCol);
                 }
             }
 
-            return result;
+            table.PrimaryKey = primaryKey;
         }
 
-        private static Dictionary<string, string> GetColumnComments(TSqlModel model)
+        foreach (var fkObj in model.GetObjects(DacQueryScopes.UserDefined, ForeignKeyConstraint.TypeClass))
         {
-            var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var ep in model.GetObjects(DacQueryScopes.UserDefined, ExtendedProperty.TypeClass))
+            var hostRefs = fkObj.GetReferenced(ForeignKeyConstraint.Host, DacQueryScopes.UserDefined).ToList();
+            if (hostRefs.Count == 0)
             {
-                var parts = ep.Name.Parts;
-                if (parts.Count == 5
-                    && string.Equals(parts[0], "SqlColumn", StringComparison.OrdinalIgnoreCase)
-                    && string.Equals(parts[4], "MS_Description", StringComparison.OrdinalIgnoreCase))
-                {
-                    var value = ep.GetProperty(ExtendedProperty.Value);
+                continue;
+            }
 
-                    if (value is string strValue && !string.IsNullOrEmpty(strValue))
-                    {
-                        result[$"{parts[1]}.{parts[2]}.{parts[3]}"] = FixExtendedPropertyValue(strValue) ?? strValue;
-                    }
+            var host = hostRefs[0];
+            var tableKey = $"{host.Name.Parts[0]}.{host.Name.Parts[1]}";
+            if (!tablesByKey.TryGetValue(tableKey, out var table))
+            {
+                continue;
+            }
+
+            var foreignTableRefs = fkObj.GetReferenced(ForeignKeyConstraint.ForeignTable, DacQueryScopes.UserDefined).ToList();
+            if (foreignTableRefs.Count == 0)
+            {
+                continue;
+            }
+
+            var foreignTableRef = foreignTableRefs[0];
+            var principalKey = $"{foreignTableRef.Name.Parts[0]}.{foreignTableRef.Name.Parts[1]}";
+            if (!tablesByKey.TryGetValue(principalKey, out var principalTable))
+            {
+                continue;
+            }
+
+            var tableColumnsByName = table.Columns.ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
+            var principalColumnsByName = principalTable.Columns.ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
+
+            var foreignKey = new SimpleForeignKey
+            {
+                Name = fkObj.Name.HasName ? fkObj.Name.Parts[1] : null,
+                PrincipalTable = principalTable,
+            };
+
+            foreach (var colRef in fkObj.GetReferenced(ForeignKeyConstraint.Columns, DacQueryScopes.UserDefined))
+            {
+                if (tableColumnsByName.TryGetValue(colRef.Name.Parts[2], out var dbCol))
+                {
+                    foreignKey.Columns.Add(dbCol);
                 }
             }
 
-            return result;
-        }
-
-        private static Dictionary<string, (string StoreType, string TypeName)> GetTypeAliases(TSqlModel model)
-        {
-            var result = new Dictionary<string, (string, string)>(StringComparer.OrdinalIgnoreCase);
-
-            foreach (var udt in model.GetObjects(DacQueryScopes.UserDefined, DataType.TypeClass))
+            foreach (var colRef in fkObj.GetReferenced(ForeignKeyConstraint.ForeignColumns, DacQueryScopes.UserDefined))
             {
-                var isMax = udt.GetProperty<bool>(DataType.UddtIsMax);
-                var length = isMax ? -1 : udt.GetProperty<int>(DataType.UddtLength);
-                var precision = udt.GetProperty<int>(DataType.UddtPrecision);
-                var scale = udt.GetProperty<int>(DataType.UddtScale);
-
-                var baseTypes = udt.GetReferenced(DataType.Type).ToList();
-                if (baseTypes.Count == 0)
+                if (principalColumnsByName.TryGetValue(colRef.Name.Parts[2], out var dbCol))
                 {
-                    continue;
+                    foreignKey.PrincipalColumns.Add(dbCol);
                 }
-
-                var baseTypeName = baseTypes[0].Name.Parts[0];
-                var storeType = GetStoreType(baseTypeName, length, precision, scale);
-                result[$"{udt.Name.Parts[0]}.{udt.Name.Parts[1]}"] = (storeType, baseTypeName);
             }
 
-            return result;
+            if (foreignKey.PrincipalColumns.Count > 0)
+            {
+                table.ForeignKeys.Add(foreignKey);
+            }
         }
 
-        private static string GetColumnStoreType(TSqlObject colObj, Dictionary<string, (string StoreType, string TypeName)> typeAliases)
+        return tables;
+    }
+
+    private static List<SimpleStoredProcedure> GetStoredProceduresFromModel(TSqlModel model)
+    {
+        var result = new List<SimpleStoredProcedure>();
+
+        foreach (var proc in model.GetObjects(DacQueryScopes.UserDefined, Procedure.TypeClass))
         {
-            var dataTypeRefs = colObj.GetReferenced(Column.DataType).ToList();
-            if (dataTypeRefs.Count == 0)
+            result.Add(new SimpleStoredProcedure
             {
-                return "unknown";
-            }
-
-            var dataTypeRef = dataTypeRefs[0];
-            var parts = dataTypeRef.Name.Parts;
-
-            if (parts.Count > 1
-                && typeAliases.TryGetValue(
-                    string.Create(CultureInfo.InvariantCulture, $"{parts[0]}.{parts[1]}"),
-                    out var aliasInfo))
-            {
-                return aliasInfo.StoreType;
-            }
-
-            var dataTypeName = parts[0];
-            var isMax = colObj.GetProperty<bool>(Column.IsMax);
-            var length = isMax ? -1 : colObj.GetProperty<int>(Column.Length);
-            var precision = colObj.GetProperty<int>(Column.Precision);
-            var scale = colObj.GetProperty<int>(Column.Scale);
-
-            return GetStoreType(dataTypeName, length, precision, scale);
+                Schema = proc.Name.Parts[0],
+                Name = proc.Name.Parts[1],
+            });
         }
 
-        private static string GetStoreType(string dataTypeName, int maxLength, int precision, int scale)
+        return result;
+    }
+
+    private static Dictionary<string, string> GetTableComments(TSqlModel model)
+    {
+        var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var ep in model.GetObjects(DacQueryScopes.UserDefined, ExtendedProperty.TypeClass))
         {
-            if (string.Equals(dataTypeName, "timestamp", StringComparison.OrdinalIgnoreCase))
+            var parts = ep.Name.Parts;
+            if (parts.Count == 4
+                && string.Equals(parts[0], "SqlTableBase", StringComparison.OrdinalIgnoreCase)
+                && string.Equals(parts[3], "MS_Description", StringComparison.OrdinalIgnoreCase))
             {
-                return "rowversion";
-            }
+                var value = ep.GetProperty(ExtendedProperty.Value);
 
-            if (string.Equals(dataTypeName, "sysname", StringComparison.OrdinalIgnoreCase))
-            {
-                return "nvarchar(128)";
+                if (value is string strValue && !string.IsNullOrEmpty(strValue))
+                {
+                    result[$"{parts[1]}.{parts[2]}"] = FixExtendedPropertyValue(strValue) ?? strValue;
+                }
             }
-
-            if (string.Equals(dataTypeName, "decimal", StringComparison.OrdinalIgnoreCase)
-                || string.Equals(dataTypeName, "numeric", StringComparison.OrdinalIgnoreCase))
-            {
-                return string.Format(CultureInfo.InvariantCulture, "{0}({1}, {2})", dataTypeName, precision, scale);
-            }
-
-            if (DateTimePrecisionTypes.Contains(dataTypeName) && scale != 7)
-            {
-                return string.Format(CultureInfo.InvariantCulture, "{0}({1})", dataTypeName, scale);
-            }
-
-            if (MaxLengthRequiredTypes.Contains(dataTypeName))
-            {
-                return maxLength == -1
-                    ? string.Format(CultureInfo.InvariantCulture, "{0}(max)", dataTypeName)
-                    : string.Format(CultureInfo.InvariantCulture, "{0}({1})", dataTypeName, maxLength);
-            }
-
-            return dataTypeName;
         }
 
-        private static string? FixExtendedPropertyValue(string? value)
+        return result;
+    }
+
+    private static Dictionary<string, string> GetColumnComments(TSqlModel model)
+    {
+        var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var ep in model.GetObjects(DacQueryScopes.UserDefined, ExtendedProperty.TypeClass))
         {
-            if (value == null)
+            var parts = ep.Name.Parts;
+            if (parts.Count == 5
+                && string.Equals(parts[0], "SqlColumn", StringComparison.OrdinalIgnoreCase)
+                && string.Equals(parts[4], "MS_Description", StringComparison.OrdinalIgnoreCase))
             {
-                return null;
-            }
+                var value = ep.GetProperty(ExtendedProperty.Value);
 
-            if (value.StartsWith("N'", StringComparison.Ordinal))
-            {
-                value = value[2..];
+                if (value is string strValue && !string.IsNullOrEmpty(strValue))
+                {
+                    result[$"{parts[1]}.{parts[2]}.{parts[3]}"] = FixExtendedPropertyValue(strValue) ?? strValue;
+                }
             }
-
-            if (value.StartsWith('\''))
-            {
-                value = value[1..];
-            }
-
-            if (value.EndsWith('\''))
-            {
-                value = value[..^1];
-            }
-
-            return value;
         }
+
+        return result;
+    }
+
+    private static Dictionary<string, (string StoreType, string TypeName)> GetTypeAliases(TSqlModel model)
+    {
+        var result = new Dictionary<string, (string, string)>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var udt in model.GetObjects(DacQueryScopes.UserDefined, DataType.TypeClass))
+        {
+            var isMax = udt.GetProperty<bool>(DataType.UddtIsMax);
+            var length = isMax ? -1 : udt.GetProperty<int>(DataType.UddtLength);
+            var precision = udt.GetProperty<int>(DataType.UddtPrecision);
+            var scale = udt.GetProperty<int>(DataType.UddtScale);
+
+            var baseTypes = udt.GetReferenced(DataType.Type).ToList();
+            if (baseTypes.Count == 0)
+            {
+                continue;
+            }
+
+            var baseTypeName = baseTypes[0].Name.Parts[0];
+            var storeType = GetStoreType(baseTypeName, length, precision, scale);
+            result[$"{udt.Name.Parts[0]}.{udt.Name.Parts[1]}"] = (storeType, baseTypeName);
+        }
+
+        return result;
+    }
+
+    private static string GetColumnStoreType(TSqlObject colObj, Dictionary<string, (string StoreType, string TypeName)> typeAliases)
+    {
+        var dataTypeRefs = colObj.GetReferenced(Column.DataType).ToList();
+        if (dataTypeRefs.Count == 0)
+        {
+            return "unknown";
+        }
+
+        var dataTypeRef = dataTypeRefs[0];
+        var parts = dataTypeRef.Name.Parts;
+
+        if (parts.Count > 1
+            && typeAliases.TryGetValue(
+                string.Create(CultureInfo.InvariantCulture, $"{parts[0]}.{parts[1]}"),
+                out var aliasInfo))
+        {
+            return aliasInfo.StoreType;
+        }
+
+        var dataTypeName = parts[0];
+        var isMax = colObj.GetProperty<bool>(Column.IsMax);
+        var length = isMax ? -1 : colObj.GetProperty<int>(Column.Length);
+        var precision = colObj.GetProperty<int>(Column.Precision);
+        var scale = colObj.GetProperty<int>(Column.Scale);
+
+        return GetStoreType(dataTypeName, length, precision, scale);
+    }
+
+    private static string GetStoreType(string dataTypeName, int maxLength, int precision, int scale)
+    {
+        if (string.Equals(dataTypeName, "timestamp", StringComparison.OrdinalIgnoreCase))
+        {
+            return "rowversion";
+        }
+
+        if (string.Equals(dataTypeName, "sysname", StringComparison.OrdinalIgnoreCase))
+        {
+            return "nvarchar(128)";
+        }
+
+        if (string.Equals(dataTypeName, "decimal", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(dataTypeName, "numeric", StringComparison.OrdinalIgnoreCase))
+        {
+            return string.Format(CultureInfo.InvariantCulture, "{0}({1}, {2})", dataTypeName, precision, scale);
+        }
+
+        if (DateTimePrecisionTypes.Contains(dataTypeName) && scale != 7)
+        {
+            return string.Format(CultureInfo.InvariantCulture, "{0}({1})", dataTypeName, scale);
+        }
+
+        if (MaxLengthRequiredTypes.Contains(dataTypeName))
+        {
+            return maxLength == -1
+                ? string.Format(CultureInfo.InvariantCulture, "{0}(max)", dataTypeName)
+                : string.Format(CultureInfo.InvariantCulture, "{0}({1})", dataTypeName, maxLength);
+        }
+
+        return dataTypeName;
+    }
+
+    private static string? FixExtendedPropertyValue(string? value)
+    {
+        if (value == null)
+        {
+            return null;
+        }
+
+        if (value.StartsWith("N'", StringComparison.Ordinal))
+        {
+            value = value[2..];
+        }
+
+        if (value.StartsWith('\''))
+        {
+            value = value[1..];
+        }
+
+        if (value.EndsWith('\''))
+        {
+            value = value[..^1];
+        }
+
+        return value;
     }
 }

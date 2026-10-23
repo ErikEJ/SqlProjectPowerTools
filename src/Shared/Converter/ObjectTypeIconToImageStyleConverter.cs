@@ -15,8 +15,5 @@ public sealed class ObjectTypeIconToImageStyleConverter : IValueConverter
         return ResourceDictionary[key];
     }
 
-    object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        throw new NotSupportedException();
-    }
+    object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
 }
