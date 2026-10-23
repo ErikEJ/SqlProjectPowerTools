@@ -1,8 +1,7 @@
-﻿namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+public enum SearchMode
 {
-    public enum SearchMode
-    {
-        Text,
-        RegularExpression,
-    }
+    Text,
+    RegularExpression,
 }

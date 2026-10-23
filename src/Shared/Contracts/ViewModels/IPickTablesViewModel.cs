@@ -1,31 +1,30 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Windows.Input;
 using DacFXToolLib.Common;
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+public interface IPickTablesViewModel : IViewModel
 {
-    public interface IPickTablesViewModel : IViewModel
-    {
-        event EventHandler<CloseRequestedEventArgs> CloseRequested;
+    public event EventHandler<CloseRequestedEventArgs> CloseRequested;
 
-        ICommand OkCommand { get; }
+    public ICommand OkCommand { get; }
 
-        ICommand CancelCommand { get; }
+    public ICommand CancelCommand { get; }
 
-        bool? TableSelectionThreeState { get; set; }
+    public bool? TableSelectionThreeState { get; set; }
 
-        string SearchText { get; set; }
+    public string SearchText { get; set; }
 
-        SearchMode SearchMode { get; set; }
+    public SearchMode SearchMode { get; set; }
 
-        IObjectTreeViewModel ObjectTree { get; }
+    public IObjectTreeViewModel ObjectTree { get; }
 
-        void AddObjects(IEnumerable<TableModel> objects, IEnumerable<Schema> customReplacers);
+    public void AddObjects(IEnumerable<TableModel> objects, IEnumerable<Schema> customReplacers);
 
-        void SelectObjects(IEnumerable<SerializationTableModel> objects);
+    public void SelectObjects(IEnumerable<SerializationTableModel> objects);
 
-        SerializationTableModel[] GetSelectedObjects();
+    public SerializationTableModel[] GetSelectedObjects();
 
-        Schema[] GetRenamedObjects();
-    }
+    public Schema[] GetRenamedObjects();
 }

@@ -7,146 +7,145 @@ using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using Microsoft.VisualStudio.Utilities;
 
-namespace SqlProjectsPowerTools.TreeViewer
-{
-    [Export(typeof(IAttachedCollectionSourceProvider))]
-    [Name(nameof(DacpacItemSourceProvider))]
-    [Order(Before = HierarchyItemsProviderNames.Contains)]
+namespace SqlProjectsPowerTools.TreeViewer;
+
+[Export(typeof(IAttachedCollectionSourceProvider))]
+[Name(nameof(DacpacItemSourceProvider))]
+[Order(Before = HierarchyItemsProviderNames.Contains)]
 #if !SSMS
-    [AppliesToUIContext(VsixPackage.UIContextGuid)]
+[AppliesToUIContext(VsixPackage.UIContextGuid)]
 #endif
-    internal sealed class DacpacItemSourceProvider : IAttachedCollectionSourceProvider, IDisposable
+internal sealed class DacpacItemSourceProvider : IAttachedCollectionSourceProvider, IDisposable
+{
+    private readonly Dictionary<string, DacpacRootNode> rootNodes = new(StringComparer.OrdinalIgnoreCase);
+    private bool isDisposed;
+
+    public DacpacItemSourceProvider()
     {
-        private readonly Dictionary<string, DacpacRootNode> rootNodes = new(StringComparer.OrdinalIgnoreCase);
-        private bool isDisposed;
+        VS.Events.SolutionEvents.OnBeforeCloseSolution += OnBeforeCloseSolution;
+    }
 
-        public DacpacItemSourceProvider()
+    private void OnBeforeCloseSolution()
+    {
+        foreach (var rootNode in rootNodes.Values)
         {
-            VS.Events.SolutionEvents.OnBeforeCloseSolution += OnBeforeCloseSolution;
+            rootNode?.Dispose();
         }
 
-        private void OnBeforeCloseSolution()
-        {
-            foreach (var rootNode in rootNodes.Values)
-            {
-                rootNode?.Dispose();
-            }
+        rootNodes.Clear();
+    }
 
-            rootNodes.Clear();
-        }
+    public IAttachedCollectionSource CreateCollectionSource(object item, string relationshipName)
+    {
+        ThreadHelper.ThrowIfNotOnUIThread();
 
-        public IAttachedCollectionSource CreateCollectionSource(object item, string relationshipName)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            if (relationshipName == KnownRelationships.Contains)
-            {
-                if (item is IVsHierarchyItem hierarchyItem && IsDacpacProject(hierarchyItem))
-                {
-                    string projectPath = GetProjectPath(hierarchyItem);
-                    if (!string.IsNullOrEmpty(projectPath))
-                    {
-                        if (!rootNodes.TryGetValue(projectPath, out DacpacRootNode rootNode))
-                        {
-                            rootNode = new DacpacRootNode(hierarchyItem);
-                            rootNodes[projectPath] = rootNode;
-                        }
-                        else
-                        {
-                            rootNode.Refresh();
-                        }
-
-                        return rootNode;
-                    }
-                }
-                else if (item is DacpacItemNode node)
-                {
-                    return node;
-                }
-            }
-
-            return null;
-        }
-
-        public IEnumerable<IAttachedRelationship> GetRelationships(object item)
+        if (relationshipName == KnownRelationships.Contains)
         {
             if (item is IVsHierarchyItem hierarchyItem && IsDacpacProject(hierarchyItem))
             {
-                yield return Relationships.Contains;
-            }
-        }
-
-        private static bool IsDacpacProject(IVsHierarchyItem hierarchyItem)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            var isSqlProject = false;
-
-            try
-            {
-                if (!HierarchyUtilities.IsProject(hierarchyItem.HierarchyIdentity))
+                var projectPath = GetProjectPath(hierarchyItem);
+                if (!string.IsNullOrEmpty(projectPath))
                 {
-                    return false;
-                }
-
-                IVsHierarchy hierarchy = hierarchyItem.GetHierarchy();
-
-                if (hierarchy.TryGetItemProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_ProjectDir, out string projectDir))
-                {
-                    ThreadHelper.JoinableTaskFactory.Run(async () =>
+                    if (!rootNodes.TryGetValue(projectPath, out var rootNode))
                     {
-                        var projects = await VS.Solutions.GetAllProjectsAsync();
+                        rootNode = new DacpacRootNode(hierarchyItem);
+                        rootNodes[projectPath] = rootNode;
+                    }
+                    else
+                    {
+                        rootNode.Refresh();
+                    }
 
-                        var project = projects.FirstOrDefault(p => Path.GetDirectoryName(p.FullPath).Equals(projectDir, StringComparison.OrdinalIgnoreCase));
-
-                        isSqlProject = project?.IsAnySqlDatabaseProject() ?? false;
-                    });
+                    return rootNode;
                 }
             }
-            catch (Exception ex)
+            else if (item is DacpacItemNode node)
             {
-                ex.Log();
+                return node;
             }
-
-            return isSqlProject;
         }
 
-        private static string GetProjectPath(IVsHierarchyItem hierarchyItem)
+        return null;
+    }
+
+    public IEnumerable<IAttachedRelationship> GetRelationships(object item)
+    {
+        if (item is IVsHierarchyItem hierarchyItem && IsDacpacProject(hierarchyItem))
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
+            yield return Relationships.Contains;
+        }
+    }
 
-            try
+    private static bool IsDacpacProject(IVsHierarchyItem hierarchyItem)
+    {
+        ThreadHelper.ThrowIfNotOnUIThread();
+
+        var isSqlProject = false;
+
+        try
+        {
+            if (!HierarchyUtilities.IsProject(hierarchyItem.HierarchyIdentity))
             {
-                IVsHierarchy hierarchy = hierarchyItem.GetHierarchy();
+                return false;
+            }
 
-                if (hierarchy.TryGetItemProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_SaveName, out string projectPath)
-                    && !string.IsNullOrWhiteSpace(projectPath))
+            var hierarchy = hierarchyItem.GetHierarchy();
+
+            if (hierarchy.TryGetItemProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_ProjectDir, out string projectDir))
+            {
+                ThreadHelper.JoinableTaskFactory.Run(async () =>
                 {
-                    return projectPath;
-                }
+                    var projects = await VS.Solutions.GetAllProjectsAsync();
 
-                EnvDTE.Project project = HierarchyUtilities.GetProject(hierarchyItem);
-                return project?.FullName;
-            }
-            catch (Exception ex)
-            {
-                ex.Log();
-                return null;
+                    var project = projects.FirstOrDefault(p => Path.GetDirectoryName(p.FullPath).Equals(projectDir, StringComparison.OrdinalIgnoreCase));
+
+                    isSqlProject = project?.IsAnySqlDatabaseProject() ?? false;
+                });
             }
         }
-
-        public void Dispose()
+        catch (Exception ex)
         {
-            if (isDisposed)
+            ex.Log();
+        }
+
+        return isSqlProject;
+    }
+
+    private static string GetProjectPath(IVsHierarchyItem hierarchyItem)
+    {
+        ThreadHelper.ThrowIfNotOnUIThread();
+
+        try
+        {
+            var hierarchy = hierarchyItem.GetHierarchy();
+
+            if (hierarchy.TryGetItemProperty(VSConstants.VSITEMID_ROOT, (int)__VSHPROPID.VSHPROPID_SaveName, out string projectPath)
+                && !string.IsNullOrWhiteSpace(projectPath))
             {
-                return;
+                return projectPath;
             }
 
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            isDisposed = true;
-            VS.Events.SolutionEvents.OnBeforeCloseSolution -= OnBeforeCloseSolution;
-            OnBeforeCloseSolution();
+            var project = HierarchyUtilities.GetProject(hierarchyItem);
+            return project?.FullName;
         }
+        catch (Exception ex)
+        {
+            ex.Log();
+            return null;
+        }
+    }
+
+    public void Dispose()
+    {
+        if (isDisposed)
+        {
+            return;
+        }
+
+        ThreadHelper.ThrowIfNotOnUIThread();
+
+        isDisposed = true;
+        VS.Events.SolutionEvents.OnBeforeCloseSolution -= OnBeforeCloseSolution;
+        OnBeforeCloseSolution();
     }
 }

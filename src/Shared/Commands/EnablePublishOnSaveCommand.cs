@@ -1,25 +1,24 @@
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+[Command(PackageIds.cmdidEnablePublishOnSave)]
+internal sealed class EnablePublishOnSaveCommand : BaseCommand<EnablePublishOnSaveCommand>
 {
-    [Command(PackageIds.cmdidEnablePublishOnSave)]
-    internal sealed class EnablePublishOnSaveCommand : BaseCommand<EnablePublishOnSaveCommand>
+    protected override void BeforeQueryStatus(EventArgs e)
     {
-        protected override void BeforeQueryStatus(EventArgs e)
+        ThreadHelper.JoinableTaskFactory.Run(async () =>
         {
-            ThreadHelper.JoinableTaskFactory.Run(async () =>
-            {
-                var isEnabled = await Command.IsEnabledForAnySqlProjectAsync();
+            var isEnabled = await Command.IsEnabledForAnySqlProjectAsync();
 
-                Command.Enabled = isEnabled;
-            });
-        }
+            Command.Enabled = isEnabled;
+        });
+    }
 
-        protected override async Task ExecuteAsync(OleMenuCmdEventArgs e)
+    protected override async Task ExecuteAsync(OleMenuCmdEventArgs e)
+    {
+        var project = await VS.Solutions.GetActiveProjectAsync();
+        if (project != null)
         {
-            var project = await VS.Solutions.GetActiveProjectAsync();
-            if (project != null)
-            {
-                await AutoPublishOnSaveHandler.EnableAsync(project);
-            }
+            await AutoPublishOnSaveHandler.EnableAsync(project);
         }
     }
 }

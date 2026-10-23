@@ -70,6 +70,7 @@ indent_size = 2
 [Makefile]
 indent_style = tab
 
+[*.{cs,csx,cake}]
 ##########################################
 # .NET Language Conventions
 # https://docs.microsoft.com/visualstudio/ide/editorconfig-language-conventions
@@ -77,7 +78,6 @@ indent_style = tab
 
 # Default Severity for .NET Code Style
 # https://docs.microsoft.com/dotnet/fundamentals/code-analysis/configuration-options#scope
-dotnet_analyzer_diagnostic.severity = error
 
 # Misc preferences
 file_header_template = unset                                                    # IDE0073
@@ -86,7 +86,6 @@ dotnet_separate_import_directive_groups = false
 
 # .NET Code Style Settings
 # https://docs.microsoft.com/visualstudio/ide/editorconfig-language-conventions#net-code-style-settings
-[*.{cs,csx,cake}]
 
 # "this." and "Me." qualifiers
 # https://docs.microsoft.com/visualstudio/ide/editorconfig-language-conventions#this-and-me

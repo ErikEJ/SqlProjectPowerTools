@@ -1,6 +1,5 @@
-﻿namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+public interface IView
 {
-    public interface IView
-    {
-    }
 }

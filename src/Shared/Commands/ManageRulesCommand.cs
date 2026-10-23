@@ -1,23 +1,22 @@
-namespace SqlProjectsPowerTools
-{
-    [Command(PackageIds.cmdidManageRules)]
-    internal sealed class ManageRulesCommand : BaseCommand<ManageRulesCommand>
-    {
-        protected override void BeforeQueryStatus(EventArgs e)
-        {
-            ThreadHelper.JoinableTaskFactory.Run(async () =>
-            {
-                Command.Enabled = await Command.IsEnabledForModernSqlProjectAsync();
-            });
-        }
+namespace SqlProjectsPowerTools;
 
-        protected override async Task ExecuteAsync(OleMenuCmdEventArgs e)
+[Command(PackageIds.cmdidManageRules)]
+internal sealed class ManageRulesCommand : BaseCommand<ManageRulesCommand>
+{
+    protected override void BeforeQueryStatus(EventArgs e)
+    {
+        ThreadHelper.JoinableTaskFactory.Run(async () =>
         {
-            var project = await VS.Solutions.GetActiveProjectAsync();
-            if (project != null)
-            {
-                await ManageRulesHandler.RunAsync(project);
-            }
+            Command.Enabled = await Command.IsEnabledForModernSqlProjectAsync();
+        });
+    }
+
+    protected override async Task ExecuteAsync(OleMenuCmdEventArgs e)
+    {
+        var project = await VS.Solutions.GetActiveProjectAsync();
+        if (project != null)
+        {
+            await ManageRulesHandler.RunAsync(project);
         }
     }
 }

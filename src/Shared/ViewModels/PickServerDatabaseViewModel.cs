@@ -6,205 +6,204 @@ using DacFXToolLib.Common;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+public class PickServerDatabaseViewModel : ViewModelBase, IPickServerDatabaseViewModel
 {
-    public class PickServerDatabaseViewModel : ViewModelBase, IPickServerDatabaseViewModel
+#if !SSMS
+    private readonly IVisualStudioAccess visualStudioAccess;
+#endif
+
+    private DatabaseConnectionModel selectedDatabaseConnection;
+    private bool filterSchemas;
+    private string uiHint;
+    private int codeGenerationMode;
+
+    public PickServerDatabaseViewModel(
+        IVisualStudioAccess visualStudioAccess)
     {
 #if !SSMS
-        private readonly IVisualStudioAccess visualStudioAccess;
+        this.visualStudioAccess = visualStudioAccess ?? throw new ArgumentNullException(nameof(visualStudioAccess));
+        AddDatabaseConnectionCommand = new RelayCommand(AddDatabaseConnection_Executed);
 #endif
+        LoadedCommand = new RelayCommand(Loaded_Executed);
+        OkCommand = new RelayCommand(Ok_Executed, Ok_CanExecute);
+        CancelCommand = new RelayCommand(Cancel_Executed);
 
-        private DatabaseConnectionModel selectedDatabaseConnection;
-        private bool filterSchemas;
-        private string uiHint;
-        private int codeGenerationMode;
+        CodeGenerationModeList = new ObservableCollection<CodeGenerationItem>();
 
-        public PickServerDatabaseViewModel(
-            IVisualStudioAccess visualStudioAccess)
+        DatabaseConnections = new ObservableCollection<DatabaseConnectionModel>();
+        Schemas = new List<SchemaInfo>();
+        DatabaseConnections.CollectionChanged += (sender, args) => RaisePropertyChanged(nameof(DatabaseConnections));
+    }
+
+    public event EventHandler<CloseRequestedEventArgs> CloseRequested;
+
+    public ICommand LoadedCommand { get; }
+
+    public ICommand AddDatabaseConnectionCommand { get; }
+
+    public ICommand AddAdhocDatabaseConnectionCommand { get; }
+
+    public ICommand AddDatabaseDefinitionCommand { get; }
+
+    public ICommand OkCommand { get; }
+
+    public ICommand CancelCommand { get; }
+
+    public ICommand FilterSchemasCommand { get; }
+
+    public ObservableCollection<DatabaseConnectionModel> DatabaseConnections { get; }
+
+    public ObservableCollection<CodeGenerationItem> CodeGenerationModeList { get; }
+
+    public IList<SchemaInfo> Schemas { get; private set; }
+
+    public int CodeGenerationMode
+    {
+        get => codeGenerationMode;
+        set
         {
-#if !SSMS
-            this.visualStudioAccess = visualStudioAccess ?? throw new ArgumentNullException(nameof(visualStudioAccess));
-            AddDatabaseConnectionCommand = new RelayCommand(AddDatabaseConnection_Executed);
-#endif
-            LoadedCommand = new RelayCommand(Loaded_Executed);
-            OkCommand = new RelayCommand(Ok_Executed, Ok_CanExecute);
-            CancelCommand = new RelayCommand(Cancel_Executed);
-
-            CodeGenerationModeList = new ObservableCollection<CodeGenerationItem>();
-
-            DatabaseConnections = new ObservableCollection<DatabaseConnectionModel>();
-            Schemas = new List<SchemaInfo>();
-            DatabaseConnections.CollectionChanged += (sender, args) => RaisePropertyChanged(nameof(DatabaseConnections));
-        }
-
-        public event EventHandler<CloseRequestedEventArgs> CloseRequested;
-
-        public ICommand LoadedCommand { get; }
-
-        public ICommand AddDatabaseConnectionCommand { get; }
-
-        public ICommand AddAdhocDatabaseConnectionCommand { get; }
-
-        public ICommand AddDatabaseDefinitionCommand { get; }
-
-        public ICommand OkCommand { get; }
-
-        public ICommand CancelCommand { get; }
-
-        public ICommand FilterSchemasCommand { get; }
-
-        public ObservableCollection<DatabaseConnectionModel> DatabaseConnections { get; }
-
-        public ObservableCollection<CodeGenerationItem> CodeGenerationModeList { get; }
-
-        public IList<SchemaInfo> Schemas { get; private set; }
-
-        public int CodeGenerationMode
-        {
-            get => codeGenerationMode;
-            set
+            if (value == codeGenerationMode)
             {
-                if (value == codeGenerationMode)
-                {
-                    return;
-                }
-
-                codeGenerationMode = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        public bool FilterSchemas
-        {
-            get => filterSchemas;
-            set
-            {
-                if (value == filterSchemas)
-                {
-                    return;
-                }
-
-                filterSchemas = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        public DatabaseConnectionModel SelectedDatabaseConnection
-        {
-            get => selectedDatabaseConnection;
-            set
-            {
-                if (Equals(value, selectedDatabaseConnection))
-                {
-                    return;
-                }
-
-                selectedDatabaseConnection = value;
-                RaisePropertyChanged();
-            }
-        }
-
-        public string UiHint
-        {
-            get
-            {
-                if (SelectedDatabaseConnection != null)
-                {
-                    return SelectedDatabaseConnection.ConnectionName ?? selectedDatabaseConnection.FilePath;
-                }
-
-                return uiHint;
-            }
-
-            set
-            {
-                if (!string.IsNullOrEmpty(value))
-                {
-                    var databaseConnectionCandidate = DatabaseConnections
-                        .FirstOrDefault(c => c.ConnectionName != null && c.ConnectionName.Equals(value, StringComparison.OrdinalIgnoreCase));
-
-                    if (databaseConnectionCandidate != null)
-                    {
-                        SelectedDatabaseConnection = databaseConnectionCandidate;
-                    }
-
-                    databaseConnectionCandidate = DatabaseConnections
-                        .FirstOrDefault(c => c.FilePath != null && c.FilePath.Equals(value, StringComparison.OrdinalIgnoreCase));
-
-                    if (databaseConnectionCandidate != null)
-                    {
-                        SelectedDatabaseConnection = databaseConnectionCandidate;
-                    }
-                }
-
-                uiHint = value;
-            }
-        }
-
-        private void Loaded_Executed()
-        {
-            // Database connection first
-            var candidate = DatabaseConnections.FirstOrDefault(m =>
-                    m.FilePath == null
-                    && !string.IsNullOrEmpty(UiHint)
-                    && SelectedDatabaseConnection == null
-                    && m.ConnectionName.Equals(UiHint, StringComparison.OrdinalIgnoreCase));
-
-            if (candidate != null)
-            {
-                SelectedDatabaseConnection = candidate;
                 return;
             }
 
-            // Database definitions (SQL project) second
-            candidate = DatabaseConnections.FirstOrDefault(c =>
-                !string.IsNullOrWhiteSpace(c.FilePath)
+            codeGenerationMode = value;
+            RaisePropertyChanged();
+        }
+    }
+
+    public bool FilterSchemas
+    {
+        get => filterSchemas;
+        set
+        {
+            if (value == filterSchemas)
+            {
+                return;
+            }
+
+            filterSchemas = value;
+            RaisePropertyChanged();
+        }
+    }
+
+    public DatabaseConnectionModel SelectedDatabaseConnection
+    {
+        get => selectedDatabaseConnection;
+        set
+        {
+            if (Equals(value, selectedDatabaseConnection))
+            {
+                return;
+            }
+
+            selectedDatabaseConnection = value;
+            RaisePropertyChanged();
+        }
+    }
+
+    public string UiHint
+    {
+        get
+        {
+            if (SelectedDatabaseConnection != null)
+            {
+                return SelectedDatabaseConnection.ConnectionName ?? selectedDatabaseConnection.FilePath;
+            }
+
+            return uiHint;
+        }
+
+        set
+        {
+            if (!string.IsNullOrEmpty(value))
+            {
+                var databaseConnectionCandidate = DatabaseConnections
+                    .FirstOrDefault(c => c.ConnectionName != null && c.ConnectionName.Equals(value, StringComparison.OrdinalIgnoreCase));
+
+                if (databaseConnectionCandidate != null)
+                {
+                    SelectedDatabaseConnection = databaseConnectionCandidate;
+                }
+
+                databaseConnectionCandidate = DatabaseConnections
+                    .FirstOrDefault(c => c.FilePath != null && c.FilePath.Equals(value, StringComparison.OrdinalIgnoreCase));
+
+                if (databaseConnectionCandidate != null)
+                {
+                    SelectedDatabaseConnection = databaseConnectionCandidate;
+                }
+            }
+
+            uiHint = value;
+        }
+    }
+
+    private void Loaded_Executed()
+    {
+        // Database connection first
+        var candidate = DatabaseConnections.FirstOrDefault(m =>
+                m.FilePath == null
                 && !string.IsNullOrEmpty(UiHint)
                 && SelectedDatabaseConnection == null
-                && c.FilePath.Equals(UiHint, StringComparison.OrdinalIgnoreCase));
+                && m.ConnectionName.Equals(UiHint, StringComparison.OrdinalIgnoreCase));
 
-            if (candidate != null)
-            {
-                SelectedDatabaseConnection = candidate;
-            }
+        if (candidate != null)
+        {
+            SelectedDatabaseConnection = candidate;
+            return;
         }
+
+        // Database definitions (SQL project) second
+        candidate = DatabaseConnections.FirstOrDefault(c =>
+            !string.IsNullOrWhiteSpace(c.FilePath)
+            && !string.IsNullOrEmpty(UiHint)
+            && SelectedDatabaseConnection == null
+            && c.FilePath.Equals(UiHint, StringComparison.OrdinalIgnoreCase));
+
+        if (candidate != null)
+        {
+            SelectedDatabaseConnection = candidate;
+        }
+    }
 
 #if !SSMS
 
-        private void AddDatabaseConnection_Executed()
+    private void AddDatabaseConnection_Executed()
+    {
+        DatabaseConnectionModel newDatabaseConnection;
+        try
         {
-            DatabaseConnectionModel newDatabaseConnection;
-            try
-            {
-                newDatabaseConnection = visualStudioAccess.PromptForNewDatabaseConnection();
-            }
-            catch (Exception e)
-            {
-                visualStudioAccess.ShowMessage($"Unable to add connection: {e.Message}");
-                return;
-            }
-
-            if (newDatabaseConnection == null)
-            {
-                return;
-            }
-
-            DatabaseConnections.Add(newDatabaseConnection);
-            SelectedDatabaseConnection = newDatabaseConnection;
+            newDatabaseConnection = visualStudioAccess.PromptForNewDatabaseConnection();
         }
+        catch (Exception e)
+        {
+            visualStudioAccess.ShowMessage($"Unable to add connection: {e.Message}");
+            return;
+        }
+
+        if (newDatabaseConnection == null)
+        {
+            return;
+        }
+
+        DatabaseConnections.Add(newDatabaseConnection);
+        SelectedDatabaseConnection = newDatabaseConnection;
+    }
 #endif
 
-        private void Ok_Executed()
-        {
-            CloseRequested?.Invoke(this, new CloseRequestedEventArgs(true));
-        }
+    private void Ok_Executed()
+    {
+        CloseRequested?.Invoke(this, new CloseRequestedEventArgs(true));
+    }
 
-        private bool Ok_CanExecute() => SelectedDatabaseConnection != null;
+    private bool Ok_CanExecute() => SelectedDatabaseConnection != null;
 
-        private void Cancel_Executed()
-        {
-            SelectedDatabaseConnection = null;
-            CloseRequested?.Invoke(this, new CloseRequestedEventArgs(false));
-        }
+    private void Cancel_Executed()
+    {
+        SelectedDatabaseConnection = null;
+        CloseRequested?.Invoke(this, new CloseRequestedEventArgs(false));
     }
 }

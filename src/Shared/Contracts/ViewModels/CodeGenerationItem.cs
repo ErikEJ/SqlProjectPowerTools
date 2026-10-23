@@ -1,9 +1,8 @@
-﻿namespace SqlProjectsPowerTools
-{
-    public class CodeGenerationItem
-    {
-        public int Key { get; set; }
+namespace SqlProjectsPowerTools;
 
-        public string Value { get; set; }
-    }
+public class CodeGenerationItem
+{
+    public int Key { get; set; }
+
+    public string Value { get; set; }
 }

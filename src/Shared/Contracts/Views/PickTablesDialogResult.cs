@@ -1,11 +1,10 @@
-﻿using DacFXToolLib.Common;
+using DacFXToolLib.Common;
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+public class PickTablesDialogResult
 {
-    public class PickTablesDialogResult
-    {
-        public SerializationTableModel[] Objects { get; set; }
+    public SerializationTableModel[] Objects { get; set; }
 
-        public Schema[] CustomReplacers { get; set; }
-    }
+    public Schema[] CustomReplacers { get; set; }
 }

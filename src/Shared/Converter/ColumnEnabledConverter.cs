@@ -1,19 +1,18 @@
 using System.Windows.Data;
 
-namespace SqlProjectsPowerTools
-{
-    public sealed class ColumnEnabledConverter : IMultiValueConverter
-    {
-        public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            var isTableSelected = (bool)values[0];
-            var isPrimaryKey = (bool)values[1];
-            return isTableSelected && !isPrimaryKey;
-        }
+namespace SqlProjectsPowerTools;
 
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, System.Globalization.CultureInfo culture)
-        {
-            throw new NotImplementedException();
-        }
+public sealed class ColumnEnabledConverter : IMultiValueConverter
+{
+    public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+    {
+        var isTableSelected = (bool)values[0];
+        var isPrimaryKey = (bool)values[1];
+        return isTableSelected && !isPrimaryKey;
+    }
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, System.Globalization.CultureInfo culture)
+    {
+        throw new NotImplementedException();
     }
 }

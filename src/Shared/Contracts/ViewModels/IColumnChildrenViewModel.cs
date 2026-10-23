@@ -1,22 +1,21 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using DacFXToolLib.Common;
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+public interface IColumnChildrenViewModel : IObjectTreeEditableViewModel, IObjectTreeSelectableViewModel, IViewModel
 {
-    public interface IColumnChildrenViewModel : IObjectTreeEditableViewModel, IObjectTreeSelectableViewModel, IViewModel
-    {
-        string Schema { get; set; }
+    public string Schema { get; set; }
 
-        bool HasPrimaryKey { get; }
+    public bool HasPrimaryKey { get; }
 
-        ObjectType ObjectType { get; set; }
+    public ObjectType ObjectType { get; set; }
 
-        ObjectTypeIcon ObjectTypeIcon { get; }
+    public ObjectTypeIcon ObjectTypeIcon { get; }
 
-        ObservableCollection<IColumnInformationViewModel> Columns { get; }
+    public ObservableCollection<IColumnInformationViewModel> Columns { get; }
 
-        bool IsVisible { get; set; }
+    public bool IsVisible { get; set; }
 
-        string ModelDisplayName { get; set; }
-    }
+    public string ModelDisplayName { get; set; }
 }

@@ -1,12 +1,11 @@
 using System.Runtime.InteropServices;
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+internal sealed class OptionsProvider
 {
-    internal sealed class OptionsProvider
+    [ComVisible(true)]
+    public sealed class VsixOptions : BaseOptionPage<ToolOptions>
     {
-        [ComVisible(true)]
-        public sealed class VsixOptions : BaseOptionPage<ToolOptions>
-        {
-        }
     }
 }

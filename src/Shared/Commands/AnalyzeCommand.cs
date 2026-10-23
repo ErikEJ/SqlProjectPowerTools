@@ -1,23 +1,22 @@
-namespace SqlProjectsPowerTools
-{
-    [Command(PackageIds.cmdidAnalyze)]
-    internal sealed class AnalyzeCommand : BaseCommand<AnalyzeCommand>
-    {
-        protected override void BeforeQueryStatus(EventArgs e)
-        {
-            ThreadHelper.JoinableTaskFactory.Run(async () =>
-            {
-                Command.Enabled = await Command.IsEnabledForAnySqlProjectAsync();
-            });
-        }
+namespace SqlProjectsPowerTools;
 
-        protected override async Task ExecuteAsync(OleMenuCmdEventArgs e)
+[Command(PackageIds.cmdidAnalyze)]
+internal sealed class AnalyzeCommand : BaseCommand<AnalyzeCommand>
+{
+    protected override void BeforeQueryStatus(EventArgs e)
+    {
+        ThreadHelper.JoinableTaskFactory.Run(async () =>
         {
-            var project = await VS.Solutions.GetActiveProjectAsync();
-            if (project != null)
-            {
-                await DacpacAnalyzerHandler.GenerateAsync(project.FullPath);
-            }
+            Command.Enabled = await Command.IsEnabledForAnySqlProjectAsync();
+        });
+    }
+
+    protected override async Task ExecuteAsync(OleMenuCmdEventArgs e)
+    {
+        var project = await VS.Solutions.GetActiveProjectAsync();
+        if (project != null)
+        {
+            await DacpacAnalyzerHandler.GenerateAsync(project.FullPath);
         }
     }
 }

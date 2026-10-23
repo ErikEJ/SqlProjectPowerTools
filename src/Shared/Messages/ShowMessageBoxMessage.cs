@@ -1,7 +1,6 @@
-﻿namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+public class ShowMessageBoxMessage
 {
-    public class ShowMessageBoxMessage
-    {
-        public string Content { get; set; }
-    }
+    public string Content { get; set; }
 }

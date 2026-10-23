@@ -4,161 +4,160 @@ using System.Runtime.CompilerServices;
 using DacFXToolLib.Common;
 using JetBrains.Annotations;
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+/// <summary>
+/// A model holding data about a database connection.
+/// </summary>
+public class DatabaseConnectionModel : INotifyPropertyChanged
 {
+    private string connectionName;
+    private string connectionString;
+    private string filePath;
+    private DatabaseType databaseType;
+    private bool isFromServerExplorer;
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
     /// <summary>
-    /// A model holding data about a database connection.
+    /// Gets or sets the file path to the database definition.
     /// </summary>
-    public class DatabaseConnectionModel : INotifyPropertyChanged
+    public string FilePath
     {
-        private string connectionName;
-        private string connectionString;
-        private string filePath;
-        private DatabaseType databaseType;
-        private bool isFromServerExplorer;
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        /// <summary>
-        /// Gets or sets the file path to the database definition.
-        /// </summary>
-        public string FilePath
+        get => filePath;
+        set
         {
-            get => filePath;
-            set
+            if (value == filePath)
             {
-                if (value == filePath)
-                {
-                    return;
-                }
-
-                filePath = value;
-                OnPropertyChanged();
+                return;
             }
+
+            filePath = value;
+            OnPropertyChanged();
         }
+    }
 
-        public string ConnectionName
+    public string ConnectionName
+    {
+        get => connectionName;
+        set
         {
-            get => connectionName;
-            set
+            if (value == connectionName)
             {
-                if (value == connectionName)
-                {
-                    return;
-                }
-
-                connectionName = value;
-                OnPropertyChanged();
+                return;
             }
-        }
 
-        public string DisplayName
+            connectionName = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public string DisplayName
+    {
+        get
         {
-            get
+            if (!IsFromServerExplorer)
             {
-                if (!IsFromServerExplorer)
+                if (DatabaseType == DatabaseType.SQLServerDacpac)
                 {
-                    if (DatabaseType == DatabaseType.SQLServerDacpac)
+                    if (string.IsNullOrEmpty(FilePath))
                     {
-                        if (string.IsNullOrEmpty(FilePath))
-                        {
-                            return "<null>";
-                        }
-
-                        if (FilePath.EndsWith(".sqlproj", StringComparison.InvariantCultureIgnoreCase)
-                            || FilePath.EndsWith(".csproj", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            return $"{Path.GetFileNameWithoutExtension(FilePath)} (SQL Project)";
-                        }
-
-                        if (FilePath.EndsWith(".dacpac", StringComparison.InvariantCultureIgnoreCase))
-                        {
-                            return $"{Path.GetFileNameWithoutExtension(FilePath)} (.dacpac)";
-                        }
+                        return "<null>";
                     }
 
-                    return $"{ConnectionName} ({DatabaseType})";
-                }
-
-                return ConnectionName;
-            }
-        }
-
-        public string ToolTip
-        {
-            get
-            {
-                if (!isFromServerExplorer)
-                {
-                    if (DatabaseType == DatabaseType.SQLServerDacpac)
+                    if (FilePath.EndsWith(".sqlproj", StringComparison.InvariantCultureIgnoreCase)
+                        || FilePath.EndsWith(".csproj", StringComparison.InvariantCultureIgnoreCase))
                     {
-                        if (string.IsNullOrEmpty(FilePath))
-                        {
-                            return "<null>";
-                        }
-                        else
-                        {
-                            return FilePath;
-                        }
+                        return $"{Path.GetFileNameWithoutExtension(FilePath)} (SQL Project)";
                     }
 
-                    return ConnectionString;
+                    if (FilePath.EndsWith(".dacpac", StringComparison.InvariantCultureIgnoreCase))
+                    {
+                        return $"{Path.GetFileNameWithoutExtension(FilePath)} (.dacpac)";
+                    }
+                }
+
+                return $"{ConnectionName} ({DatabaseType})";
+            }
+
+            return ConnectionName;
+        }
+    }
+
+    public string ToolTip
+    {
+        get
+        {
+            if (!isFromServerExplorer)
+            {
+                if (DatabaseType == DatabaseType.SQLServerDacpac)
+                {
+                    if (string.IsNullOrEmpty(FilePath))
+                    {
+                        return "<null>";
+                    }
+                    else
+                    {
+                        return FilePath;
+                    }
                 }
 
                 return ConnectionString;
             }
-        }
 
-        public string ConnectionString
+            return ConnectionString;
+        }
+    }
+
+    public string ConnectionString
+    {
+        get => connectionString;
+        set
         {
-            get => connectionString;
-            set
+            if (value == connectionString)
             {
-                if (value == connectionString)
-                {
-                    return;
-                }
-
-                connectionString = value;
-                OnPropertyChanged();
+                return;
             }
-        }
 
-        public DatabaseType DatabaseType
+            connectionString = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public DatabaseType DatabaseType
+    {
+        get => databaseType;
+        set
         {
-            get => databaseType;
-            set
+            if (value == databaseType)
             {
-                if (value == databaseType)
-                {
-                    return;
-                }
-
-                databaseType = value;
-                OnPropertyChanged();
+                return;
             }
-        }
 
-        public bool IsFromServerExplorer
+            databaseType = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public bool IsFromServerExplorer
+    {
+        get => isFromServerExplorer;
+        set
         {
-            get => isFromServerExplorer;
-            set
+            if (value == isFromServerExplorer)
             {
-                if (value == isFromServerExplorer)
-                {
-                    return;
-                }
-
-                isFromServerExplorer = value;
-
-                OnPropertyChanged();
+                return;
             }
-        }
 
-        [NotifyPropertyChangedInvocator]
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            isFromServerExplorer = value;
+
+            OnPropertyChanged();
         }
+    }
+
+    [NotifyPropertyChangedInvocator]
+    private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

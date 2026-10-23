@@ -6,139 +6,138 @@ using System.Threading.Tasks;
 using DacFXToolLib.Common;
 using DacFXToolLib.Dab;
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+internal static class ErDiagramHandler
 {
-    internal static class ErDiagramHandler
+    public static async System.Threading.Tasks.Task BuildErDiagramAsync(Project project)
     {
-        public static async System.Threading.Tasks.Task BuildErDiagramAsync(Project project)
+        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+        try
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-
-            try
+            if (await VSHelper.IsDebugModeAsync())
             {
-                if (await VSHelper.IsDebugModeAsync())
-                {
-                    VSHelper.ShowError("Cannot generate code while debugging");
-                    return;
-                }
-
-                var optionsPath = Path.Combine(Path.GetTempPath(), "dacfx-erdiagram-options.json");
-
-                var options = new DataApiBuilderOptions();
-
-                options.ProjectPath = Path.GetDirectoryName(project.FullPath);
-
-                var version = await VS.Shell.GetVsVersionAsync();
-
-                if (version >= new Version(18, 0))
-                {
-                    options.Optional = true;
-                }
-
-                options.Dacpac = project.FullPath;
-
-                var dbInfo = await HandlerHelper.GetDatabaseInfoAsync(options);
-
-                if (dbInfo == null)
-                {
-                    await VS.StatusBar.ClearAsync();
-                    return;
-                }
-
-                await VS.StatusBar.ShowMessageAsync("Loading database objects...");
-
-                if (!await LoadDataBaseObjectsAsync(options))
-                {
-                    await VS.StatusBar.ClearAsync();
-                    return;
-                }
-
-                SaveOptions(optionsPath, options);
-
-                await GenerateFilesAsync(optionsPath, dbInfo.ConnectionString);
+                VSHelper.ShowError("Cannot generate code while debugging");
+                return;
             }
-            catch (AggregateException ae)
+
+            var optionsPath = Path.Combine(Path.GetTempPath(), "dacfx-erdiagram-options.json");
+
+            var options = new DataApiBuilderOptions();
+
+            options.ProjectPath = Path.GetDirectoryName(project.FullPath);
+
+            var version = await VS.Shell.GetVsVersionAsync();
+
+            if (version >= new Version(18, 0))
             {
-                foreach (var innerException in ae.Flatten().InnerExceptions)
-                {
-                    VSHelper.ShowError(innerException.Message);
-                }
+                options.Optional = true;
             }
-            catch (Exception exception)
+
+            options.Dacpac = project.FullPath;
+
+            var dbInfo = await HandlerHelper.GetDatabaseInfoAsync(options);
+
+            if (dbInfo == null)
             {
-                VSHelper.ShowError(exception.Message);
+                await VS.StatusBar.ClearAsync();
+                return;
+            }
+
+            await VS.StatusBar.ShowMessageAsync("Loading database objects...");
+
+            if (!await LoadDataBaseObjectsAsync(options))
+            {
+                await VS.StatusBar.ClearAsync();
+                return;
+            }
+
+            SaveOptions(optionsPath, options);
+
+            await GenerateFilesAsync(optionsPath, dbInfo.ConnectionString);
+        }
+        catch (AggregateException ae)
+        {
+            foreach (var innerException in ae.Flatten().InnerExceptions)
+            {
+                VSHelper.ShowError(innerException.Message);
             }
         }
-
-        private static async System.Threading.Tasks.Task GenerateFilesAsync(string optionsPath, string connectionString)
+        catch (Exception exception)
         {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+            VSHelper.ShowError(exception.Message);
+        }
+    }
 
-            await VS.StatusBar.ShowProgressAsync("Creating diagram", 1, 2);
+    private static async System.Threading.Tasks.Task GenerateFilesAsync(string optionsPath, string connectionString)
+    {
+        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-            var launcher = new ProcessLauncher();
-            var diagramPath = await launcher.GetErDiagramAsync(optionsPath, connectionString);
+        await VS.StatusBar.ShowProgressAsync("Creating diagram", 1, 2);
 
-            await VS.StatusBar.ShowProgressAsync("Creating diagram", 2, 2);
+        var launcher = new ProcessLauncher();
+        var diagramPath = await launcher.GetErDiagramAsync(optionsPath, connectionString);
 
-            if (File.Exists(diagramPath))
-            {
-                await VS.Documents.OpenAsync(diagramPath);
-            }
+        await VS.StatusBar.ShowProgressAsync("Creating diagram", 2, 2);
 
-            await VS.StatusBar.ShowMessageAsync("Diagram created.");
+        if (File.Exists(diagramPath))
+        {
+            await VS.Documents.OpenAsync(diagramPath);
         }
 
-        private static void SaveOptions(string optionsPath, DataApiBuilderOptions options)
+        await VS.StatusBar.ShowMessageAsync("Diagram created.");
+    }
+
+    private static void SaveOptions(string optionsPath, DataApiBuilderOptions options)
+    {
+        File.WriteAllText(optionsPath, options.Write(), Encoding.UTF8);
+    }
+
+    private static async Task<IList<TableModel>> GetDacpacTablesAsync(string dacpacPath)
+    {
+        var builder = new TableListBuilder(dacpacPath, DatabaseType.SQLServerDacpac);
+
+        return await builder.GetTableDefinitionsAsync();
+    }
+
+    private static async Task<bool> LoadDataBaseObjectsAsync(DataApiBuilderOptions options)
+    {
+        await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+
+        IEnumerable<TableModel> predefinedTables = null;
+
+        try
         {
-            File.WriteAllText(optionsPath, options.Write(), Encoding.UTF8);
+            await VS.StatusBar.StartAnimationAsync(StatusAnimation.Build);
+
+            predefinedTables = await GetDacpacTablesAsync(options.Dacpac);
+
+            predefinedTables = predefinedTables
+                .Where(t => t.ObjectType == ObjectType.Table
+                || t.ObjectType == ObjectType.View);
+        }
+        catch (InvalidOperationException ex)
+        {
+            VSHelper.ShowError($"{ex.Message}");
+            return false;
+        }
+        finally
+        {
+            await VS.StatusBar.EndAnimationAsync(StatusAnimation.Build);
         }
 
-        private static async Task<IList<TableModel>> GetDacpacTablesAsync(string dacpacPath)
-        {
-            var builder = new TableListBuilder(dacpacPath, DatabaseType.SQLServerDacpac);
+        var preselectedTables = new List<SerializationTableModel>();
 
-            return await builder.GetTableDefinitionsAsync();
-        }
+        await VS.StatusBar.ClearAsync();
 
-        private static async Task<bool> LoadDataBaseObjectsAsync(DataApiBuilderOptions options)
-        {
-            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+        var ptd = PackageManager.Package.GetView<IPickTablesDialog>()
+                          .AddTables(predefinedTables, new List<Schema>())
+                          .PreselectTables(preselectedTables);
 
-            IEnumerable<TableModel> predefinedTables = null;
+        var (closedByOK, payload) = ptd.ShowAndAwaitUserResponse(true);
 
-            try
-            {
-                await VS.StatusBar.StartAnimationAsync(StatusAnimation.Build);
-
-                predefinedTables = await GetDacpacTablesAsync(options.Dacpac);
-
-                predefinedTables = predefinedTables
-                    .Where(t => t.ObjectType == ObjectType.Table
-                    || t.ObjectType == ObjectType.View);
-            }
-            catch (InvalidOperationException ex)
-            {
-                VSHelper.ShowError($"{ex.Message}");
-                return false;
-            }
-            finally
-            {
-                await VS.StatusBar.EndAnimationAsync(StatusAnimation.Build);
-            }
-
-            var preselectedTables = new List<SerializationTableModel>();
-
-            await VS.StatusBar.ClearAsync();
-
-            var ptd = PackageManager.Package.GetView<IPickTablesDialog>()
-                              .AddTables(predefinedTables, new List<Schema>())
-                              .PreselectTables(preselectedTables);
-
-            var pickTablesResult = ptd.ShowAndAwaitUserResponse(true);
-
-            options.Tables = pickTablesResult.Payload.Objects.ToList();
-            return pickTablesResult.ClosedByOK;
-        }
+        options.Tables = payload.Objects.ToList();
+        return closedByOK;
     }
 }

@@ -1,16 +1,15 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using DacFXToolLib.Common;
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+public interface IObjectTreeRootItemViewModel : IObjectTreeSelectableViewModel, IViewModel
 {
-    public interface IObjectTreeRootItemViewModel : IObjectTreeSelectableViewModel, IViewModel
-    {
-        bool IsVisible { get; }
+    public bool IsVisible { get; }
 
-        ObservableCollection<ISchemaInformationViewModel> Schemas { get; }
+    public ObservableCollection<ISchemaInformationViewModel> Schemas { get; }
 
-        ObjectTypeIcon ObjectTypeIcon { get; }
+    public ObjectTypeIcon ObjectTypeIcon { get; }
 
-        ObjectType ObjectType { get; set; }
-    }
+    public ObjectType ObjectType { get; set; }
 }

@@ -1,26 +1,25 @@
 using System.Globalization;
 using System.Windows.Data;
 
-namespace SqlProjectsPowerTools
-{
-    public sealed class BoolNullConverter : IValueConverter
-    {
-        object IValueConverter.Convert(
-            object value,
-            Type targetType,
-            object parameter,
-            CultureInfo culture)
-        {
-            return value != null;
-        }
+namespace SqlProjectsPowerTools;
 
-        object IValueConverter.ConvertBack(
-            object value,
-            Type targetType,
-            object parameter,
-            CultureInfo culture)
-        {
-            return value != null;
-        }
+public sealed class BoolNullConverter : IValueConverter
+{
+    object IValueConverter.Convert(
+        object value,
+        Type targetType,
+        object parameter,
+        CultureInfo culture)
+    {
+        return value != null;
+    }
+
+    object IValueConverter.ConvertBack(
+        object value,
+        Type targetType,
+        object parameter,
+        CultureInfo culture)
+    {
+        return value != null;
     }
 }

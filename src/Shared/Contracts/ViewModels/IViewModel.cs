@@ -1,8 +1,7 @@
-﻿using System.ComponentModel;
+using System.ComponentModel;
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+public interface IViewModel : INotifyPropertyChanged
 {
-    public interface IViewModel : INotifyPropertyChanged
-    {
-    }
 }

@@ -13,756 +13,755 @@ using EnvDTE;
 using Microsoft.Internal.VisualStudio.PlatformUI;
 using Microsoft.VisualStudio.Threading;
 
-namespace SqlProjectsPowerTools.TreeViewer
+namespace SqlProjectsPowerTools.TreeViewer;
+
+internal sealed class DacpacRootNode : IAttachedCollectionSource, INotifyPropertyChanged, IDisposable
 {
-    internal sealed class DacpacRootNode : IAttachedCollectionSource, INotifyPropertyChanged, IDisposable
+    private readonly DacpacItemNode item;
+    private readonly IEnumerable items;
+    private readonly string projectPath;
+    private readonly string projectDirectory;
+    private readonly DTE dte;
+    private readonly string defaultName;
+    private readonly object watcherLock = new();
+    private readonly TimeSpan onDemandRefreshInterval = TimeSpan.FromSeconds(3);
+    private EnvDTE.Project dteProject;
+    private FileSystemWatcher dacpacWatcher;
+    private string watchedDirectory;
+    private DateTime lastOnDemandRefreshUtc = DateTime.MinValue;
+
+    public DacpacRootNode(IVsHierarchyItem hierarchyItem)
     {
-        private readonly DacpacItemNode item;
-        private readonly IEnumerable items;
-        private readonly string projectPath;
-        private readonly string projectDirectory;
-        private readonly DTE dte;
-        private readonly string defaultName;
-        private readonly object watcherLock = new();
-        private readonly TimeSpan onDemandRefreshInterval = TimeSpan.FromSeconds(3);
-        private EnvDTE.Project dteProject;
-        private FileSystemWatcher dacpacWatcher;
-        private string watchedDirectory;
-        private DateTime lastOnDemandRefreshUtc = DateTime.MinValue;
+        ThreadHelper.ThrowIfNotOnUIThread();
+        var project = HierarchyUtilities.GetProject(hierarchyItem);
+        defaultName = project.Name + ".dacpac";
+        item = new(this, defaultName, "root");
+        items = new[] { item };
+        dte = project.DTE;
+        projectPath = project.FullName;
+        projectDirectory = Path.GetDirectoryName(projectPath);
+        dteProject = project;
 
-        public DacpacRootNode(IVsHierarchyItem hierarchyItem)
+        Rebuild(false);
+        dte.Events.BuildEvents.OnBuildProjConfigDone += BuildEvents_OnBuildProjConfigDone;
+    }
+
+    private void BuildEvents_OnBuildProjConfigDone(string project, string projectConfig, string platform, string solutionConfig, bool success)
+    {
+        if (success && IsMatchingProject(project))
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-            EnvDTE.Project project = HierarchyUtilities.GetProject(hierarchyItem);
-            defaultName = project.Name + ".dacpac";
-            item = new(this, defaultName, "root");
-            items = new[] { item };
-            dte = project.DTE;
-            projectPath = project.FullName;
-            projectDirectory = Path.GetDirectoryName(projectPath);
-            dteProject = project;
+            ScheduleRebuild(force: true);
+        }
+    }
 
-            Rebuild(false);
-            dte.Events.BuildEvents.OnBuildProjConfigDone += BuildEvents_OnBuildProjConfigDone;
+    private void ScheduleRebuild(bool force)
+    {
+        Debouncer.Debounce(projectPath, () => Rebuild(force), 500);
+    }
+
+    internal void Refresh()
+    {
+        ThreadHelper.ThrowIfNotOnUIThread();
+
+        var now = DateTime.UtcNow;
+        if ((now - lastOnDemandRefreshUtc) < onDemandRefreshInterval)
+        {
+            return;
         }
 
-        private void BuildEvents_OnBuildProjConfigDone(string project, string projectConfig, string platform, string solutionConfig, bool success)
+        lastOnDemandRefreshUtc = now;
+        ScheduleRebuild(force: false);
+    }
+
+    private bool IsMatchingProject(string projectFromEvent)
+    {
+        if (string.IsNullOrWhiteSpace(projectFromEvent))
         {
-            if (success && IsMatchingProject(project))
-            {
-                ScheduleRebuild(force: true);
-            }
+            return false;
         }
 
-        private void ScheduleRebuild(bool force)
+        var trackedProject = NormalizePath(projectPath);
+        var eventProject = NormalizePath(projectFromEvent);
+
+        if (!string.IsNullOrEmpty(trackedProject) && !string.IsNullOrEmpty(eventProject))
         {
-            Debouncer.Debounce(projectPath, () => Rebuild(force), 500);
+            return string.Equals(trackedProject, eventProject, StringComparison.OrdinalIgnoreCase);
         }
 
-        internal void Refresh()
+        return string.Equals(Path.GetFileName(projectPath), Path.GetFileName(projectFromEvent), StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static string NormalizePath(string path)
+    {
+        if (string.IsNullOrWhiteSpace(path))
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            DateTime now = DateTime.UtcNow;
-            if ((now - lastOnDemandRefreshUtc) < onDemandRefreshInterval)
-            {
-                return;
-            }
-
-            lastOnDemandRefreshUtc = now;
-            ScheduleRebuild(force: false);
+            return null;
         }
 
-        private bool IsMatchingProject(string projectFromEvent)
+        try
         {
-            if (string.IsNullOrWhiteSpace(projectFromEvent))
-            {
-                return false;
-            }
-
-            string trackedProject = NormalizePath(projectPath);
-            string eventProject = NormalizePath(projectFromEvent);
-
-            if (!string.IsNullOrEmpty(trackedProject) && !string.IsNullOrEmpty(eventProject))
-            {
-                return string.Equals(trackedProject, eventProject, StringComparison.OrdinalIgnoreCase);
-            }
-
-            return string.Equals(Path.GetFileName(projectPath), Path.GetFileName(projectFromEvent), StringComparison.OrdinalIgnoreCase);
+            return Path.GetFullPath(path).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
         }
-
-        private static string NormalizePath(string path)
+        catch
         {
-            if (string.IsNullOrWhiteSpace(path))
-            {
-                return null;
-            }
+            return null;
+        }
+    }
 
+    private void Rebuild(bool force)
+    {
+        ThreadHelper.JoinableTaskFactory.StartOnIdle(
+            async () =>
+        {
             try
             {
-                return Path.GetFullPath(path).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-            }
-            catch
-            {
-                return null;
-            }
-        }
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                var outputDirectory = GetOutputDirectory();
+                UpdateDacpacWatcher(outputDirectory);
+                var preferredNames = GetPreferredDacpacFileNames();
 
-        private void Rebuild(bool force)
-        {
-            ThreadHelper.JoinableTaskFactory.StartOnIdle(
-                async () =>
-            {
-                try
+                // Continue on a background thread for file discovery, extraction, and retries.
+                await TaskScheduler.Default;
+                var dacpacPath = GetDacpacPath(outputDirectory, preferredNames);
+
+                if (!string.IsNullOrEmpty(dacpacPath))
                 {
-                    await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                    string outputDirectory = GetOutputDirectory();
-                    UpdateDacpacWatcher(outputDirectory);
-                    HashSet<string> preferredNames = GetPreferredDacpacFileNames();
+                    var unpackedPath = UnpackDacpac(dacpacPath, force);
+                    var tooltip = BuildTooltip(dacpacPath, unpackedPath);
 
-                    // Continue on a background thread for file discovery, extraction, and retries.
-                    await TaskScheduler.Default;
-                    string dacpacPath = GetDacpacPath(outputDirectory, preferredNames);
-
-                    if (!string.IsNullOrEmpty(dacpacPath))
+                    if (!string.IsNullOrEmpty(unpackedPath))
                     {
-                        string unpackedPath = UnpackDacpac(dacpacPath, force);
-                        string tooltip = BuildTooltip(dacpacPath, unpackedPath);
-
-                        if (!string.IsNullOrEmpty(unpackedPath))
-                        {
-                            await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                            item.Rebuild(unpackedPath, dacpacPath, tooltip);
-                            return;
-                        }
-
                         await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                        item.Rebuild(defaultName, "root", tooltip);
+                        item.Rebuild(unpackedPath, dacpacPath, tooltip);
                         return;
                     }
 
                     await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
-                    item.Rebuild(defaultName, "root", BuildMissingDacpacTooltip(outputDirectory));
-                }
-                catch (Exception ex)
-                {
-                    await ex.LogAsync();
-                }
-            },
-                VsTaskRunContext.UIThreadIdlePriority).FireAndForget();
-        }
-
-        private string GetOutputDirectory()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            string outputPath = GetOutputPathFromProject();
-            if (string.IsNullOrWhiteSpace(outputPath) || string.IsNullOrWhiteSpace(projectDirectory))
-            {
-                return null;
-            }
-
-            return Path.GetFullPath(Path.Combine(projectDirectory, outputPath));
-        }
-
-        private static string GetDacpacPath(string outputDirectory, ISet<string> preferredNames)
-        {
-            if (string.IsNullOrWhiteSpace(outputDirectory) || !Directory.Exists(outputDirectory))
-            {
-                return null;
-            }
-
-            string[] candidates;
-
-            try
-            {
-                candidates = Directory.GetFiles(outputDirectory, "*.dacpac", SearchOption.TopDirectoryOnly);
-                if (candidates.Length == 0)
-                {
-                    // SDK-style projects may emit the .dacpac into a target-framework subfolder
-                    // while DTE reports the OutputPath as the parent directory.
-                    candidates = Directory.GetFiles(outputDirectory, "*.dacpac", SearchOption.AllDirectories);
-                }
-            }
-            catch (Exception)
-            {
-                return null;
-            }
-
-            if (candidates.Length == 0)
-            {
-                return null;
-            }
-
-            return candidates
-                .OrderByDescending(path => preferredNames.Contains(Path.GetFileName(path)))
-                .ThenByDescending(path => File.GetLastWriteTimeUtc(path))
-                .ThenBy(path => Path.GetFileName(path), StringComparer.OrdinalIgnoreCase)
-                .FirstOrDefault();
-        }
-
-        private HashSet<string> GetPreferredDacpacFileNames()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            var preferredNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                defaultName,
-                Path.GetFileNameWithoutExtension(projectPath) + ".dacpac",
-            };
-
-            EnvDTE.Project project = dteProject ?? FindProjectRecursive(dte.Solution.Projects);
-
-            AddDacpacFileName(preferredNames, GetProjectPropertyValue(project, "SqlTargetPath"));
-            AddDacpacFileName(preferredNames, GetProjectPropertyValue(project, "TargetPath"));
-            AddDacpacFileName(preferredNames, GetProjectPropertyValue(project, "TargetFileName"));
-            AddDacpacFileName(preferredNames, GetProjectPropertyValue(project, "TargetName"));
-            AddDacpacFileName(preferredNames, GetProjectPropertyValue(project, "OutputFileName"));
-            AddDacpacFileName(preferredNames, GetProjectPropertyValue(project, "AssemblyName"));
-
-            return preferredNames;
-        }
-
-        private static void AddDacpacFileName(ISet<string> fileNames, string value)
-        {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return;
-            }
-
-            string candidate = Path.GetFileName(value);
-
-            if (string.IsNullOrEmpty(candidate))
-            {
-                return;
-            }
-
-            string fileName = candidate.EndsWith(".dacpac", StringComparison.OrdinalIgnoreCase)
-                ? candidate
-                : candidate + ".dacpac";
-
-            fileNames.Add(fileName);
-        }
-
-        private static string GetProjectPropertyValue(EnvDTE.Project project, string propertyName)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            try
-            {
-                return project?.Properties?.Item(propertyName)?.Value?.ToString();
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        private void UpdateDacpacWatcher(string outputDirectory)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            string normalizedOutputDirectory = NormalizePath(outputDirectory);
-            bool watcherMatches = !string.IsNullOrEmpty(normalizedOutputDirectory)
-                && string.Equals(watchedDirectory, normalizedOutputDirectory, StringComparison.OrdinalIgnoreCase);
-
-            if (watcherMatches)
-            {
-                return;
-            }
-
-            DisposeWatcher();
-
-            if (string.IsNullOrWhiteSpace(outputDirectory) || !Directory.Exists(outputDirectory))
-            {
-                return;
-            }
-
-            var watcher = new FileSystemWatcher(outputDirectory, "*.dacpac")
-            {
-                IncludeSubdirectories = true,
-                NotifyFilter = NotifyFilters.FileName | NotifyFilters.Size | NotifyFilters.LastWrite | NotifyFilters.CreationTime,
-            };
-
-            watcher.Changed += DacpacWatcher_Changed;
-            watcher.Created += DacpacWatcher_Changed;
-            watcher.Deleted += DacpacWatcher_Changed;
-            watcher.Renamed += DacpacWatcher_Renamed;
-            watcher.EnableRaisingEvents = true;
-
-            lock (watcherLock)
-            {
-                dacpacWatcher = watcher;
-                watchedDirectory = normalizedOutputDirectory;
-            }
-        }
-
-        private void DacpacWatcher_Changed(object sender, FileSystemEventArgs e)
-        {
-            ScheduleRebuild(force: false);
-        }
-
-        private void DacpacWatcher_Renamed(object sender, RenamedEventArgs e)
-        {
-            ScheduleRebuild(force: false);
-        }
-
-        private void DisposeWatcher()
-        {
-            FileSystemWatcher watcherToDispose;
-
-            lock (watcherLock)
-            {
-                watcherToDispose = dacpacWatcher;
-                dacpacWatcher = null;
-                watchedDirectory = null;
-            }
-
-            if (watcherToDispose == null)
-            {
-                return;
-            }
-
-            watcherToDispose.EnableRaisingEvents = false;
-            watcherToDispose.Changed -= DacpacWatcher_Changed;
-            watcherToDispose.Created -= DacpacWatcher_Changed;
-            watcherToDispose.Deleted -= DacpacWatcher_Changed;
-            watcherToDispose.Renamed -= DacpacWatcher_Renamed;
-            watcherToDispose.Dispose();
-        }
-
-        private string GetOutputPathFromProject()
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            try
-            {
-                EnvDTE.Project project = dteProject;
-
-                // Check if we need to re-find the project
-                bool needsRefresh = project == null;
-                if (!needsRefresh)
-                {
-                    try
-                    {
-                        // Access to FullName can throw COMException if the project is stale/unloaded
-                        needsRefresh = !string.Equals(project!.FullName, projectPath, StringComparison.OrdinalIgnoreCase);
-                    }
-                    catch (COMException)
-                    {
-                        // Cached project reference is stale, need to re-find
-                        needsRefresh = true;
-                    }
+                    item.Rebuild(defaultName, "root", tooltip);
+                    return;
                 }
 
-                if (needsRefresh)
-                {
-                    project = FindProjectRecursive(dte.Solution.Projects);
-                    dteProject = project;
-                }
-
-                return project?.ConfigurationManager?.ActiveConfiguration?.Properties?.Item("OutputPath")?.Value?.ToString();
+                await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
+                item.Rebuild(defaultName, "root", BuildMissingDacpacTooltip(outputDirectory));
             }
             catch (Exception ex)
+            {
+                await ex.LogAsync();
+            }
+        },
+            VsTaskRunContext.UIThreadIdlePriority).FireAndForget();
+    }
+
+    private string GetOutputDirectory()
+    {
+        ThreadHelper.ThrowIfNotOnUIThread();
+
+        var outputPath = GetOutputPathFromProject();
+        if (string.IsNullOrWhiteSpace(outputPath) || string.IsNullOrWhiteSpace(projectDirectory))
+        {
+            return null;
+        }
+
+        return Path.GetFullPath(Path.Combine(projectDirectory, outputPath));
+    }
+
+    private static string GetDacpacPath(string outputDirectory, ISet<string> preferredNames)
+    {
+        if (string.IsNullOrWhiteSpace(outputDirectory) || !Directory.Exists(outputDirectory))
+        {
+            return null;
+        }
+
+        string[] candidates;
+
+        try
+        {
+            candidates = Directory.GetFiles(outputDirectory, "*.dacpac", SearchOption.TopDirectoryOnly);
+            if (candidates.Length == 0)
+            {
+                // SDK-style projects may emit the .dacpac into a target-framework subfolder
+                // while DTE reports the OutputPath as the parent directory.
+                candidates = Directory.GetFiles(outputDirectory, "*.dacpac", SearchOption.AllDirectories);
+            }
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+
+        if (candidates.Length == 0)
+        {
+            return null;
+        }
+
+        return candidates
+            .OrderByDescending(path => preferredNames.Contains(Path.GetFileName(path)))
+            .ThenByDescending(path => File.GetLastWriteTimeUtc(path))
+            .ThenBy(path => Path.GetFileName(path), StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault();
+    }
+
+    private HashSet<string> GetPreferredDacpacFileNames()
+    {
+        ThreadHelper.ThrowIfNotOnUIThread();
+
+        var preferredNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            defaultName,
+            Path.GetFileNameWithoutExtension(projectPath) + ".dacpac",
+        };
+
+        var project = dteProject ?? FindProjectRecursive(dte.Solution.Projects);
+
+        AddDacpacFileName(preferredNames, GetProjectPropertyValue(project, "SqlTargetPath"));
+        AddDacpacFileName(preferredNames, GetProjectPropertyValue(project, "TargetPath"));
+        AddDacpacFileName(preferredNames, GetProjectPropertyValue(project, "TargetFileName"));
+        AddDacpacFileName(preferredNames, GetProjectPropertyValue(project, "TargetName"));
+        AddDacpacFileName(preferredNames, GetProjectPropertyValue(project, "OutputFileName"));
+        AddDacpacFileName(preferredNames, GetProjectPropertyValue(project, "AssemblyName"));
+
+        return preferredNames;
+    }
+
+    private static void AddDacpacFileName(ISet<string> fileNames, string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return;
+        }
+
+        var candidate = Path.GetFileName(value);
+
+        if (string.IsNullOrEmpty(candidate))
+        {
+            return;
+        }
+
+        var fileName = candidate.EndsWith(".dacpac", StringComparison.OrdinalIgnoreCase)
+            ? candidate
+            : candidate + ".dacpac";
+
+        fileNames.Add(fileName);
+    }
+
+    private static string GetProjectPropertyValue(EnvDTE.Project project, string propertyName)
+    {
+        ThreadHelper.ThrowIfNotOnUIThread();
+
+        try
+        {
+            return project?.Properties?.Item(propertyName)?.Value?.ToString();
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private void UpdateDacpacWatcher(string outputDirectory)
+    {
+        ThreadHelper.ThrowIfNotOnUIThread();
+
+        var normalizedOutputDirectory = NormalizePath(outputDirectory);
+        var watcherMatches = !string.IsNullOrEmpty(normalizedOutputDirectory)
+            && string.Equals(watchedDirectory, normalizedOutputDirectory, StringComparison.OrdinalIgnoreCase);
+
+        if (watcherMatches)
+        {
+            return;
+        }
+
+        DisposeWatcher();
+
+        if (string.IsNullOrWhiteSpace(outputDirectory) || !Directory.Exists(outputDirectory))
+        {
+            return;
+        }
+
+        var watcher = new FileSystemWatcher(outputDirectory, "*.dacpac")
+        {
+            IncludeSubdirectories = true,
+            NotifyFilter = NotifyFilters.FileName | NotifyFilters.Size | NotifyFilters.LastWrite | NotifyFilters.CreationTime,
+        };
+
+        watcher.Changed += DacpacWatcher_Changed;
+        watcher.Created += DacpacWatcher_Changed;
+        watcher.Deleted += DacpacWatcher_Changed;
+        watcher.Renamed += DacpacWatcher_Renamed;
+        watcher.EnableRaisingEvents = true;
+
+        lock (watcherLock)
+        {
+            dacpacWatcher = watcher;
+            watchedDirectory = normalizedOutputDirectory;
+        }
+    }
+
+    private void DacpacWatcher_Changed(object sender, FileSystemEventArgs e)
+    {
+        ScheduleRebuild(force: false);
+    }
+
+    private void DacpacWatcher_Renamed(object sender, RenamedEventArgs e)
+    {
+        ScheduleRebuild(force: false);
+    }
+
+    private void DisposeWatcher()
+    {
+        FileSystemWatcher watcherToDispose;
+
+        lock (watcherLock)
+        {
+            watcherToDispose = dacpacWatcher;
+            dacpacWatcher = null;
+            watchedDirectory = null;
+        }
+
+        if (watcherToDispose == null)
+        {
+            return;
+        }
+
+        watcherToDispose.EnableRaisingEvents = false;
+        watcherToDispose.Changed -= DacpacWatcher_Changed;
+        watcherToDispose.Created -= DacpacWatcher_Changed;
+        watcherToDispose.Deleted -= DacpacWatcher_Changed;
+        watcherToDispose.Renamed -= DacpacWatcher_Renamed;
+        watcherToDispose.Dispose();
+    }
+
+    private string GetOutputPathFromProject()
+    {
+        ThreadHelper.ThrowIfNotOnUIThread();
+
+        try
+        {
+            var project = dteProject;
+
+            // Check if we need to re-find the project
+            var needsRefresh = project == null;
+            if (!needsRefresh)
+            {
+                try
+                {
+                    // Access to FullName can throw COMException if the project is stale/unloaded
+                    needsRefresh = !string.Equals(project!.FullName, projectPath, StringComparison.OrdinalIgnoreCase);
+                }
+                catch (COMException)
+                {
+                    // Cached project reference is stale, need to re-find
+                    needsRefresh = true;
+                }
+            }
+
+            if (needsRefresh)
+            {
+                project = FindProjectRecursive(dte.Solution.Projects);
+                dteProject = project;
+            }
+
+            return project?.ConfigurationManager?.ActiveConfiguration?.Properties?.Item("OutputPath")?.Value?.ToString();
+        }
+        catch (Exception ex)
+        {
+            ex.Log();
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Recursively searches for a project by path, including projects nested in solution folders.
+    /// </summary>
+    private EnvDTE.Project FindProjectRecursive(Projects projects)
+    {
+        ThreadHelper.ThrowIfNotOnUIThread();
+
+        foreach (EnvDTE.Project project in projects)
+        {
+            var found = FindProjectRecursive(project);
+            if (found != null)
+            {
+                return found;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Recursively searches within a project (which may be a solution folder) for the target project.
+    /// </summary>
+    private EnvDTE.Project FindProjectRecursive(EnvDTE.Project project)
+    {
+        ThreadHelper.ThrowIfNotOnUIThread();
+
+        if (project == null)
+        {
+            return null;
+        }
+
+        try
+        {
+            // Check if this is our target project
+            // Access to FullName/Kind can throw COMException if the project is stale/unloaded
+            if (string.Equals(project.FullName, projectPath, StringComparison.OrdinalIgnoreCase))
+            {
+                return project;
+            }
+
+            // If this is a solution folder, search its nested projects
+            if (project.Kind == EnvDTE.Constants.vsProjectKindSolutionItems)
+            {
+                foreach (ProjectItem projectItem in project.ProjectItems)
+                {
+                    var subProject = projectItem.SubProject;
+                    if (subProject != null)
+                    {
+                        var found = FindProjectRecursive(subProject);
+                        if (found != null)
+                        {
+                            return found;
+                        }
+                    }
+                }
+            }
+        }
+        catch (COMException)
+        {
+            // Project is unavailable/stale, skip it
+        }
+
+        return null;
+    }
+
+    public object SourceItem => this;
+
+    public bool HasItems => item != null;
+
+    public IEnumerable Items => items;
+
+    private static string UnpackDacpac(string dacpacPath, bool force)
+    {
+        if (!File.Exists(dacpacPath))
+        {
+            return null;
+        }
+
+        var path = GetExtractionPath(dacpacPath);
+        var currentStamp = GetDacpacStamp(dacpacPath);
+
+        if (Directory.Exists(path))
+        {
+            if (!force && IsExtractionCurrent(path, currentStamp))
+            {
+                return path;
+            }
+
+            try
+            {
+                Directory.Delete(path, true);
+            }
+            catch (IOException ex)
+            {
+                ex.Log();
+                return null;
+            }
+            catch (UnauthorizedAccessException ex)
             {
                 ex.Log();
                 return null;
             }
         }
 
-        /// <summary>
-        /// Recursively searches for a project by path, including projects nested in solution folders.
-        /// </summary>
-        private EnvDTE.Project FindProjectRecursive(Projects projects)
+        // The file watcher can fire while MSBuild is still writing the .dacpac, so the
+        // file may be locked by another process. Wait for the lock to be released
+        // before attempting to extract it.
+        WaitForFileReady(dacpacPath);
+
+        const int maxAttempts = 10;
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            foreach (EnvDTE.Project project in projects)
-            {
-                EnvDTE.Project found = FindProjectRecursive(project);
-                if (found != null)
-                {
-                    return found;
-                }
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Recursively searches within a project (which may be a solution folder) for the target project.
-        /// </summary>
-        private EnvDTE.Project FindProjectRecursive(EnvDTE.Project project)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            if (project == null)
-            {
-                return null;
-            }
-
             try
             {
-                // Check if this is our target project
-                // Access to FullName/Kind can throw COMException if the project is stale/unloaded
-                if (string.Equals(project.FullName, projectPath, StringComparison.OrdinalIgnoreCase))
+                System.IO.Compression.ZipFile.ExtractToDirectory(dacpacPath, path);
+                WriteExtractionStamp(path, currentStamp);
+                return path;
+            }
+            catch (InvalidDataException ex)
+            {
+                if (attempt == maxAttempts)
                 {
-                    return project;
+                    ex.Log();
+                    return null;
                 }
 
-                // If this is a solution folder, search its nested projects
-                if (project.Kind == EnvDTE.Constants.vsProjectKindSolutionItems)
+                // The .dacpac may be incomplete while MSBuild is still writing it. Clean up any
+                // partial extraction and retry after a short delay.
+                TryDeleteDirectory(path);
+                System.Threading.Thread.Sleep(250);
+            }
+            catch (IOException ex)
+            {
+                if (attempt == maxAttempts)
                 {
-                    foreach (ProjectItem projectItem in project.ProjectItems)
-                    {
-                        EnvDTE.Project subProject = projectItem.SubProject;
-                        if (subProject != null)
-                        {
-                            EnvDTE.Project found = FindProjectRecursive(subProject);
-                            if (found != null)
-                            {
-                                return found;
-                            }
-                        }
-                    }
+                    ex.Log();
+                    return null;
                 }
+
+                // The .dacpac (or a partially extracted file) is still locked. Clean up any
+                // partial extraction and retry after a short delay.
+                TryDeleteDirectory(path);
+                System.Threading.Thread.Sleep(250);
             }
-            catch (COMException)
+            catch (UnauthorizedAccessException ex)
             {
-                // Project is unavailable/stale, skip it
-            }
-
-            return null;
-        }
-
-        public object SourceItem => this;
-
-        public bool HasItems => item != null;
-
-        public IEnumerable Items => items;
-
-        private static string UnpackDacpac(string dacpacPath, bool force)
-        {
-            if (!File.Exists(dacpacPath))
-            {
+                ex.Log();
                 return null;
             }
-
-            string path = GetExtractionPath(dacpacPath);
-            string currentStamp = GetDacpacStamp(dacpacPath);
-
-            if (Directory.Exists(path))
-            {
-                if (!force && IsExtractionCurrent(path, currentStamp))
-                {
-                    return path;
-                }
-
-                try
-                {
-                    Directory.Delete(path, true);
-                }
-                catch (IOException ex)
-                {
-                    ex.Log();
-                    return null;
-                }
-                catch (UnauthorizedAccessException ex)
-                {
-                    ex.Log();
-                    return null;
-                }
-            }
-
-            // The file watcher can fire while MSBuild is still writing the .dacpac, so the
-            // file may be locked by another process. Wait for the lock to be released
-            // before attempting to extract it.
-            WaitForFileReady(dacpacPath);
-
-            const int maxAttempts = 10;
-            for (int attempt = 1; attempt <= maxAttempts; attempt++)
-            {
-                try
-                {
-                    System.IO.Compression.ZipFile.ExtractToDirectory(dacpacPath, path);
-                    WriteExtractionStamp(path, currentStamp);
-                    return path;
-                }
-                catch (InvalidDataException ex)
-                {
-                    if (attempt == maxAttempts)
-                    {
-                        ex.Log();
-                        return null;
-                    }
-
-                    // The .dacpac may be incomplete while MSBuild is still writing it. Clean up any
-                    // partial extraction and retry after a short delay.
-                    TryDeleteDirectory(path);
-                    System.Threading.Thread.Sleep(250);
-                }
-                catch (IOException ex)
-                {
-                    if (attempt == maxAttempts)
-                    {
-                        ex.Log();
-                        return null;
-                    }
-
-                    // The .dacpac (or a partially extracted file) is still locked. Clean up any
-                    // partial extraction and retry after a short delay.
-                    TryDeleteDirectory(path);
-                    System.Threading.Thread.Sleep(250);
-                }
-                catch (UnauthorizedAccessException ex)
-                {
-                    ex.Log();
-                    return null;
-                }
-            }
-
-            return null;
         }
 
-        private static void WaitForFileReady(string filePath)
-        {
-            const int maxAttempts = 20;
+        return null;
+    }
 
-            for (int attempt = 1; attempt <= maxAttempts; attempt++)
+    private static void WaitForFileReady(string filePath)
+    {
+        const int maxAttempts = 20;
+
+        for (var attempt = 1; attempt <= maxAttempts; attempt++)
+        {
+            try
             {
-                try
-                {
-                    using (FileStream stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                    {
-                        return;
-                    }
-                }
-                catch (UnauthorizedAccessException)
+                using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 {
                     return;
                 }
-                catch (IOException)
-                {
-                    if (attempt >= maxAttempts)
-                    {
-                        return;
-                    }
-
-                    System.Threading.Thread.Sleep(250);
-                }
-            }
-        }
-
-        private static void TryDeleteDirectory(string path)
-        {
-            try
-            {
-                if (Directory.Exists(path))
-                {
-                    Directory.Delete(path, true);
-                }
-            }
-            catch (IOException ex)
-            {
-                ex.Log();
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                ex.Log();
-            }
-        }
-
-        private static string GetExtractionPath(string dacpacPath)
-        {
-            return Path.Combine(Path.GetTempPath(), Vsix.Name, GetPathKey(dacpacPath));
-        }
-
-        private static string GetPathKey(string path)
-        {
-            byte[] pathBytes = Encoding.UTF8.GetBytes(path);
-            byte[] hashBytes;
-
-            using (SHA256 sha256 = SHA256.Create())
-            {
-                hashBytes = sha256.ComputeHash(pathBytes);
-            }
-
-            var builder = new StringBuilder(16);
-            for (int i = 0; i < 8; i++)
-            {
-                builder.Append(hashBytes[i].ToString("x2", CultureInfo.InvariantCulture));
-            }
-
-            return builder.ToString();
-        }
-
-        private static string GetStampPath(string extractionPath)
-        {
-            return Path.Combine(extractionPath, ".dacpacstamp");
-        }
-
-        private static string GetDacpacStamp(string dacpacPath)
-        {
-            FileInfo fileInfo = new(dacpacPath);
-            return $"{fileInfo.Length}:{fileInfo.LastWriteTimeUtc.Ticks}";
-        }
-
-        private static bool IsExtractionCurrent(string extractionPath, string currentStamp)
-        {
-            string stampPath = GetStampPath(extractionPath);
-            if (!File.Exists(stampPath))
-            {
-                return false;
-            }
-
-            try
-            {
-                string existingStamp = File.ReadAllText(stampPath);
-                return string.Equals(existingStamp, currentStamp, StringComparison.Ordinal);
-            }
-            catch (IOException)
-            {
-                return false;
             }
             catch (UnauthorizedAccessException)
             {
-                return false;
-            }
-        }
-
-        private static void WriteExtractionStamp(string extractionPath, string currentStamp)
-        {
-            try
-            {
-                File.WriteAllText(GetStampPath(extractionPath), currentStamp);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                // Writing the stamp is a best-effort optimization; failures should not break extraction.
-                ex.Log();
-            }
-            catch (IOException ex)
-            {
-                // Writing the stamp is a best-effort optimization; failures should not break extraction.
-                ex.Log();
-            }
-            catch (Exception ex)
-            {
-                // Swallow any unexpected errors to avoid failing otherwise successful extraction.
-                ex.Log();
-            }
-        }
-
-        private static string BuildMissingDacpacTooltip(string outputDirectory)
-        {
-            if (string.IsNullOrWhiteSpace(outputDirectory))
-            {
-                return "Build the project to browse its generated DACPAC package.";
-            }
-
-            return $"Build the project to browse its generated DACPAC package.\r\nExpected output folder: {outputDirectory}";
-        }
-
-        private static string BuildTooltip(string dacpacPath, string extractedPath)
-        {
-            if (string.IsNullOrWhiteSpace(dacpacPath) || !File.Exists(dacpacPath))
-            {
-                return BuildMissingDacpacTooltip(outputDirectory: null);
-            }
-
-            FileInfo fileInfo = new(dacpacPath);
-            var tooltip = new StringBuilder();
-
-            AppendTooltipLine(tooltip, "DACPAC file", fileInfo.Name);
-            AppendTooltipLine(tooltip, "Size", fileInfo.Length.ToString("N0", CultureInfo.InvariantCulture) + " bytes");
-            AppendTooltipLine(tooltip, "Last updated", fileInfo.LastWriteTime.ToString(CultureInfo.CurrentCulture));
-
-            AddOriginMetadata(tooltip, extractedPath);
-
-            return tooltip.ToString().TrimEnd();
-        }
-
-        private static void AddOriginMetadata(StringBuilder tooltip, string extractedPath)
-        {
-            string originPath = GetOriginPath(extractedPath);
-            if (string.IsNullOrWhiteSpace(originPath))
-            {
                 return;
             }
-
-            try
+            catch (IOException)
             {
-                string originContent = File.ReadAllText(originPath);
+                if (attempt >= maxAttempts)
+                {
+                    return;
+                }
 
-                AppendTooltipLine(tooltip, "DacFX Version", GetOriginElementValue(originContent, "ProductVersion"));
-            }
-            catch (Exception ex)
-            {
-                ex.Log();
+                System.Threading.Thread.Sleep(250);
             }
         }
+    }
 
-        private static string GetOriginPath(string extractedPath)
+    private static void TryDeleteDirectory(string path)
+    {
+        try
         {
-            if (string.IsNullOrWhiteSpace(extractedPath) || !Directory.Exists(extractedPath))
+            if (Directory.Exists(path))
             {
-                return null;
+                Directory.Delete(path, true);
             }
-
-            return Directory.GetFiles(extractedPath, "origin.xml", SearchOption.TopDirectoryOnly).FirstOrDefault();
         }
-
-        private static string GetOriginElementValue(string originContent, string elementName)
+        catch (IOException ex)
         {
-            Match match = Regex.Match(
-                originContent,
-                $@"<(?:(?:\w+):)?{Regex.Escape(elementName)}\b[^>]*>(?<value>.*?)</(?:(?:\w+):)?{Regex.Escape(elementName)}>",
-                RegexOptions.IgnoreCase | RegexOptions.Singleline,
-                TimeSpan.FromSeconds(1));
-
-            return match.Success ? CleanOriginValue(match.Groups["value"].Value) : null;
+            ex.Log();
         }
-
-        private static string CleanOriginValue(string value)
+        catch (UnauthorizedAccessException ex)
         {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return null;
-            }
-
-            return value
-                .Replace("\r", string.Empty)
-                .Replace("\n", " ")
-                .Replace("\t", " ")
-                .Trim();
+            ex.Log();
         }
+    }
 
-        private static void AppendTooltipLine(StringBuilder tooltip, string label, string value)
+    private static string GetExtractionPath(string dacpacPath)
+    {
+        return Path.Combine(Path.GetTempPath(), Vsix.Name, GetPathKey(dacpacPath));
+    }
+
+    private static string GetPathKey(string path)
+    {
+        var pathBytes = Encoding.UTF8.GetBytes(path);
+        byte[] hashBytes;
+
+        using (SHA256 sha256 = SHA256.Create())
         {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return;
-            }
-
-            tooltip.Append(label);
-            tooltip.Append(": ");
-            tooltip.AppendLine(value.Trim());
+            hashBytes = sha256.ComputeHash(pathBytes);
         }
 
-        public void RaisePropertyChanged(string propertyName)
+        var builder = new StringBuilder(16);
+        for (var i = 0; i < 8; i++)
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            builder.Append(hashBytes[i].ToString("x2", CultureInfo.InvariantCulture));
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        return builder.ToString();
+    }
 
-        public void Dispose()
+    private static string GetStampPath(string extractionPath)
+    {
+        return Path.Combine(extractionPath, ".dacpacstamp");
+    }
+
+    private static string GetDacpacStamp(string dacpacPath)
+    {
+        FileInfo fileInfo = new(dacpacPath);
+        return $"{fileInfo.Length}:{fileInfo.LastWriteTimeUtc.Ticks}";
+    }
+
+    private static bool IsExtractionCurrent(string extractionPath, string currentStamp)
+    {
+        var stampPath = GetStampPath(extractionPath);
+        if (!File.Exists(stampPath))
         {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            dte.Events.BuildEvents.OnBuildProjConfigDone -= BuildEvents_OnBuildProjConfigDone;
-            DisposeWatcher();
-            item?.Dispose();
+            return false;
         }
+
+        try
+        {
+            var existingStamp = File.ReadAllText(stampPath);
+            return string.Equals(existingStamp, currentStamp, StringComparison.Ordinal);
+        }
+        catch (IOException)
+        {
+            return false;
+        }
+        catch (UnauthorizedAccessException)
+        {
+            return false;
+        }
+    }
+
+    private static void WriteExtractionStamp(string extractionPath, string currentStamp)
+    {
+        try
+        {
+            File.WriteAllText(GetStampPath(extractionPath), currentStamp);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            // Writing the stamp is a best-effort optimization; failures should not break extraction.
+            ex.Log();
+        }
+        catch (IOException ex)
+        {
+            // Writing the stamp is a best-effort optimization; failures should not break extraction.
+            ex.Log();
+        }
+        catch (Exception ex)
+        {
+            // Swallow any unexpected errors to avoid failing otherwise successful extraction.
+            ex.Log();
+        }
+    }
+
+    private static string BuildMissingDacpacTooltip(string outputDirectory)
+    {
+        if (string.IsNullOrWhiteSpace(outputDirectory))
+        {
+            return "Build the project to browse its generated DACPAC package.";
+        }
+
+        return $"Build the project to browse its generated DACPAC package.\r\nExpected output folder: {outputDirectory}";
+    }
+
+    private static string BuildTooltip(string dacpacPath, string extractedPath)
+    {
+        if (string.IsNullOrWhiteSpace(dacpacPath) || !File.Exists(dacpacPath))
+        {
+            return BuildMissingDacpacTooltip(outputDirectory: null);
+        }
+
+        FileInfo fileInfo = new(dacpacPath);
+        var tooltip = new StringBuilder();
+
+        AppendTooltipLine(tooltip, "DACPAC file", fileInfo.Name);
+        AppendTooltipLine(tooltip, "Size", fileInfo.Length.ToString("N0", CultureInfo.InvariantCulture) + " bytes");
+        AppendTooltipLine(tooltip, "Last updated", fileInfo.LastWriteTime.ToString(CultureInfo.CurrentCulture));
+
+        AddOriginMetadata(tooltip, extractedPath);
+
+        return tooltip.ToString().TrimEnd();
+    }
+
+    private static void AddOriginMetadata(StringBuilder tooltip, string extractedPath)
+    {
+        var originPath = GetOriginPath(extractedPath);
+        if (string.IsNullOrWhiteSpace(originPath))
+        {
+            return;
+        }
+
+        try
+        {
+            var originContent = File.ReadAllText(originPath);
+
+            AppendTooltipLine(tooltip, "DacFX Version", GetOriginElementValue(originContent, "ProductVersion"));
+        }
+        catch (Exception ex)
+        {
+            ex.Log();
+        }
+    }
+
+    private static string GetOriginPath(string extractedPath)
+    {
+        if (string.IsNullOrWhiteSpace(extractedPath) || !Directory.Exists(extractedPath))
+        {
+            return null;
+        }
+
+        return Directory.GetFiles(extractedPath, "origin.xml", SearchOption.TopDirectoryOnly).FirstOrDefault();
+    }
+
+    private static string GetOriginElementValue(string originContent, string elementName)
+    {
+        var match = Regex.Match(
+            originContent,
+            $@"<(?:(?:\w+):)?{Regex.Escape(elementName)}\b[^>]*>(?<value>.*?)</(?:(?:\w+):)?{Regex.Escape(elementName)}>",
+            RegexOptions.IgnoreCase | RegexOptions.Singleline,
+            TimeSpan.FromSeconds(1));
+
+        return match.Success ? CleanOriginValue(match.Groups["value"].Value) : null;
+    }
+
+    private static string CleanOriginValue(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        return value
+            .Replace("\r", string.Empty)
+            .Replace("\n", " ")
+            .Replace("\t", " ")
+            .Trim();
+    }
+
+    private static void AppendTooltipLine(StringBuilder tooltip, string label, string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return;
+        }
+
+        tooltip.Append(label);
+        tooltip.Append(": ");
+        tooltip.AppendLine(value.Trim());
+    }
+
+    public void RaisePropertyChanged(string propertyName)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    public void Dispose()
+    {
+        ThreadHelper.ThrowIfNotOnUIThread();
+
+        dte.Events.BuildEvents.OnBuildProjConfigDone -= BuildEvents_OnBuildProjConfigDone;
+        DisposeWatcher();
+        item?.Dispose();
     }
 }
