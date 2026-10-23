@@ -3,13 +3,10 @@ namespace SqlProjectsPowerTools;
 [Command(PackageIds.cmdidManageRules)]
 internal sealed class ManageRulesCommand : BaseCommand<ManageRulesCommand>
 {
-    protected override void BeforeQueryStatus(EventArgs e)
-    {
-        ThreadHelper.JoinableTaskFactory.Run(async () =>
-        {
-            Command.Enabled = await Command.IsEnabledForModernSqlProjectAsync();
-        });
-    }
+    protected override void BeforeQueryStatus(EventArgs e) => ThreadHelper.JoinableTaskFactory.Run(async () =>
+                                                                   {
+                                                                       Command.Enabled = await Command.IsEnabledForModernSqlProjectAsync();
+                                                                   });
 
     protected override async Task ExecuteAsync(OleMenuCmdEventArgs e)
     {

@@ -269,11 +269,9 @@ internal static class AutoPublishOnSaveHandler
         {
             try
             {
-                using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (var reader = new StreamReader(stream))
-                {
-                    return await reader.ReadToEndAsync();
-                }
+                using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                using var reader = new StreamReader(stream);
+                return await reader.ReadToEndAsync();
             }
             catch (Exception ex)
             {
@@ -285,37 +283,27 @@ internal static class AutoPublishOnSaveHandler
         throw lastException ?? new IOException($"Failed to read SQL file '{filePath}'.", lastException);
     }
 
-    private static bool IsAllowedStatement(TSqlStatement statement)
-    {
-        return IsSupportedCreateStatement(statement)
+    private static bool IsAllowedStatement(TSqlStatement statement) => IsSupportedCreateStatement(statement)
             || statement is SetOnOffStatement;
-    }
 
-    private static bool IsSupportedCreateStatement(TSqlStatement statement)
-    {
-        return statement is CreateProcedureStatement
+    private static bool IsSupportedCreateStatement(TSqlStatement statement) => statement is CreateProcedureStatement
             or CreateViewStatement
             or CreateFunctionStatement
             or CreateTriggerStatement;
-    }
 
     private static async Task ExecuteScriptAsync(string connectionString, string script)
     {
-        using (var connection = new SqlConnection(connectionString))
-        {
-            await connection.OpenAsync();
+        using var connection = new SqlConnection(connectionString);
+        await connection.OpenAsync();
 
-            foreach (var batch in SplitBatches(script))
-            {
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandType = CommandType.Text;
+        foreach (var batch in SplitBatches(script))
+        {
+            using var command = connection.CreateCommand();
+            command.CommandType = CommandType.Text;
 #pragma warning disable CA2100 // Review SQL queries for security vulnerabilities
-                    command.CommandText = batch;
+            command.CommandText = batch;
 #pragma warning restore CA2100 // Review SQL queries for security vulnerabilities
-                    await command.ExecuteNonQueryAsync();
-                }
-            }
+            await command.ExecuteNonQueryAsync();
         }
     }
 
@@ -332,7 +320,7 @@ internal static class AutoPublishOnSaveHandler
 
         if (errors?.Count > 0 || fragment is not TSqlScript tsqlScript)
         {
-            return new[] { script };
+            return [script];
         }
 
         return tsqlScript.Batches

@@ -1,33 +1,32 @@
 using Microsoft.SqlServer.Dac;
 
-namespace DacFXToolLib
+namespace DacFXToolLib;
+
+public static class DacPackageScripter
 {
-    public static class DacPackageScripter
+    public static string Script(string dacpacPath, string outputPath)
     {
-        public static string Script(string dacpacPath, string outputPath)
+        // Ensure output directory exists
+        Directory.CreateDirectory(outputPath);
+
+        var options = new DacDeployOptions
         {
-            // Ensure output directory exists
-            Directory.CreateDirectory(outputPath);
+            CreateNewDatabase = false,
+        };
 
-            var options = new DacDeployOptions
-            {
-                CreateNewDatabase = false,
-            };
+        var databaseName = Path.GetFileNameWithoutExtension(dacpacPath);
 
-            var databaseName = Path.GetFileNameWithoutExtension(dacpacPath);
+        var scriptFileName = $"{databaseName}_Create.sql";
 
-            var scriptFileName = $"{databaseName}_Create.sql";
+        var scriptFile = Path.Combine(outputPath, scriptFileName);
 
-            var scriptFile = Path.Combine(outputPath, scriptFileName);
+        using var file = File.Create(scriptFile);
 
-            using var file = File.Create(scriptFile);
-
-            using (var package = DacPackage.Load(dacpacPath))
-            {
-                DacServices.GenerateCreateScript(file, package, databaseName, options);
-            }
-
-            return scriptFile;
+        using (var package = DacPackage.Load(dacpacPath))
+        {
+            DacServices.GenerateCreateScript(file, package, databaseName, options);
         }
+
+        return scriptFile;
     }
 }

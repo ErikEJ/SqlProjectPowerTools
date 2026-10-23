@@ -2,30 +2,29 @@ using System.Windows;
 using System.Windows.Controls;
 using DacFXToolLib.Common;
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+public partial class SchemaCompareWindowControl : UserControl
 {
-    public partial class SchemaCompareWindowControl : UserControl
+    public SchemaCompareWindowControl()
     {
-        public SchemaCompareWindowControl()
-        {
-            InitializeComponent();
-            DataContext = new SchemaCompareViewModel();
-        }
+        InitializeComponent();
+        DataContext = new SchemaCompareViewModel();
+    }
 
-        public void SetResult(VisualCompareResult result, string projectName, string targetName)
+    public void SetResult(VisualCompareResult result, string projectName, string targetName)
+    {
+        if (DataContext is SchemaCompareViewModel vm)
         {
-            if (DataContext is SchemaCompareViewModel vm)
-            {
-                vm.LoadResult(result, projectName, targetName);
-            }
+            vm.LoadResult(result, projectName, targetName);
         }
+    }
 
-        private void CopyDeploymentScript_Click(object sender, RoutedEventArgs e)
+    private void CopyDeploymentScript_Click(object sender, RoutedEventArgs e)
+    {
+        if (DataContext is SchemaCompareViewModel vm && !string.IsNullOrEmpty(vm.DeploymentScript))
         {
-            if (DataContext is SchemaCompareViewModel vm && !string.IsNullOrEmpty(vm.DeploymentScript))
-            {
-                Clipboard.SetText(vm.DeploymentScript);
-            }
+            Clipboard.SetText(vm.DeploymentScript);
         }
     }
 }

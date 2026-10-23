@@ -1,7 +1,6 @@
-﻿namespace DacFXToolLib.Common
+﻿namespace DacFXToolLib.Common;
+
+public class SchemaInfo
 {
-    public class SchemaInfo
-    {
-        public string Name { get; set; }
-    }
+    public string Name { get; set; }
 }

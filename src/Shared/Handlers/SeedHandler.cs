@@ -24,9 +24,9 @@ internal sealed class SeedHandler
 
             var options = new DataApiBuilderOptions();
 
-            var (DatabaseModel, FileGenerationMode, ImportSettings) = await ChooseDataBaseConnectionAsync(options);
+            var (databaseModel, _, _) = await ChooseDataBaseConnectionAsync(options);
 
-            if (DatabaseModel == null)
+            if (databaseModel == null)
             {
                 return;
             }
@@ -158,10 +158,10 @@ internal sealed class SeedHandler
                           .AddTables(predefinedTables, new List<Schema>())
                           .PreselectTables(preselectedTables);
 
-        var (ClosedByOK, Payload) = ptd.ShowAndAwaitUserResponse(true);
+        var (closedByOk, payload) = ptd.ShowAndAwaitUserResponse(true);
 
-        options.Tables = Payload.Objects.ToList();
-        return ClosedByOK;
+        options.Tables = payload.Objects.ToList();
+        return closedByOk;
     }
 
     private async Task<(DatabaseConnectionModel DatabaseModel, int FileGenerationMode, bool ImportSettings)> ChooseDataBaseConnectionAsync(DataApiBuilderOptions options)
@@ -187,21 +187,21 @@ internal sealed class SeedHandler
 
         psd.PublishFileGenerationMode(GetCodeGenerationModes());
 
-        var (ClosedByOK, Payload) = psd.ShowAndAwaitUserResponse(true);
-        if (!ClosedByOK)
+        var (closedByOk, payload) = psd.ShowAndAwaitUserResponse(true);
+        if (!closedByOk)
         {
             return (null, 0, false);
         }
 
-        if (Payload.Connection != null)
+        if (payload.Connection != null)
         {
-            options.ConnectionString = Payload.Connection.ConnectionString;
-            options.DatabaseType = Payload.Connection.DatabaseType;
+            options.ConnectionString = payload.Connection.ConnectionString;
+            options.DatabaseType = payload.Connection.DatabaseType;
         }
 
-        return (Payload.Connection,
-            Payload.CodeGenerationMode,
-            Payload.GetDatabaseOptions);
+        return (payload.Connection,
+            payload.CodeGenerationMode,
+            payload.GetDatabaseOptions);
     }
 
     private static async Task<DatabaseConnectionModel> GetDatabaseInfoAsync(DataApiBuilderOptions options)
@@ -229,7 +229,7 @@ internal sealed class SeedHandler
     {
         var list = new List<CodeGenerationItem>
         {
-            new CodeGenerationItem { Key = 0, Value = "Seed" },
+            new() { Key = 0, Value = "Seed" },
         };
         return list;
     }

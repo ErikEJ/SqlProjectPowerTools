@@ -19,7 +19,7 @@ public sealed class CollectionCountToVisibilityConverter : IValueConverter
             return Visibility.Collapsed;
         }
 
-        if (!(value is ICollection c))
+        if (value is not ICollection c)
         {
             throw new ArgumentException(@"Value must implement type System.Collections.ICollection.", nameof(value));
         }
@@ -29,8 +29,5 @@ public sealed class CollectionCountToVisibilityConverter : IValueConverter
                    : Visibility.Collapsed;
     }
 
-    object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        throw new NotSupportedException();
-    }
+    object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
 }

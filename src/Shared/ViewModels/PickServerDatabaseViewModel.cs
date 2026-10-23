@@ -194,10 +194,7 @@ public class PickServerDatabaseViewModel : ViewModelBase, IPickServerDatabaseVie
     }
 #endif
 
-    private void Ok_Executed()
-    {
-        CloseRequested?.Invoke(this, new CloseRequestedEventArgs(true));
-    }
+    private void Ok_Executed() => CloseRequested?.Invoke(this, new CloseRequestedEventArgs(true));
 
     private bool Ok_CanExecute() => SelectedDatabaseConnection != null;
 

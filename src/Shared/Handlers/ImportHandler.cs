@@ -28,9 +28,9 @@ internal sealed class ImportHandler
 
             var options = new DataApiBuilderOptions();
 
-            var (DatabaseModel, FileGenerationMode, ImportSettings) = await ChooseDataBaseConnectionAsync(options);
+            var (databaseModel, fileGenerationMode, importSettings) = await ChooseDataBaseConnectionAsync(options);
 
-            if (DatabaseModel == null)
+            if (databaseModel == null)
             {
                 return;
             }
@@ -64,7 +64,7 @@ internal sealed class ImportHandler
                     fIsCancelable: false,
                     fShowMarqueeProgress: true);
 
-                result = await RunImportAsync(FileGenerationMode, outputPath, dbInfo.ConnectionString);
+                result = await RunImportAsync(fileGenerationMode, outputPath, dbInfo.ConnectionString);
             }
             finally
             {
@@ -77,7 +77,7 @@ internal sealed class ImportHandler
                 await VS.StatusBar.ShowMessageAsync("Import completed successfully");
             }
 
-            if (ImportSettings)
+            if (importSettings)
             {
                 await VS.StatusBar.ShowMessageAsync("Importing database settings...");
 
@@ -215,10 +215,10 @@ internal sealed class ImportHandler
         // https://learn.microsoft.com/dotnet/api/microsoft.sqlserver.dac.dacextracttarget
         var list = new List<CodeGenerationItem>
         {
-            new CodeGenerationItem { Key = 5, Value = "SchemaObjectType" },
-            new CodeGenerationItem { Key = 3, Value = "ObjectType" },
-            new CodeGenerationItem { Key = 2, Value = "Flat" },
-            new CodeGenerationItem { Key = 4, Value = "Schema" },
+            new() { Key = 5, Value = "SchemaObjectType" },
+            new() { Key = 3, Value = "ObjectType" },
+            new() { Key = 2, Value = "Flat" },
+            new() { Key = 4, Value = "Schema" },
         };
         return list;
     }

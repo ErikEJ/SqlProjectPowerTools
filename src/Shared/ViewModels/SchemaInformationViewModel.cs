@@ -65,10 +65,7 @@ public class SchemaInformationViewModel : ViewModelBase, ISchemaInformationViewM
         }
     }
 
-    public bool IsVisible
-    {
-        get => Objects.Any(m => m.IsVisible);
-    }
+    public bool IsVisible => Objects.Any(m => m.IsVisible);
 
     public Schema ReplacingSchema { get; set; }
 
@@ -101,8 +98,5 @@ public class SchemaInformationViewModel : ViewModelBase, ISchemaInformationViewM
         }
     }
 
-    private void SetSelected_Execute(bool value)
-    {
-        IsSelected = value;
-    }
+    private void SetSelected_Execute(bool value) => IsSelected = value;
 }

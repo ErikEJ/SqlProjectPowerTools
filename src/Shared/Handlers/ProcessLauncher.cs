@@ -171,10 +171,7 @@ internal sealed class ProcessLauncher
         return "\"" + escaped + "\"";
     }
 
-    private static async Task<string> RunProcessAsync(ProcessStartInfo startInfo)
-    {
-        return await ExternalProcessLauncher.RunProcessAsync(startInfo);
-    }
+    private static async Task<string> RunProcessAsync(ProcessStartInfo startInfo) => await ExternalProcessLauncher.RunProcessAsync(startInfo);
 
     private async Task<string> GetDiagramInternalAsync(string arguments)
     {
@@ -237,7 +234,7 @@ internal sealed class ProcessLauncher
             return false;
         }
 
-        var sdks = result.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+        var sdks = result.Split(["\r\n"], StringSplitOptions.RemoveEmptyEntries).ToList();
 
         return sdks.Exists(s => s.StartsWith($"Microsoft.NETCore.App {version}.", StringComparison.OrdinalIgnoreCase));
     }

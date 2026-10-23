@@ -26,12 +26,7 @@ internal static class DabBuilderHandler
 
             var optionsPath = Path.Combine(projectPath, "dab-options.json");
 
-            var options = DataApiBuilderOptionsExtensions.TryRead(optionsPath);
-
-            if (options == null)
-            {
-                options = new DataApiBuilderOptions();
-            }
+            var options = DataApiBuilderOptionsExtensions.TryRead(optionsPath) ?? new DataApiBuilderOptions();
 
             options.ProjectPath = projectPath;
             options.Dacpac = project.FullPath;

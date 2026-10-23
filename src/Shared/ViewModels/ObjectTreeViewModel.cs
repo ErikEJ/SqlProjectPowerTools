@@ -27,20 +27,17 @@ public class ObjectTreeViewModel : ViewModelBase, IObjectTreeViewModel
 
     public event EventHandler ObjectSelectionChanged;
 
-    public bool IsInEditMode { get => Objects.Any(o => o.IsEditing) || Objects.SelectMany(c => c.Columns).Any(o => o.IsEditing); }
+    public bool IsInEditMode => Objects.Any(o => o.IsEditing) || Objects.SelectMany(c => c.Columns).Any(o => o.IsEditing);
 
     public ObservableCollection<IObjectTreeRootItemViewModel> Types { get; } = new ObservableCollection<IObjectTreeRootItemViewModel>();
 
     private IEnumerable<ITableInformationViewModel> Objects => Types.SelectMany(c => c.Schemas).SelectMany(c => c.Objects);
 
-    public bool? GetSelectionState()
-    {
-        return Objects.All(m => m.IsSelected.Value)
+    public bool? GetSelectionState() => Objects.All(m => m.IsSelected.Value)
             ? true
             : Objects.All(m => !m.IsSelected.Value)
                 ? (bool?)false
                 : null;
-    }
 
     public void Search(string searchText, SearchMode searchMode)
     {
@@ -74,17 +71,14 @@ public class ObjectTreeViewModel : ViewModelBase, IObjectTreeViewModel
         }
     }
 
-    public IEnumerable<SerializationTableModel> GetSelectedObjects()
-    {
-        return Objects
+    public IEnumerable<SerializationTableModel> GetSelectedObjects() => Objects
             .Where(c => c.IsSelected.Value)
             .Select(m => new SerializationTableModel(m.ModelDisplayName, m.ObjectType, m.Columns.Where(c => !c.IsSelected.Value).Select(c => c.Name).ToList(), m.ExcludedIndexes?.ToList() ?? null));
-    }
 
     public IEnumerable<Schema> GetRenamedObjects()
     {
         var result = new List<Schema>();
-        foreach (var schema in Types.SelectMany(t => t.Schemas).GroupBy(c => c.Name).Select(c => new { Name = c.Key, ReplacingSchema = c.First().ReplacingSchema, Objects = c.SelectMany(f => f.Objects.Where(o => o.IsSelected.Value)) }))
+        foreach (var schema in Types.SelectMany(t => t.Schemas).GroupBy(c => c.Name).Select(c => new { Name = c.Key, c.First().ReplacingSchema, Objects = c.SelectMany(f => f.Objects.Where(o => o.IsSelected.Value)) }))
         {
             var replacingSchema = schema.ReplacingSchema ?? new Schema();
             replacingSchema.SchemaName = schema.Name;
@@ -115,10 +109,7 @@ public class ObjectTreeViewModel : ViewModelBase, IObjectTreeViewModel
                         .Select(c => new ColumnNamer { Name = c.Name, NewName = c.NewName })
                         .Concat(ignoredColumnReplacers);
 
-                    if (replacingSchema.Tables == null)
-                    {
-                        replacingSchema.Tables = new List<TableRenamer>();
-                    }
+                    replacingSchema.Tables ??= new List<TableRenamer>();
 
                     replacingSchema.Tables.Add(new TableRenamer
                     {

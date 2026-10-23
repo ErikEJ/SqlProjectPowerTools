@@ -8,269 +8,265 @@ using DacFXToolLib.Common;
 using Microsoft.VisualStudio.Data.Core;
 using Microsoft.VisualStudio.Data.Services;
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+internal sealed class VsDataHelper
 {
-    internal sealed class VsDataHelper
+    public static string GetSavedConnectionName(string connectionString, DatabaseType dbType)
     {
-        public static string GetSavedConnectionName(string connectionString, DatabaseType dbType)
+        if (dbType == DatabaseType.SQLServer
+            && connectionString.IndexOf(";Authentication=", StringComparison.OrdinalIgnoreCase) < 0
+            && connectionString.IndexOf("Command Timeout=", StringComparison.OrdinalIgnoreCase) < 0)
         {
-            if (dbType == DatabaseType.SQLServer
-                && connectionString.IndexOf(";Authentication=", StringComparison.OrdinalIgnoreCase) < 0
-                && connectionString.IndexOf("Command Timeout=", StringComparison.OrdinalIgnoreCase) < 0)
-            {
-                return PathFromConnectionString(connectionString);
-            }
-
-            var builder = new DbConnectionStringBuilder();
-            builder.ConnectionString = connectionString;
-
-            var result = string.Empty;
-
-            if (builder.TryGetValue("Data Source", out var dataSource))
-            {
-                result += dataSource.ToString().Replace(".database.windows.net", string.Empty);
-            }
-
-            if (builder.TryGetValue("DataSource", out var dataSource2))
-            {
-                result += dataSource2.ToString();
-            }
-
-            if (builder.TryGetValue("Database", out var database))
-            {
-                result += "." + database.ToString();
-            }
-
-            if (builder.TryGetValue("Initial Catalog", out var catalog))
-            {
-                result += "." + catalog.ToString();
-            }
-
-            if (!string.IsNullOrEmpty(result) && result.Length > 1 && result.StartsWith(".", StringComparison.OrdinalIgnoreCase))
-            {
-                result = result.Substring(1);
-            }
-
-            return result;
+            return PathFromConnectionString(connectionString);
         }
 
-        internal static async Task<DatabaseConnectionModel> PromptForInfoAsync()
+        var builder = new DbConnectionStringBuilder
         {
-            // Show dialog with modern SqlClient selected by default
-            var dialogFactory = await VS.GetServiceAsync<IVsDataConnectionDialogFactory, IVsDataConnectionDialogFactory>();
+            ConnectionString = connectionString,
+        };
 
-            if (dialogFactory == null)
-            {
-                return new DatabaseConnectionModel { DatabaseType = DatabaseType.Undefined };
-            }
+        var result = string.Empty;
 
-            var dialog = dialogFactory.CreateConnectionDialog();
-            dialog.AddSources((source, provider) => TryGetEntityFrameworkCoreProvider(provider));
-
-            dialog.SelectedSource = new Guid("067ea0d9-ba62-43f7-9106-34930c60c528");
-            dialog.SelectedProvider = await IsDdexProviderInstalledAsync(new Guid(Resources.MicrosoftSqlServerDotNetProvider))
-                ? new Guid(Resources.MicrosoftSqlServerDotNetProvider)
-                : new Guid(Resources.SqlServerDotNetProvider);
-
-            var dialogResult = dialog.ShowDialog(connect: true);
-
-            if (dialogResult == null)
-            {
-                return new DatabaseConnectionModel { DatabaseType = DatabaseType.Undefined };
-            }
-
-            var info = GetDatabaseInfo(dialogResult.Provider, DataProtection.DecryptString(dialog.EncryptedConnectionString));
-            if (info.ConnectionName == Guid.Empty.ToString())
-            {
-                return new DatabaseConnectionModel { DatabaseType = DatabaseType.Undefined };
-            }
-
-            var savedName = await SaveDataConnectionAsync(dialog.EncryptedConnectionString, info.DatabaseType, new Guid(info.ConnectionName));
-            info.ConnectionName = savedName;
-            info.IsFromServerExplorer = true;
-            return info;
+        if (builder.TryGetValue("Data Source", out var dataSource))
+        {
+            result += dataSource.ToString().Replace(".database.windows.net", string.Empty);
         }
 
-        internal static async Task<string> SaveDataConnectionAsync(
-            string encryptedConnectionString,
-            DatabaseType dbType,
-            Guid provider)
+        if (builder.TryGetValue("DataSource", out var dataSource2))
         {
-            var dataExplorerConnectionManager = await VS.GetServiceAsync<IVsDataExplorerConnectionManager, IVsDataExplorerConnectionManager>();
-            var savedName = GetSavedConnectionName(DataProtection.DecryptString(encryptedConnectionString), dbType);
-            dataExplorerConnectionManager.AddConnection(savedName, provider, encryptedConnectionString, true);
-            return savedName;
+            result += dataSource2.ToString();
         }
 
-        internal static async Task RemoveDataConnectionAsync(IVsDataConnection dataConnection)
+        if (builder.TryGetValue("Database", out var database))
         {
-            var dataExplorerConnectionManager = await VS.GetServiceAsync<IVsDataExplorerConnectionManager, IVsDataExplorerConnectionManager>();
+            result += "." + database.ToString();
+        }
 
-            foreach (var connection in dataExplorerConnectionManager.Connections.Values)
+        if (builder.TryGetValue("Initial Catalog", out var catalog))
+        {
+            result += "." + catalog.ToString();
+        }
+
+        if (!string.IsNullOrEmpty(result) && result.Length > 1 && result.StartsWith(".", StringComparison.OrdinalIgnoreCase))
+        {
+            result = result.Substring(1);
+        }
+
+        return result;
+    }
+
+    internal static async Task<DatabaseConnectionModel> PromptForInfoAsync()
+    {
+        // Show dialog with modern SqlClient selected by default
+        var dialogFactory = await VS.GetServiceAsync<IVsDataConnectionDialogFactory, IVsDataConnectionDialogFactory>();
+
+        if (dialogFactory == null)
+        {
+            return new DatabaseConnectionModel { DatabaseType = DatabaseType.Undefined };
+        }
+
+        var dialog = dialogFactory.CreateConnectionDialog();
+        dialog.AddSources((source, provider) => TryGetEntityFrameworkCoreProvider(provider));
+
+        dialog.SelectedSource = new Guid("067ea0d9-ba62-43f7-9106-34930c60c528");
+        dialog.SelectedProvider = await IsDdexProviderInstalledAsync(new Guid(Resources.MicrosoftSqlServerDotNetProvider))
+            ? new Guid(Resources.MicrosoftSqlServerDotNetProvider)
+            : new Guid(Resources.SqlServerDotNetProvider);
+
+        var dialogResult = dialog.ShowDialog(connect: true);
+
+        if (dialogResult == null)
+        {
+            return new DatabaseConnectionModel { DatabaseType = DatabaseType.Undefined };
+        }
+
+        var info = GetDatabaseInfo(dialogResult.Provider, DataProtection.DecryptString(dialog.EncryptedConnectionString));
+        if (info.ConnectionName == Guid.Empty.ToString())
+        {
+            return new DatabaseConnectionModel { DatabaseType = DatabaseType.Undefined };
+        }
+
+        var savedName = await SaveDataConnectionAsync(dialog.EncryptedConnectionString, info.DatabaseType, new Guid(info.ConnectionName));
+        info.ConnectionName = savedName;
+        info.IsFromServerExplorer = true;
+        return info;
+    }
+
+    internal static async Task<string> SaveDataConnectionAsync(
+        string encryptedConnectionString,
+        DatabaseType dbType,
+        Guid provider)
+    {
+        var dataExplorerConnectionManager = await VS.GetServiceAsync<IVsDataExplorerConnectionManager, IVsDataExplorerConnectionManager>();
+        var savedName = GetSavedConnectionName(DataProtection.DecryptString(encryptedConnectionString), dbType);
+        dataExplorerConnectionManager.AddConnection(savedName, provider, encryptedConnectionString, true);
+        return savedName;
+    }
+
+    internal static async Task RemoveDataConnectionAsync(IVsDataConnection dataConnection)
+    {
+        var dataExplorerConnectionManager = await VS.GetServiceAsync<IVsDataExplorerConnectionManager, IVsDataExplorerConnectionManager>();
+
+        foreach (var connection in dataExplorerConnectionManager.Connections.Values)
+        {
+            if (connection.Connection == dataConnection)
             {
-                if (connection.Connection == dataConnection)
+                dataExplorerConnectionManager.RemoveConnection(connection);
+            }
+        }
+    }
+
+    internal static async System.Threading.Tasks.Task<bool> IsDdexProviderInstalledAsync(Guid id)
+    {
+        try
+        {
+            var providerManager = await VS.GetServiceAsync<IVsDataProviderManager, IVsDataProviderManager>();
+            return providerManager != null &&
+                providerManager.Providers.TryGetValue(id, out var _);
+        }
+        catch
+        {
+            // Ignored
+        }
+
+        return false;
+    }
+
+    internal async Task<Dictionary<string, DatabaseConnectionModel>> GetDataConnectionsAsync()
+    {
+        // http://www.mztools.com/articles/2007/MZ2007018.aspx
+        Dictionary<string, DatabaseConnectionModel> databaseList = new Dictionary<string, DatabaseConnectionModel>();
+        var dataExplorerConnectionManager = await VS.GetServiceAsync<IVsDataExplorerConnectionManager, IVsDataExplorerConnectionManager>();
+
+        Guid providerSqlServerDotNet = new Guid(Resources.SqlServerDotNetProvider);
+        Guid providerMicrosoftSqlServerDotNet = new Guid(Resources.MicrosoftSqlServerDotNetProvider);
+
+        try
+        {
+            if (dataExplorerConnectionManager?.Connections?.Values != null)
+            {
+                foreach (var connection in dataExplorerConnectionManager.Connections.Values)
                 {
-                    dataExplorerConnectionManager.RemoveConnection(connection);
-                }
-            }
-        }
-
-        internal static async System.Threading.Tasks.Task<bool> IsDdexProviderInstalledAsync(Guid id)
-        {
-            try
-            {
-                var providerManager = await VS.GetServiceAsync<IVsDataProviderManager, IVsDataProviderManager>();
-                return providerManager != null &&
-                    providerManager.Providers.TryGetValue(id, out var _);
-            }
-            catch
-            {
-                // Ignored
-            }
-
-            return false;
-        }
-
-        internal async Task<Dictionary<string, DatabaseConnectionModel>> GetDataConnectionsAsync()
-        {
-            // http://www.mztools.com/articles/2007/MZ2007018.aspx
-            Dictionary<string, DatabaseConnectionModel> databaseList = new Dictionary<string, DatabaseConnectionModel>();
-            var dataExplorerConnectionManager = await VS.GetServiceAsync<IVsDataExplorerConnectionManager, IVsDataExplorerConnectionManager>();
-
-            Guid providerSqlServerDotNet = new Guid(Resources.SqlServerDotNetProvider);
-            Guid providerMicrosoftSqlServerDotNet = new Guid(Resources.MicrosoftSqlServerDotNetProvider);
-
-            try
-            {
-                if (dataExplorerConnectionManager?.Connections?.Values != null)
-                {
-                    foreach (var connection in dataExplorerConnectionManager.Connections.Values)
+                    try
                     {
-                        try
+                        var sConnectionString = DataProtection.DecryptString(connection.EncryptedConnectionString);
+                        var info = new DatabaseConnectionModel()
                         {
-                            var sConnectionString = DataProtection.DecryptString(connection.EncryptedConnectionString);
-                            var info = new DatabaseConnectionModel()
-                            {
-                                ConnectionName = connection.DisplayName,
-                                DatabaseType = DatabaseType.Undefined,
-                                ConnectionString = sConnectionString,
-                                IsFromServerExplorer = true,
-                            };
+                            ConnectionName = connection.DisplayName,
+                            DatabaseType = DatabaseType.Undefined,
+                            ConnectionString = sConnectionString,
+                            IsFromServerExplorer = true,
+                        };
 
-                            var objProviderGuid = connection.Provider;
+                        var objProviderGuid = connection.Provider;
 
-                            if (objProviderGuid == providerSqlServerDotNet
-                                || objProviderGuid == providerMicrosoftSqlServerDotNet)
+                        if (objProviderGuid == providerSqlServerDotNet
+                            || objProviderGuid == providerMicrosoftSqlServerDotNet)
+                        {
+                            info.DatabaseType = DatabaseType.SQLServer;
+                            if (!databaseList.ContainsKey(sConnectionString))
                             {
-                                info.DatabaseType = DatabaseType.SQLServer;
-                                if (!databaseList.ContainsKey(sConnectionString))
-                                {
-                                    databaseList.Add(sConnectionString, info);
-                                }
+                                databaseList.Add(sConnectionString, info);
                             }
                         }
-                        catch (Exception ex)
-                        {
-                            await VS.MessageBox.ShowErrorAsync($"Could not read connection {connection.DisplayName}: {ex.Message}", "EF Core Power Tools");
-                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        await VS.MessageBox.ShowErrorAsync($"Could not read connection {connection.DisplayName}: {ex.Message}", "EF Core Power Tools");
                     }
                 }
             }
-            catch (Exception ex)
+        }
+        catch (Exception ex)
+        {
+            await VS.MessageBox.ShowErrorAsync($"Could not read connections: {ex.Message}", "EF Core Power Tools");
+        }
+
+        return databaseList;
+    }
+
+    private static bool TryGetEntityFrameworkCoreProvider(Guid provider)
+    {
+        var dataconnectionModel = GetDatabaseInfo(provider, null);
+
+        return dataconnectionModel.DatabaseType != DatabaseType.Undefined;
+    }
+
+    private static DatabaseConnectionModel GetDatabaseInfo(Guid provider, string connectionString)
+    {
+        var dbType = DatabaseType.Undefined;
+        var providerGuid = Guid.Empty.ToString();
+
+        // Find provider
+        var providerManager = VS.GetRequiredService<IVsDataProviderManager, IVsDataProviderManager>();
+        providerManager.Providers.TryGetValue(provider, out var dp);
+        if (dp != null)
+        {
+            var providerInvariant = (string)dp.GetProperty("InvariantName");
+            dbType = DatabaseType.Undefined;
+
+            if (providerInvariant == "System.Data.SqlClient")
             {
-                await VS.MessageBox.ShowErrorAsync($"Could not read connections: {ex.Message}", "EF Core Power Tools");
+                dbType = DatabaseType.SQLServer;
+                providerGuid = Resources.SqlServerDotNetProvider;
             }
 
-            return databaseList;
-        }
-
-        private static bool TryGetEntityFrameworkCoreProvider(Guid provider)
-        {
-            var dataconnectionModel = GetDatabaseInfo(provider, null);
-
-            return dataconnectionModel.DatabaseType != DatabaseType.Undefined;
-        }
-
-        private static DatabaseConnectionModel GetDatabaseInfo(Guid provider, string connectionString)
-        {
-            var dbType = DatabaseType.Undefined;
-            var providerGuid = Guid.Empty.ToString();
-
-            // Find provider
-            var providerManager = VS.GetRequiredService<IVsDataProviderManager, IVsDataProviderManager>();
-            IVsDataProvider dp;
-            providerManager.Providers.TryGetValue(provider, out dp);
-            if (dp != null)
+            if (providerInvariant == "Microsoft.Data.SqlClient")
             {
-                var providerInvariant = (string)dp.GetProperty("InvariantName");
-                dbType = DatabaseType.Undefined;
+                dbType = DatabaseType.SQLServer;
+                providerGuid = Resources.MicrosoftSqlServerDotNetProvider;
+            }
+        }
 
-                if (providerInvariant == "System.Data.SqlClient")
+        return new DatabaseConnectionModel
+        {
+            DatabaseType = dbType,
+            ConnectionString = connectionString,
+            ConnectionName = providerGuid,
+        };
+    }
+
+    private static string PathFromConnectionString(string connectionString)
+    {
+        var builder = SqlConnectionStringBuilderHelper.GetBuilder(connectionString);
+
+        var database = builder.InitialCatalog;
+        if (string.IsNullOrEmpty(database) && !string.IsNullOrEmpty(builder.AttachDBFilename))
+        {
+            return Path.GetFileName(builder.AttachDBFilename);
+        }
+
+        if (builder.DataSource.StartsWith("(localdb)", StringComparison.OrdinalIgnoreCase))
+        {
+            return builder.DataSource + "." + database;
+        }
+        else
+        {
+            using var cmd = new SqlCommand();
+            builder.ConnectTimeout = 60;
+
+            using var conn = new SqlConnection(builder.ConnectionString);
+            try
+            {
+                cmd.Connection = conn;
+                cmd.CommandText = "SELECT ISNULL(LOWER(CAST(SERVERPROPERTY('ServerName') AS NVARCHAR(128))), '') + '.' + ISNULL(DB_NAME(), '') + '.' + ISNULL(SCHEMA_NAME(), '')";
+                conn.Open();
+
+                var res = cmd.ExecuteScalar();
+
+                if (res != null && res != DBNull.Value)
                 {
-                    dbType = DatabaseType.SQLServer;
-                    providerGuid = Resources.SqlServerDotNetProvider;
+                    return (string)res;
                 }
 
-                if (providerInvariant == "Microsoft.Data.SqlClient")
-                {
-                    dbType = DatabaseType.SQLServer;
-                    providerGuid = Resources.MicrosoftSqlServerDotNetProvider;
-                }
-            }
-
-            return new DatabaseConnectionModel
-            {
-                DatabaseType = dbType,
-                ConnectionString = connectionString,
-                ConnectionName = providerGuid,
-            };
-        }
-
-        private static string PathFromConnectionString(string connectionString)
-        {
-            var builder = SqlConnectionStringBuilderHelper.GetBuilder(connectionString);
-
-            var database = builder.InitialCatalog;
-            if (string.IsNullOrEmpty(database) && !string.IsNullOrEmpty(builder.AttachDBFilename))
-            {
-                return Path.GetFileName(builder.AttachDBFilename);
-            }
-
-            if (builder.DataSource.StartsWith("(localdb)", StringComparison.OrdinalIgnoreCase))
-            {
                 return builder.DataSource + "." + database;
             }
-            else
+            catch (SqlException)
             {
-                using (var cmd = new SqlCommand())
-                {
-                    builder.ConnectTimeout = 60;
-
-                    using (var conn = new SqlConnection(builder.ConnectionString))
-                    {
-                        try
-                        {
-                            cmd.Connection = conn;
-                            cmd.CommandText = "SELECT ISNULL(LOWER(CAST(SERVERPROPERTY('ServerName') AS NVARCHAR(128))), '') + '.' + ISNULL(DB_NAME(), '') + '.' + ISNULL(SCHEMA_NAME(), '')";
-                            conn.Open();
-
-                            var res = cmd.ExecuteScalar();
-
-                            if (res != null && res != DBNull.Value)
-                            {
-                                return (string)res;
-                            }
-
-                            return builder.DataSource + "." + database;
-                        }
-                        catch (SqlException)
-                        {
-                            // Optionally log the exception here
-                            // For now, return fallback value
-                            return builder.DataSource + "." + database;
-                        }
-                    }
-                }
+                // Optionally log the exception here
+                // For now, return fallback value
+                return builder.DataSource + "." + database;
             }
         }
     }

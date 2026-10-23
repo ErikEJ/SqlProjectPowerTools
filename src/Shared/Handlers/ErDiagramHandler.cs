@@ -24,9 +24,10 @@ internal static class ErDiagramHandler
 
             var optionsPath = Path.Combine(Path.GetTempPath(), "dacfx-erdiagram-options.json");
 
-            var options = new DataApiBuilderOptions();
-
-            options.ProjectPath = Path.GetDirectoryName(project.FullPath);
+            var options = new DataApiBuilderOptions
+            {
+                ProjectPath = Path.GetDirectoryName(project.FullPath),
+            };
 
             var version = await VS.Shell.GetVsVersionAsync();
 
@@ -89,10 +90,7 @@ internal static class ErDiagramHandler
         await VS.StatusBar.ShowMessageAsync("Diagram created.");
     }
 
-    private static void SaveOptions(string optionsPath, DataApiBuilderOptions options)
-    {
-        File.WriteAllText(optionsPath, options.Write(), Encoding.UTF8);
-    }
+    private static void SaveOptions(string optionsPath, DataApiBuilderOptions options) => File.WriteAllText(optionsPath, options.Write(), Encoding.UTF8);
 
     private static async Task<IList<TableModel>> GetDacpacTablesAsync(string dacpacPath)
     {

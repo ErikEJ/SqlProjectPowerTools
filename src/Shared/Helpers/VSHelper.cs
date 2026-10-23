@@ -23,18 +23,9 @@ internal static class VSHelper
         return false;
     }
 
-    public static VSConstants.MessageBoxResult ShowError(string errorText)
-    {
-        return VS.MessageBox.ShowError("SQL Database Project Power Tools", errorText);
-    }
+    public static VSConstants.MessageBoxResult ShowError(string errorText) => VS.MessageBox.ShowError("SQL Database Project Power Tools", errorText);
 
-    public static VSConstants.MessageBoxResult ShowMessage(string messageText)
-    {
-        return VS.MessageBox.Show("SQL Database Project Power Tools", messageText, buttons: OLEMSGBUTTON.OLEMSGBUTTON_OK);
-    }
+    public static VSConstants.MessageBoxResult ShowMessage(string messageText) => VS.MessageBox.Show("SQL Database Project Power Tools", messageText, buttons: OLEMSGBUTTON.OLEMSGBUTTON_OK);
 
-    public static VSConstants.MessageBoxResult ShowWarning(string messageText)
-    {
-        return VS.MessageBox.Show("SQL Database Project Power Tools", messageText, buttons: OLEMSGBUTTON.OLEMSGBUTTON_OK, icon: OLEMSGICON.OLEMSGICON_WARNING);
-    }
+    public static VSConstants.MessageBoxResult ShowWarning(string messageText) => VS.MessageBox.Show("SQL Database Project Power Tools", messageText, buttons: OLEMSGBUTTON.OLEMSGBUTTON_OK, icon: OLEMSGICON.OLEMSGICON_WARNING);
 }

@@ -202,10 +202,7 @@ public class ManageRulesViewModel : ViewModelBase
         return (RunSqlCodeAnalysis, string.Join(";", parts), InstallRulesPackages);
     }
 
-    private static string NormalizeSeverity(string severity)
-    {
-        return string.Equals(severity, "Error", StringComparison.OrdinalIgnoreCase) ? "Error" : "Warning";
-    }
+    private static string NormalizeSeverity(string severity) => string.Equals(severity, "Error", StringComparison.OrdinalIgnoreCase) ? "Error" : "Warning";
 
     private void ApplyFilter()
     {
@@ -250,13 +247,7 @@ public class ManageRulesViewModel : ViewModelBase
         ApplyFilter();
     }
 
-    private void OkExecuted()
-    {
-        CloseRequested?.Invoke(this, new CloseRequestedEventArgs(true));
-    }
+    private void OkExecuted() => CloseRequested?.Invoke(this, new CloseRequestedEventArgs(true));
 
-    private void CancelExecuted()
-    {
-        CloseRequested?.Invoke(this, new CloseRequestedEventArgs(false));
-    }
+    private void CancelExecuted() => CloseRequested?.Invoke(this, new CloseRequestedEventArgs(false));
 }

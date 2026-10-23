@@ -14,7 +14,7 @@ public sealed class BoolToVisibilityConverter : IValueConverter
         }
 
         var invert = parameter?.ToString().ToLowerInvariant() == "invert";
-        if (!(value is bool) && value != null)
+        if (value is not bool and not null)
         {
             throw new ArgumentException(@"Value must be of type System.Boolean or Nullable<System.Boolean>.", nameof(value));
         }
@@ -28,8 +28,5 @@ public sealed class BoolToVisibilityConverter : IValueConverter
         return b == null ? Visibility.Hidden : b.Value ? Visibility.Visible : Visibility.Collapsed;
     }
 
-    object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        throw new NotSupportedException();
-    }
+    object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
 }

@@ -126,10 +126,7 @@ internal static class ProjectExtension
             return;
         }
 
-        if (value == null)
-        {
-            value = string.Empty;
-        }
+        value ??= string.Empty;
 
         await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
@@ -184,10 +181,8 @@ internal static class ProjectExtension
             Encoding = Encoding.UTF8,
         };
 
-        using (var writer = XmlWriter.Create(projectFilePath, settings))
-        {
-            doc.Save(writer);
-        }
+        using var writer = XmlWriter.Create(projectFilePath, settings);
+        doc.Save(writer);
     }
 
     public static async Task<bool> HasRulesPackagesAsync(this Project project)
@@ -302,14 +297,11 @@ internal static class ProjectExtension
         {
             // Add to existing ItemGroup
             var lastElement = itemGroup.Elements().LastOrDefault();
-            if (lastElement != null)
-            {
-                lastElement.AddAfterSelf(
+            lastElement?.AddAfterSelf(
                     new XText(Indent),
                     new XElement(
                         ns + section,
                         new XAttribute("Include", itemInclude)));
-            }
         }
 
         // Save with proper settings to preserve formatting
@@ -321,10 +313,8 @@ internal static class ProjectExtension
             Encoding = Encoding.UTF8,
         };
 
-        using (var writer = XmlWriter.Create(projectFilePath, settings))
-        {
-            doc.Save(writer);
-        }
+        using var writer = XmlWriter.Create(projectFilePath, settings);
+        doc.Save(writer);
     }
 
     public static async Task<(bool Run, string Rules, string SqlVersion)> IsInSqlProjAsync(this Project project)

@@ -80,20 +80,11 @@ public class ColumnChildrenViewModel : ViewModelBase, IColumnChildrenViewModel
         }
     }
 
-    public string DisplayName
-    {
-        get
-        {
-            return newName == name ? name : $"{newName} - ({name})";
-        }
-    }
+    public string DisplayName => newName == name ? name : $"{newName} - ({name})";
 
     public string ModelDisplayName { get; set; }
 
-    public bool HasPrimaryKey
-    {
-        get => Columns.Any(c => c.IsPrimaryKey);
-    }
+    public bool HasPrimaryKey => Columns.Any(c => c.IsPrimaryKey);
 
     public ObjectType ObjectType
     {
@@ -188,10 +179,7 @@ public class ColumnChildrenViewModel : ViewModelBase, IColumnChildrenViewModel
 
     public ObservableCollection<IObjectTreeEditableViewModel> Children { get; set; } = new ObservableCollection<IObjectTreeEditableViewModel>();
 
-    private void StartEdit_Execute()
-    {
-        IsEditing = true;
-    }
+    private void StartEdit_Execute() => IsEditing = true;
 
     private void ConfirmEdit_Execute()
     {
@@ -216,14 +204,11 @@ public class ColumnChildrenViewModel : ViewModelBase, IColumnChildrenViewModel
 
     private void Columns_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
     {
-        foreach (var item in e.NewItems)
+        foreach (var _ in e.NewItems)
         {
             RaisePropertyChanged(nameof(HasPrimaryKey));
         }
     }
 
-    private void SetSelected_Execute(bool value)
-    {
-        IsSelected = value;
-    }
+    private void SetSelected_Execute(bool value) => IsSelected = value;
 }

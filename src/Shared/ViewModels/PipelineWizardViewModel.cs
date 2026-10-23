@@ -140,7 +140,7 @@ public class PipelineWizardViewModel : ViewModelBase
     }
 
     public IList<string> Environments => (EnvironmentsText ?? string.Empty)
-        .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries)
+        .Split([',', ';'], StringSplitOptions.RemoveEmptyEntries)
         .Select(e => e.Trim())
         .Where(e => e.Length > 0)
         .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -273,13 +273,7 @@ public class PipelineWizardViewModel : ViewModelBase
         }
     }
 
-    private void OkExecuted()
-    {
-        CloseRequested?.Invoke(this, new CloseRequestedEventArgs(true));
-    }
+    private void OkExecuted() => CloseRequested?.Invoke(this, new CloseRequestedEventArgs(true));
 
-    private void CancelExecuted()
-    {
-        CloseRequested?.Invoke(this, new CloseRequestedEventArgs(false));
-    }
+    private void CancelExecuted() => CloseRequested?.Invoke(this, new CloseRequestedEventArgs(false));
 }

@@ -101,24 +101,15 @@ public class PickTablesViewModel : ViewModelBase, IPickTablesViewModel
         ObjectTree.SelectObjects(objects);
     }
 
-    public SerializationTableModel[] GetSelectedObjects()
-    {
-        return ObjectTree
+    public SerializationTableModel[] GetSelectedObjects() => ObjectTree
             .GetSelectedObjects()
             .ToArray();
-    }
 
-    public Schema[] GetRenamedObjects()
-    {
-        return ObjectTree
+    public Schema[] GetRenamedObjects() => ObjectTree
             .GetRenamedObjects()
             .ToArray();
-    }
 
-    private void Ok_Executed()
-    {
-        CloseRequested?.Invoke(this, new CloseRequestedEventArgs(true));
-    }
+    private void Ok_Executed() => CloseRequested?.Invoke(this, new CloseRequestedEventArgs(true));
 
     /// <summary>
     /// At least a single table, function or stored procedure must be selected.
@@ -131,10 +122,7 @@ public class PickTablesViewModel : ViewModelBase, IPickTablesViewModel
                || selectedObjects.Exists(c => c.ObjectType == ObjectType.ScalarFunction);
     }
 
-    private void Cancel_Executed()
-    {
-        CloseRequested?.Invoke(this, new CloseRequestedEventArgs(false));
-    }
+    private void Cancel_Executed() => CloseRequested?.Invoke(this, new CloseRequestedEventArgs(false));
 
     private void HandleTableSelectionThreeStateChange(bool? selectionMode)
     {
@@ -147,9 +135,7 @@ public class PickTablesViewModel : ViewModelBase, IPickTablesViewModel
         SearchText = string.Empty;
     }
 
-    private void HandleSearchTextChange(string text, SearchMode searchMode)
-    {
-        _ = Task.Delay(TimeSpan.FromMilliseconds(300))
+    private void HandleSearchTextChange(string text, SearchMode searchMode) => _ = Task.Delay(TimeSpan.FromMilliseconds(300))
             .ContinueWith(
             _ =>
             {
@@ -161,10 +147,6 @@ public class PickTablesViewModel : ViewModelBase, IPickTablesViewModel
                 ObjectTree.Search(SearchText, searchMode);
             },
             TaskScheduler.Default);
-    }
 
-    private void UpdateTableSelectionThreeState()
-    {
-        TableSelectionThreeState = ObjectTree.GetSelectionState();
-    }
+    private void UpdateTableSelectionThreeState() => TableSelectionThreeState = ObjectTree.GetSelectionState();
 }

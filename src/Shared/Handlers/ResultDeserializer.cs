@@ -34,13 +34,13 @@ public static class ResultDeserializer
 
     public static IList<TableModel> BuildTableResult(string output)
     {
-        var resultParts = output.Split(new[] { "Result:" + Environment.NewLine }, StringSplitOptions.None);
+        var resultParts = output.Split(["Result:" + Environment.NewLine], StringSplitOptions.None);
         if (resultParts.Length == 2 && TryRead(resultParts[1], out List<TableModel> deserialized))
         {
             return deserialized;
         }
 
-        var errorParts = output.Split(new[] { "Error:" + Environment.NewLine }, StringSplitOptions.None);
+        var errorParts = output.Split(["Error:" + Environment.NewLine], StringSplitOptions.None);
         if (errorParts.Length == 2)
         {
             throw new InvalidOperationException("Table list error: " + Environment.NewLine + errorParts[1]);
@@ -51,13 +51,13 @@ public static class ResultDeserializer
 
     public static string BuildDiagramResult(string output)
     {
-        var resultParts = output.Split(new[] { "Result:" + Environment.NewLine }, StringSplitOptions.None);
+        var resultParts = output.Split(["Result:" + Environment.NewLine], StringSplitOptions.None);
         if (resultParts.Length == 2)
         {
             return resultParts[1].Trim();
         }
 
-        var errorParts = output.Split(new[] { "Error:" + Environment.NewLine }, StringSplitOptions.None);
+        var errorParts = output.Split(["Error:" + Environment.NewLine], StringSplitOptions.None);
         if (errorParts.Length == 2)
         {
             throw new InvalidOperationException("Result error: " + Environment.NewLine + errorParts[1]);

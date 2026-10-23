@@ -1,13 +1,12 @@
-namespace DacFXToolLib.Model
+namespace DacFXToolLib.Model;
+
+public class SimpleColumn
 {
-    public class SimpleColumn
-    {
-        public string Name { get; set; } = string.Empty;
+    public string Name { get; set; } = string.Empty;
 
-        public string? StoreType { get; set; }
+    public string? StoreType { get; set; }
 
-        public bool IsNullable { get; set; }
+    public bool IsNullable { get; set; }
 
-        public string? Comment { get; set; }
-    }
+    public string? Comment { get; set; }
 }

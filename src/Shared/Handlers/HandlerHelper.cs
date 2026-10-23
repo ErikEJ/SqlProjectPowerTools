@@ -11,10 +11,11 @@ public static class HandlerHelper
     {
         await ThreadHelper.JoinableTaskFactory.SwitchToMainThreadAsync();
 
-        var dbInfo = new DatabaseConnectionModel();
-
-        dbInfo.DatabaseType = DatabaseType.SQLServerDacpac;
-        dbInfo.ConnectionString = $"Data Source=(local);Initial Catalog={Path.GetFileNameWithoutExtension(options.Dacpac)};Integrated Security=true;";
+        var dbInfo = new DatabaseConnectionModel
+        {
+            DatabaseType = DatabaseType.SQLServerDacpac,
+            ConnectionString = $"Data Source=(local);Initial Catalog={Path.GetFileNameWithoutExtension(options.Dacpac)};Integrated Security=true;",
+        };
         options.ConnectionString = dbInfo.ConnectionString;
         options.DatabaseType = dbInfo.DatabaseType;
 

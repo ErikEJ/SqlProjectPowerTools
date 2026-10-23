@@ -54,10 +54,7 @@ internal sealed class DacpacRootNode : IAttachedCollectionSource, INotifyPropert
         }
     }
 
-    private void ScheduleRebuild(bool force)
-    {
-        Debouncer.Debounce(projectPath, () => Rebuild(force), 500);
-    }
+    private void ScheduleRebuild(bool force) => Debouncer.Debounce(projectPath, () => Rebuild(force), 500);
 
     internal void Refresh()
     {
@@ -108,9 +105,7 @@ internal sealed class DacpacRootNode : IAttachedCollectionSource, INotifyPropert
         }
     }
 
-    private void Rebuild(bool force)
-    {
-        ThreadHelper.JoinableTaskFactory.StartOnIdle(
+    private void Rebuild(bool force) => ThreadHelper.JoinableTaskFactory.StartOnIdle(
             async () =>
         {
             try
@@ -150,7 +145,6 @@ internal sealed class DacpacRootNode : IAttachedCollectionSource, INotifyPropert
             }
         },
             VsTaskRunContext.UIThreadIdlePriority).FireAndForget();
-    }
 
     private string GetOutputDirectory()
     {
@@ -297,15 +291,9 @@ internal sealed class DacpacRootNode : IAttachedCollectionSource, INotifyPropert
         }
     }
 
-    private void DacpacWatcher_Changed(object sender, FileSystemEventArgs e)
-    {
-        ScheduleRebuild(force: false);
-    }
+    private void DacpacWatcher_Changed(object sender, FileSystemEventArgs e) => ScheduleRebuild(force: false);
 
-    private void DacpacWatcher_Renamed(object sender, RenamedEventArgs e)
-    {
-        ScheduleRebuild(force: false);
-    }
+    private void DacpacWatcher_Renamed(object sender, RenamedEventArgs e) => ScheduleRebuild(force: false);
 
     private void DisposeWatcher()
     {
@@ -532,10 +520,8 @@ internal sealed class DacpacRootNode : IAttachedCollectionSource, INotifyPropert
         {
             try
             {
-                using (var stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                {
-                    return;
-                }
+                using var stream = File.Open(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                return;
             }
             catch (UnauthorizedAccessException)
             {
@@ -572,10 +558,7 @@ internal sealed class DacpacRootNode : IAttachedCollectionSource, INotifyPropert
         }
     }
 
-    private static string GetExtractionPath(string dacpacPath)
-    {
-        return Path.Combine(Path.GetTempPath(), Vsix.Name, GetPathKey(dacpacPath));
-    }
+    private static string GetExtractionPath(string dacpacPath) => Path.Combine(Path.GetTempPath(), Vsix.Name, GetPathKey(dacpacPath));
 
     private static string GetPathKey(string path)
     {
@@ -596,10 +579,7 @@ internal sealed class DacpacRootNode : IAttachedCollectionSource, INotifyPropert
         return builder.ToString();
     }
 
-    private static string GetStampPath(string extractionPath)
-    {
-        return Path.Combine(extractionPath, ".dacpacstamp");
-    }
+    private static string GetStampPath(string extractionPath) => Path.Combine(extractionPath, ".dacpacstamp");
 
     private static string GetDacpacStamp(string dacpacPath)
     {
@@ -749,10 +729,7 @@ internal sealed class DacpacRootNode : IAttachedCollectionSource, INotifyPropert
         tooltip.AppendLine(value.Trim());
     }
 
-    public void RaisePropertyChanged(string propertyName)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
+    public void RaisePropertyChanged(string propertyName) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
     public event PropertyChangedEventHandler PropertyChanged;
 

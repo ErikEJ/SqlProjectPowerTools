@@ -18,7 +18,7 @@ public sealed class CollectionCountToEnabledConverter : IValueConverter
             return false;
         }
 
-        if (!(value is ICollection c))
+        if (value is not ICollection c)
         {
             throw new ArgumentException(@"Value must implement type System.Collections.ICollection.", nameof(value));
         }
@@ -26,8 +26,5 @@ public sealed class CollectionCountToEnabledConverter : IValueConverter
         return c.Count > 0;
     }
 
-    object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-    {
-        throw new NotSupportedException();
-    }
+    object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotSupportedException();
 }

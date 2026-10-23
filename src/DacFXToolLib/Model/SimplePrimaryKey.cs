@@ -1,9 +1,8 @@
-namespace DacFXToolLib.Model
-{
-    public class SimplePrimaryKey
-    {
-        public string? Name { get; set; }
+namespace DacFXToolLib.Model;
 
-        public List<SimpleColumn> Columns { get; init; } = [];
-    }
+public class SimplePrimaryKey
+{
+    public string? Name { get; set; }
+
+    public List<SimpleColumn> Columns { get; init; } = [];
 }

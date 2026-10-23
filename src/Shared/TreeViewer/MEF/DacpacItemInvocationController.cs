@@ -46,8 +46,7 @@ internal sealed class DacpacItemInvocationController : IInvocationController
         await VS.Documents.OpenAsync(filePath);
     }
 
-    private static void ObserveTask(Task task)
-    {
+    private static void ObserveTask(Task task) =>
 #pragma warning disable VSTHRD110 // Observe result of async calls
 #pragma warning disable VSTHRD105 // Avoid method overloads that assume TaskScheduler.Current
         task.ContinueWith(
@@ -64,5 +63,5 @@ internal sealed class DacpacItemInvocationController : IInvocationController
             TaskContinuationOptions.OnlyOnFaulted);
 #pragma warning restore VSTHRD105 // Avoid method overloads that assume TaskScheduler.Current
 #pragma warning restore VSTHRD110 // Observe result of async calls
-    }
+
 }

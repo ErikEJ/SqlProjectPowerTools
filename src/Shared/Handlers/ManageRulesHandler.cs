@@ -49,9 +49,9 @@ internal static class ManageRulesHandler
             viewModel.LoadRules(rules, runCodeAnalysis, rulesExpression, hasRulesPackages);
 
             var dialog = new ManageRulesDialog(viewModel, project.Name ?? string.Empty);
-            var (ClosedByOK, ViewModel) = dialog.ShowAndAwaitUserResponse();
+            var (closedByOk, _) = dialog.ShowAndAwaitUserResponse();
 
-            if (!ClosedByOK)
+            if (!closedByOk)
             {
                 return;
             }

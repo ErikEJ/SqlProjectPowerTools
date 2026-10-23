@@ -13,87 +13,83 @@ using Microsoft.Extensions.DependencyInjection;
 
 #pragma warning restore SA1210 // Using directives should be ordered alphabetically by namespace
 
-namespace SqlProjectsPowerTools
+namespace SqlProjectsPowerTools;
+
+[PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
+[InstalledProductRegistration(Vsix.Name, Vsix.Description, Vsix.Version)]
+[ProvideMenuResource("Menus.ctmenu", 1)]
+[Guid(PackageGuids.VsixString)]
+[ProvideOptionPage(typeof(OptionsProvider.VsixOptions), "SQL Server Tools", "Database Project Power Tools", 100, 101, true)]
+[ProvideProfile(typeof(OptionsProvider.VsixOptions), "SQL Server Tools", "Database Project Power Tools", 100, 101, true)]
+[ProvideToolWindow(typeof(SchemaCompareToolWindow.Pane), Style = VsDockStyle.Tabbed, DockedWidth = 900, DockedHeight = 600)]
+[ProvideAutoLoad(UIContextGuid, PackageAutoLoadFlags.BackgroundLoad)]
+[ProvideUIContextRule(
+    UIContextGuid,
+    name: "Auto load based on rules",
+    expression: "SdkProject | SqlprojProject | MicrosoftSdkProject ",
+    termNames: ["SdkProject", "SqlprojProject", "MicrosoftSdkProject"],
+    termValues: [$"ActiveProjectCapability:{SdkProjCapability}", "ActiveProjectBuildProperty:DSP=.*", $"ActiveProjectCapability:{MicrosoftSdkCapability}"])]
+public sealed class VsixPackage : ToolkitPackage
 {
-    [PackageRegistration(UseManagedResourcesOnly = true, AllowsBackgroundLoading = true)]
-    [InstalledProductRegistration(Vsix.Name, Vsix.Description, Vsix.Version)]
-    [ProvideMenuResource("Menus.ctmenu", 1)]
-    [Guid(PackageGuids.VsixString)]
-    [ProvideOptionPage(typeof(OptionsProvider.VsixOptions), "SQL Server Tools", "Database Project Power Tools", 100, 101, true)]
-    [ProvideProfile(typeof(OptionsProvider.VsixOptions), "SQL Server Tools", "Database Project Power Tools", 100, 101, true)]
-    [ProvideToolWindow(typeof(SchemaCompareToolWindow.Pane), Style = VsDockStyle.Tabbed, DockedWidth = 900, DockedHeight = 600)]
-    [ProvideAutoLoad(UIContextGuid, PackageAutoLoadFlags.BackgroundLoad)]
-    [ProvideUIContextRule(
-        UIContextGuid,
-        name: "Auto load based on rules",
-        expression: "SdkProject | SqlprojProject | MicrosoftSdkProject ",
-        termNames: ["SdkProject", "SqlprojProject", "MicrosoftSdkProject"],
-        termValues: [$"ActiveProjectCapability:{SdkProjCapability}", "ActiveProjectBuildProperty:DSP=.*", $"ActiveProjectCapability:{MicrosoftSdkCapability}"])]
-    public sealed class VsixPackage : ToolkitPackage
+    public const string UIContextGuid = "E098D400-A841-4C88-9B7C-267EFA15A5E4";
+    public const string SdkProjCapability = "MSBuild.Sdk.SqlProj.BuildTSqlScript";
+    public const string MicrosoftSdkCapability = "SQLProject";
+
+    private IServiceProvider extensionServices;
+
+    protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
     {
-        public const string UIContextGuid = "E098D400-A841-4C88-9B7C-267EFA15A5E4";
-        public const string SdkProjCapability = "MSBuild.Sdk.SqlProj.BuildTSqlScript";
-        public const string MicrosoftSdkCapability = "SQLProject";
+        await this.RegisterCommandsAsync();
 
-        private IServiceProvider extensionServices;
+        SchemaCompareToolWindow.Initialize(this);
 
-        protected override async Task InitializeAsync(CancellationToken cancellationToken, IProgress<ServiceProgressData> progress)
-        {
-            await this.RegisterCommandsAsync();
+        PackageManager.Package = this;
 
-            SchemaCompareToolWindow.Initialize(this);
+        AutoPublishOnSaveHandler.Initialize();
 
-            PackageManager.Package = this;
+        extensionServices = CreateServiceProvider();
 
-            AutoPublishOnSaveHandler.Initialize();
+        typeof(Microsoft.Xaml.Behaviors.Behavior).ToString();
+        typeof(DropDownButtonLib.Controls.DropDownButton).ToString();
+    }
 
-            extensionServices = CreateServiceProvider();
+    internal TView GetView<TView>()
+        where TView : IView => extensionServices.GetService<TView>();
 
-            typeof(Microsoft.Xaml.Behaviors.Behavior).ToString();
-            typeof(DropDownButtonLib.Controls.DropDownButton).ToString();
-        }
+    private IServiceProvider CreateServiceProvider()
+    {
+        var services = new ServiceCollection();
 
-        internal TView GetView<TView>()
-            where TView : IView
-        {
-            return extensionServices.GetService<TView>();
-        }
+        // Register views
+        services.AddTransient<IPickTablesDialog, PickTablesDialog>()
+            .AddTransient<IPickServerDatabaseDialog, PickServerDatabaseDialog>();
 
-        private IServiceProvider CreateServiceProvider()
-        {
-            var services = new ServiceCollection();
+        // Register view models
+        services.AddTransient<IPickServerDatabaseViewModel, PickServerDatabaseViewModel>()
+                .AddTransient<IPickTablesViewModel, PickTablesViewModel>()
+                .AddSingleton<Func<ISchemaInformationViewModel>>(() => new SchemaInformationViewModel())
+                .AddSingleton<Func<ITableInformationViewModel>>(provider => () => new TableInformationViewModel(provider.GetService<IMessenger>()))
+                .AddSingleton<Func<IColumnInformationViewModel>>(provider => () => new ColumnInformationViewModel(provider.GetService<IMessenger>()))
+                .AddSingleton<Func<IColumnChildrenViewModel>>(provider => () => new ColumnChildrenViewModel(provider.GetService<IMessenger>()))
+                .AddTransient<IObjectTreeViewModel, ObjectTreeViewModel>();
 
-            // Register views
-            services.AddTransient<IPickTablesDialog, PickTablesDialog>()
-                .AddTransient<IPickServerDatabaseDialog, PickServerDatabaseDialog>();
+        // Register BLL
+        var messenger = new Messenger();
+        messenger.Register<ShowMessageBoxMessage>(this, HandleShowMessageBoxMessage);
 
-            // Register view models
-            services.AddTransient<IPickServerDatabaseViewModel, PickServerDatabaseViewModel>()
-                    .AddTransient<IPickTablesViewModel, PickTablesViewModel>()
-                    .AddSingleton<Func<ISchemaInformationViewModel>>(() => new SchemaInformationViewModel())
-                    .AddSingleton<Func<ITableInformationViewModel>>(provider => () => new TableInformationViewModel(provider.GetService<IMessenger>()))
-                    .AddSingleton<Func<IColumnInformationViewModel>>(provider => () => new ColumnInformationViewModel(provider.GetService<IMessenger>()))
-                    .AddSingleton<Func<IColumnChildrenViewModel>>(provider => () => new ColumnChildrenViewModel(provider.GetService<IMessenger>()))
-                    .AddTransient<IObjectTreeViewModel, ObjectTreeViewModel>();
+        services.AddSingleton<IMessenger>(messenger);
 
-            // Register BLL
-            var messenger = new Messenger();
-            messenger.Register<ShowMessageBoxMessage>(this, HandleShowMessageBoxMessage);
+        //// Register DAL
+        services.AddTransient<IVisualStudioAccess, VisualStudioAccess>();
 
-            services.AddSingleton<IMessenger>(messenger);
+        var provider = services.BuildServiceProvider();
+        return provider;
+    }
 
-            //// Register DAL
-            services.AddTransient<IVisualStudioAccess, VisualStudioAccess>();
+    private static void HandleShowMessageBoxMessage(ShowMessageBoxMessage msg)
+    {
+        ThreadHelper.ThrowIfNotOnUIThread();
 
-            var provider = services.BuildServiceProvider();
-            return provider;
-        }
-
-        private static void HandleShowMessageBoxMessage(ShowMessageBoxMessage msg)
-        {
-            ThreadHelper.ThrowIfNotOnUIThread();
-
-            VSHelper.ShowMessage(msg.Content);
-        }
+        VSHelper.ShowMessage(msg.Content);
     }
 }

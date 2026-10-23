@@ -14,9 +14,6 @@ internal static class PackageManager
             return package;
         }
 
-        set
-        {
-            package = value;
-        }
+        set => package = value;
     }
 }

@@ -7,124 +7,124 @@ using Microsoft.SqlServer.Dac;
 using Microsoft.SqlServer.Dac.Model;
 using ObjectType = DacFXToolLib.Common.ObjectType;
 
-namespace DacFXToolLib
+namespace DacFXToolLib;
+
+public class SchemaExtractor
 {
-    public class SchemaExtractor
+    private readonly DacServices dac;
+    private readonly SqlConnectionStringBuilder builder;
+
+    public SchemaExtractor(string connectionString)
     {
-        private readonly DacServices dac;
-        private readonly SqlConnectionStringBuilder builder;
+        dac = new DacServices(connectionString);
+        builder = new SqlConnectionStringBuilder(connectionString);
+    }
 
-        public SchemaExtractor(string connectionString)
+    public void Extract(string outputPath, DacExtractTarget target)
+    {
+        var options = new DacExtractOptions
         {
-            dac = new DacServices(connectionString);
-            builder = new SqlConnectionStringBuilder(connectionString);
-        }
+            ExtractTarget = target,
+            CommandTimeout = 300,
+        };
 
-        public void Extract(string outputPath, DacExtractTarget target)
+        dac.Extract(outputPath, builder.InitialCatalog, "SQL Database Projects Power Tools", new Version(1, 0, 0, 0), extractOptions: options);
+    }
+
+    public string GetDatabaseOptions(bool useDbScopedConfigOnOffWorkaround)
+    {
+        var modelExtractOptions = new ModelExtractOptions
         {
-            var options = new DacExtractOptions
-            {
-                ExtractTarget = target,
-                CommandTimeout = 300,
-            };
+            ExtractReferencedServerScopedElements = false,
+            ExtractUsageProperties = false,
+            ExtractApplicationScopedObjectsOnly = true,
+            IgnoreExtendedProperties = true,
+            IgnorePermissions = true,
+            IgnoreUserLoginMappings = true,
+            VerifyExtraction = false,
+        };
 
-            dac.Extract(outputPath, builder.InitialCatalog, "SQL Database Projects Power Tools", new Version(1, 0, 0, 0), extractOptions: options);
-        }
+        var model = TSqlModel.LoadFromDatabase(builder.ConnectionString, modelExtractOptions);
 
-        public string GetDatabaseOptions(bool useDbScopedConfigOnOffWorkaround)
+        var modelOptions = model.CopyModelOptions();
+
+        var dict = new Dictionary<string, string?>();
+
+        var properties = modelOptions.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
+        Array.Sort(properties, static (left, right) => StringComparer.Ordinal.Compare(left.Name, right.Name));
+
+        foreach (var prop in properties)
         {
-            var modelExtractOptions = new ModelExtractOptions
+            try
             {
-                ExtractReferencedServerScopedElements = false,
-                ExtractUsageProperties = false,
-                ExtractApplicationScopedObjectsOnly = true,
-                IgnoreExtendedProperties = true,
-                IgnorePermissions = true,
-                IgnoreUserLoginMappings = true,
-                VerifyExtraction = false,
-            };
-
-            var model = TSqlModel.LoadFromDatabase(builder.ConnectionString, modelExtractOptions);
-
-            var modelOptions = model.CopyModelOptions();
-
-            var dict = new Dictionary<string, string?>();
-
-            var properties = modelOptions.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public);
-            Array.Sort(properties, static (left, right) => StringComparer.Ordinal.Compare(left.Name, right.Name));
-
-            foreach (var prop in properties)
-            {
-                try
-                {
-                    // Some properties throw NotSupportedException when accessed
-                    var value = prop.GetValue(modelOptions, null);
-                    dict[prop.Name] = GetModelOptionValue(prop.Name, value, useDbScopedConfigOnOffWorkaround);
-                }
-                catch (NotSupportedException)
-                {
-                    // Ignore properties that are not supported
-                }
+                // Some properties throw NotSupportedException when accessed
+                var value = prop.GetValue(modelOptions, null);
+                dict[prop.Name] = GetModelOptionValue(prop.Name, value, useDbScopedConfigOnOffWorkaround);
             }
-
-            var optionsJson = JsonSerializer.Serialize(dict);
-
-            var tempFile = Path.Join(Path.GetTempPath(), Path.GetRandomFileName() + ".json");
-            File.WriteAllText(tempFile, optionsJson, Encoding.UTF8);
-
-            return tempFile;
-        }
-
-        private static string? GetModelOptionValue(string propertyName, object? value, bool useDbScopedConfigOnOffWorkaround)
-        {
-            // TODO: Remove this special-case conversion when DacFX returns On/Off for these options.
-            if (useDbScopedConfigOnOffWorkaround
-                && (propertyName is "DbScopedConfigLegacyCardinalityEstimation" or "DbScopedConfigParameterSniffing")
-                && value is bool boolValue)
+            catch (NotSupportedException)
             {
-                return boolValue ? "On" : "Off";
+                // Ignore properties that are not supported
             }
-
-            return value?.ToString();
         }
 
-        public List<TableModel> GetTables()
+        var optionsJson = JsonSerializer.Serialize(dict);
+
+        var tempFile = Path.Join(Path.GetTempPath(), Path.GetRandomFileName() + ".json");
+        File.WriteAllText(tempFile, optionsJson, Encoding.UTF8);
+
+        return tempFile;
+    }
+
+    private static string? GetModelOptionValue(string propertyName, object? value, bool useDbScopedConfigOnOffWorkaround)
+    {
+        // TODO: Remove this special-case conversion when DacFX returns On/Off for these options.
+        if (useDbScopedConfigOnOffWorkaround
+            && (propertyName is "DbScopedConfigLegacyCardinalityEstimation" or "DbScopedConfigParameterSniffing")
+            && value is bool boolValue)
         {
-            var tables = new List<TableModel>();
-            var primaryKeyColumns = GetPrimaryKeyColumns();
-
-            using var connection = new SqlConnection(builder.ConnectionString);
-            connection.Open();
-
-            using var command = connection.CreateCommand();
-            command.CommandText = "SELECT TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' ORDER BY TABLE_SCHEMA, TABLE_NAME;";
-
-            using var reader = command.ExecuteReader();
-            while (reader.Read())
-            {
-                var schema = reader.GetString(0);
-                var name = reader.GetString(1);
-                var tableKey = $"{schema}.{name}";
-
-                var columns = primaryKeyColumns.TryGetValue(tableKey, out var pkColumns)
-                    ? pkColumns
-                    : [];
-
-                tables.Add(new TableModel(name, schema, DatabaseType.SQLServer, ObjectType.Table, columns));
-            }
-
-            return tables;
+            return boolValue ? "On" : "Off";
         }
 
-        private Dictionary<string, List<ColumnModel>> GetPrimaryKeyColumns()
+        return value?.ToString();
+    }
+
+    public List<TableModel> GetTables()
+    {
+        var tables = new List<TableModel>();
+        var primaryKeyColumns = GetPrimaryKeyColumns();
+
+        using var connection = new SqlConnection(builder.ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandText = "SELECT TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE = 'BASE TABLE' ORDER BY TABLE_SCHEMA, TABLE_NAME;";
+
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
         {
-            var result = new Dictionary<string, List<ColumnModel>>(StringComparer.OrdinalIgnoreCase);
+            var schema = reader.GetString(0);
+            var name = reader.GetString(1);
+            var tableKey = $"{schema}.{name}";
 
-            using var connection = new SqlConnection(builder.ConnectionString);
-            connection.Open();
+            var columns = primaryKeyColumns.TryGetValue(tableKey, out var pkColumns)
+                ? pkColumns
+                : [];
 
-            using var command = connection.CreateCommand();
-            command.CommandText = @"
+            tables.Add(new TableModel(name, schema, DatabaseType.SQLServer, ObjectType.Table, columns));
+        }
+
+        return tables;
+    }
+
+    private Dictionary<string, List<ColumnModel>> GetPrimaryKeyColumns()
+    {
+        var result = new Dictionary<string, List<ColumnModel>>(StringComparer.OrdinalIgnoreCase);
+
+        using var connection = new SqlConnection(builder.ConnectionString);
+        connection.Open();
+
+        using var command = connection.CreateCommand();
+        command.CommandText = @"
                 SELECT 
                     s.name AS SchemaName,
                     t.name AS TableName,
@@ -139,25 +139,24 @@ namespace DacFXToolLib
                 WHERE i.is_primary_key = 1
                 ORDER BY s.name, t.name, ic.key_ordinal;";
 
-            using var reader = command.ExecuteReader();
-            while (reader.Read())
+        using var reader = command.ExecuteReader();
+        while (reader.Read())
+        {
+            var schema = reader.GetString(0);
+            var tableName = reader.GetString(1);
+            var columnName = reader.GetString(2);
+            var dataType = reader.GetString(3);
+            var tableKey = $"{schema}.{tableName}";
+
+            if (!result.TryGetValue(tableKey, out var columns))
             {
-                var schema = reader.GetString(0);
-                var tableName = reader.GetString(1);
-                var columnName = reader.GetString(2);
-                var dataType = reader.GetString(3);
-                var tableKey = $"{schema}.{tableName}";
-
-                if (!result.TryGetValue(tableKey, out var columns))
-                {
-                    columns = [];
-                    result[tableKey] = columns;
-                }
-
-                columns.Add(new ColumnModel(columnName, dataType, isPrimaryKey: true, isForeignKey: false));
+                columns = [];
+                result[tableKey] = columns;
             }
 
-            return result;
+            columns.Add(new ColumnModel(columnName, dataType, isPrimaryKey: true, isForeignKey: false));
         }
+
+        return result;
     }
 }
